@@ -79,7 +79,7 @@ Sau khi hoàn thành Bước 2, AI gửi thông báo bàn giao:
 
 #### Bước 3: Tạo bản phát hành (Release) trên GitHub
 1. Truy cập trang phát hành tag mới:
-   [https://github.com/chiconcota/ska-nocode-ecosystem/releases/new?tag=v1.1.11](https://github.com/chiconcota/ska-nocode-ecosystem/releases/new?tag=v1.1.11)
+   [https://github.com/chiconcota/skaaa-nocode-ecosystem/releases/new?tag=v1.1.11](https://github.com/chiconcota/skaaa-nocode-ecosystem/releases/new?tag=v1.1.11)
 2. Nhập tiêu đề Release (Release Title): `Release v1.1.11`.
 
 #### Bước 4: Tải lên Assets & Hoàn tất

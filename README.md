@@ -65,7 +65,7 @@ The ecosystem is split into **3 core plugins**, **1 AI addon**, and **1 clean ca
 ### Installation Steps
 1. Clone the repository into your WordPress development root:
    ```bash
-   git clone git@github.com:chiconcota/ska-nocode-ecosystem.git
+   git clone git@github.com:chiconcota/skaaa-nocode-ecosystem.git
    ```
 2. Symlink or copy the plugins and theme folders to their respective directories:
    * Plugins ➔ `wp-content/plugins/`

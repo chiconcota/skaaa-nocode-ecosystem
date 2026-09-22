@@ -204,7 +204,7 @@ console.log(`Bước 1: Chạy lệnh Git để gắn Tag và push lên GitHub:`
 console.log(`   \x1b[33mgit tag ${tag}\x1b[0m`);
 console.log(`   \x1b[33mgit push origin ${tag}\x1b[0m`);
 console.log(`\nBước 2: Truy cập trang GitHub Releases của repo:`);
-console.log(`   https://github.com/chiconcota/ska-nocode-ecosystem/releases/new?tag=${tag}`);
+console.log(`   https://github.com/chiconcota/skaaa-nocode-ecosystem/releases/new?tag=${tag}`);
 console.log(`\nBước 3: Sao chép nội dung file sau làm mô tả Release (Release Notes):`);
 console.log(`   \x1b[34mwp-content/plugins/release-notes-${tag}.md\x1b[0m`);
 console.log(`\nBước 4: Kéo thả tệp ZIP phân phối duy nhất dưới đây vào GitHub:`);
