@@ -20,6 +20,12 @@ Trong file `functions.php`, tất cả các stylesheets cốt lõi của WordPre
 3.  `classic-theme-styles`: Các class cũ kĩ không còn chỗ đứng.
 4.  Tính năng linh tinh: Loại bỏ triệt để js/css Emojis, oEmbeds để tránh phải tải hàng đống http request vô nghĩa.
 
+### C. Bù trừ WordPress Admin Bar (Admin Bar Offset)
+Khi người dùng đăng nhập tài khoản quản trị WordPress, thanh công cụ `#wpadminbar` xuất hiện ở đỉnh màn hình (`top: 0`, cao `32px` trên Desktop / `46px` trên Mobile). Để bảo vệ các thanh Header cố định (`fixed top-0` / `sticky top-0`) không bị Admin Bar che khuất:
+*   Hàm `skaaa_canvas_admin_bar_fix()` hook vào `wp_head` (độ ưu tiên 100) khi `is_admin_bar_showing() === true`.
+*   Tự động bù `top: 32px` (hoặc `top: 46px` trên mobile) bằng selector độ ưu tiên cao tự nhiên không cần `!important`.
+*   Không in bất kỳ CSS nào khi khách chưa đăng nhập truy cập, bảo toàn nguyên tắc Zero Bloat.
+
 ## 3. Kiến trúc Theme Builder Tương Lai (Hook-Based Template)
 Skaaa Canvas sử dụng kiến trúc **Classic-Hybrid**. Nó bám vào cấu trúc file `index.php` truyền thống của WP nhưng đã được rút gọn tối đa:
 

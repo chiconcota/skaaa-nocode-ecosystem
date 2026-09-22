@@ -1,53 +1,65 @@
-# PROJECT MANAGER: AI AUTOMATION INTEGRATION
-@status: 🟡 Planning | @target_milestone: MILESTONE 2 (AI AUTOMATION) | @last_update: 2026-07-13
+# PROJECT MANAGER: SKAAAI (AI COPILOT & BIDIRECTIONAL SYNC BRIDGE)
+@status: 🟡 Planning | @target_milestone: MILESTONE 2 (AI COPILOT & AUTOMATION) | @last_update: 2026-09-22
 
-> Tài liệu này quản lý tiến độ phát triển, thiết kế kiến trúc và quy trình tích hợp các tính năng AI (Gemini, OpenAI) vào hệ sinh thái **SKAAA**, lấy plugin **Skaaai** (AI Addon) làm trung tâm để mở rộng **Skaaa Logic Engine**.
+> [!NOTE]
+> Tài liệu này quản lý tiến độ phát triển, thiết kế kiến trúc và quy trình triển khai plugin **`Skaaai`** (AI Addon). Plugin này đóng vai trò kép: vừa là **Hạ tầng Trí tuệ Nhân tạo (Self-Documenting Context & AI Automation Nodes)** vừa là **Cầu nối Xuất bản Hai Chiều (Bidirectional Sync Bridge)** giữa máy tính cá nhân (Localhost Dev) và Website Publish (Hosting).
 
 ---
 
 ## 1. MỤC TIÊU CỐT LÕI (CORE GOALS)
-- **Tạo Plugin Skaaai độc lập**: Module mở rộng decoupled 100% chuyên trách cho các tác vụ AI, đăng ký node thông qua Pluggable Registry API.
-- **Node AI Prompt (`AIPromptNode`)**: Cho phép gửi prompt tự do có nội suy biến `{{ ... }}` đến LLM và nhận kết quả Text hoặc JSON.
-- **Node AI Parser (`AIParserNode`)**: Đọc dữ liệu phi cấu trúc (email/tin nhắn) và trích xuất thành mảng JSON có cấu trúc để ghi vào database phẳng.
-- **Quản lý API Key toàn cục**: Cấu hình chung cho Gemini/OpenAI API Keys tại Skaaa Dashboard, hỗ trợ ghi đè (override) cục bộ trong từng node.
-- **Agentic Workflow**: Khả năng tạo các node Agent tự vận hành và tự động gọi các công cụ (Tool Call) có sẵn trong hệ thống (như đọc/ghi DB, gọi API).
+1. **Self-Documenting AI Engine:** Tự động cung cấp từ điển JSON Schema (`ai-manifest.json`) và REST endpoint `/wp-json/skaaai/v1/context` để bất kỳ AI Agent nào khi mở website đều hiểu ngay toàn bộ cú pháp Blocks, Tailwind và Alpine.js mà không cần thư mục `.skaaa-ai`.
+2. **Bidirectional Content Sync Engine:** Cho phép đồng bộ bài viết hai chiều giữa Localhost và Web Publish (`Push to Live` & `Pull from Live`).
+3. **Định danh Toàn cầu `skaaa_uuid`:** Triệt tiêu hoàn toàn rủi ro xung đột ID tự tăng (`AUTO_INCREMENT`) của MySQL giữa 2 máy chủ.
+4. **Cơ chế Chống Đè Dữ Liệu An Toàn (Triple Shield):** Pre-flight check kiểm tra thời gian sửa đổi, hiển thị hộp thoại giải quyết xung đột (Conflict Resolver), và tự động sao lưu Revisions trước khi cập nhật.
+5. **Nút Bấm "🚀 Push to Live" 1-Click:** Tích hợp trực tiếp lên Gutenberg Toolbar giúp người dùng kiểm tra xong ở Local là đẩy lên Live trong 1 giây.
+6. **AI Logic Nodes:** Mở rộng **Skaaa Logic Engine** với các Node AI Prompt (Gemini/OpenAI) và AI Parser trích xuất dữ liệu phi cấu trúc vào bảng phẳng MySQL.
 
 ---
 
-## 2. TIẾN ĐỘ THỰC HIỆN (ROADMAP & STATUS)
+## 2. TIẾN ĐỘ THỰC HIỆN (PHASED ROADMAP)
 
-### 🟢 Phase 1: Khởi tạo Hạ tầng Plugin Skaaai
-- [ ] Thiết lập thư mục và tệp chính `wp-content/plugins/skaaai/skaaai.php`.
-- [ ] Tạo trang quản lý cài đặt API Keys (Gemini, OpenAI) tích hợp vào Skaaa Dashboard.
-- [ ] Thiết lập lưu cấu hình API Keys vào bảng phẳng `wp_skaaa_data_sys_settings` bằng hàm helper `skaaa_set_system_setting()`.
+### ⚪ Phase 1: Khởi tạo Khung xương Plugin & Ghép nối (Core & Pairing)
+- [ ] Thiết lập thư mục và tệp chính `wp-content/plugins/skaaai/skaaai.php` (SemVer `1.0.0`, text domain `skaaai`).
+- [ ] Xây dựng class `Skaaai_Core` và trang Cài đặt `Skaaa AI & Bridge` trong WP Admin.
+- [ ] Cơ chế cấu hình vai trò:
+  - **Sender (Local Dev):** Lưu Remote Site URL + Pairing Key / App Password.
+  - **Receiver (Publish Hosting):** Sinh Pairing Secret Key bảo mật.
+- [ ] Lưu trữ cấu hình an toàn vào bảng phẳng hệ thống `wp_skaaa_data_sys_settings`.
 
-### 🟡 Phase 2: Phát triển Node AI Prompt (`AIPromptNode`)
-- [ ] Xây dựng class `Skaaai_Node_Prompt` triển khai interface `Skaaa_Logic_Node`.
-- [ ] Đăng ký node vào registry thông qua filter `skaaa_logic_registered_nodes` kèm settings schema vẽ form UI:
-  - `api_provider`: select (`gemini`, `openai`).
-  - `api_key`: password (input ẩn).
-  - `model`: text (default `gemini-2.5-flash` hoặc `gpt-4o-mini`).
-  - `system_instruction`: textarea.
-  - `prompt`: textarea (hỗ trợ autocomplete biến).
-  - `temperature`: text (default `0.7`).
-  - `response_format`: select (`text`, `json_object`).
-- [ ] Viết logic nội suy biến SkaaaFX `{{ ... }}` trong prompt trước khi gửi đi.
-- [ ] Xử lý HTTP request gọi API LLM qua fastcgi / wp_remote_post.
-- [ ] Triển khai tự động parse dữ liệu JSON từ LLM về mảng PHP nếu chọn `response_format = json_object`.
+### ⚪ Phase 2: Self-Documenting AI Context Engine
+- [ ] Tạo file `wp-content/plugins/skaaai/ai-manifest.json` định nghĩa chuẩn JSON Schema của tất cả Skaaa Blocks (`container`, `text`, `button`, `svg`, `code`) và cú pháp Alpine.
+- [ ] Xây dựng class `Skaaai_Context_Engine` đăng ký endpoint `GET /wp-json/skaaai/v1/context`.
+- [ ] Tự động trích xuất các bảng phẳng `skaaa_data_*`, Organisms và Design Tokens để cung cấp ngữ cảnh thời gian thực cho AI Agent.
 
-### ⚪ Phase 3: Phát triển Node AI Parser (`AIParserNode`)
-- [ ] Xây dựng class `Skaaai_Node_Parser` kế thừa để xử lý trích xuất dữ liệu có cấu trúc.
-- [ ] Định nghĩa schema trả về mong muốn bằng JSON Schema trong settings node.
-- [ ] Ép LLM trả về đúng cấu trúc và validate kết quả đầu ra trước khi nạp vào payload.
+### ⚪ Phase 3: Động cơ Đồng bộ Hai Chiều (Bidirectional Sync Engine)
+- [ ] Xây dựng class `Skaaai_Sync_Bridge`:
+  - Hook `wp_insert_post` tự động gán `_skaaa_uuid` (`wp_generate_uuid4()`) khi tạo bài viết mới.
+  - Endpoint tiếp nhận: `POST /wp-json/skaaai/v1/push-post` (Xác thực Pairing Key + Pre-flight timestamp check).
+  - Tự động gọi `wp_save_post_revision()` tạo điểm khôi phục an toàn trước khi ghi đè.
+  - Hoán đổi URL tự động (`http://...local` ➔ `https://...com`).
+  - Tự động kích hoạt JIT CSS Compiler để cache style cho bài viết mới trên server.
+  - Endpoint xuất bài viết: `GET /wp-json/skaaai/v1/pull-posts` phục vụ kéo bài về Localhost.
 
-### ⚪ Phase 4: Kiểm thử E2E & Nghiệm thu (Testing & Verification)
-- [ ] Xây dựng kịch bản kiểm thử: Form liên hệ ngoài Frontend ➔ Nhận dữ liệu ➔ AI Parser phân loại cảm xúc và thông tin khách hàng ➔ Ghi vào Flat Table `leads` ➔ Gửi email phản hồi tự động cá nhân hóa.
-- [ ] Viết tài liệu quy trình kiểm thử E2E thủ công.
+### ⚪ Phase 4: Giao diện Người dùng (Gutenberg Toolbar & Post List Badges)
+- [ ] Tạo script `assets/js/skaaai-editor-toolbar.js` gắn nút **"🚀 Push to Live"** lên thanh Toolbar của Gutenberg.
+- [ ] Thêm cột trạng thái **"Skaaa Sync"** vào bảng `wp-admin/edit.php` (hiển thị badge: `🟢 In Sync`, `⬆️ Local Ahead`, `⬇️ Remote Ahead`).
+- [ ] Hộp thoại giải quyết xung đột (Conflict Resolution Modal) khi phát hiện Live có sửa đổi mới hơn.
+
+### ⚪ Phase 5: Tích hợp AI Logic Nodes (Milestone 2 DAG Automation)
+- [ ] Class `Skaaai_Node_Prompt`: Node gọi Gemini / OpenAI API hỗ trợ nội suy biến `{{ ... }}`.
+- [ ] Class `Skaaai_Node_Parser`: Node trích xuất dữ liệu JSON từ văn bản phi cấu trúc.
+- [ ] Đăng ký nodes vào filter `skaaa_logic_registered_nodes` của `Skaaa Logic Engine`.
+
+### ⚪ Phase 6: Kiểm thử E2E & Đóng gói Phân phối
+- [ ] Kiểm thử Push/Pull bài viết giữa 2 môi trường.
+- [ ] Kiểm thử kịch bản xung đột và khôi phục Revision.
+- [ ] Cập nhật `zip-all.js` để đóng gói tự động `skaaai-v1.0.0.zip` cùng hệ sinh thái.
 
 ---
 
 ## 3. TIÊU CHÍ NGHIỆM THU (ACCEPTANCE CRITERIA)
-1. Plugin **Skaaai** hoạt động độc lập và đăng ký thành công các Node AI lên Canvas của Logic Engine khi kích hoạt.
-2. API Key được bảo mật và tự động fallback về key hệ thống nếu node trống key.
-3. Prompt hỗ trợ nội suy chính xác tất cả các biến dynamic `{{ payload.xyz }}`.
-4. Đầu ra dạng JSON của AI phải được parse thành mảng PHP sạch và có thể ghi trực tiếp vào MySQL Flat Tables ở các node database sau đó.
+1. Plugin **Skaaai** hoạt động độc lập, tuân thủ nguyên tắc Decoupled và không gọi trực tiếp class của các plugin khác.
+2. Endpoint `/wp-json/skaaai/v1/context` trả về đầy đủ đặc tả blocks để bất kỳ AI Agent nào cũng có thể hiểu và làm việc ngay cả khi không có thư mục `.skaaa-ai`.
+3. Bài viết được tạo ở Local khi bấm "Push to Live" sẽ xuất hiện trên Web Publish trong vòng 1-2 giây với đầy đủ cấu trúc block, hình ảnh và JIT CSS.
+4. Mọi bài viết đều có mã định danh toàn cầu `skaaa_uuid`, tuyệt đối không làm sai lệch hay đè nhầm ID giữa 2 database.
+5. Khi có xung đột dữ liệu, hệ thống chặn đứng việc ghi đè mù quáng và có lịch sử Revision để khôi phục 100%.

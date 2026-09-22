@@ -3,7 +3,7 @@
  * Skaaa Canvas Theme - Fallback Template
  * 
  * @package SkaaaCanvas
- * @version 1.0.0
+ * @version 1.0.1
  * 
  * ⚠️ RULES OF SKAAA CANVAS:
  * This file is intentionally barren. It acts as a blank skeleton.

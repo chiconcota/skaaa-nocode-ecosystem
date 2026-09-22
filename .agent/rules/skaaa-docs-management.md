@@ -18,10 +18,11 @@ trigger: always_on
 │   ├── checkpoint.md           (Bàn giao tiến độ dở dang và nhánh Git hiện tại cho phiên sau)
 │   └── archive/                (Lưu trữ các quyết định và log cũ của các Phase trước)
 ├── 3-ecosystem/
+│   ├── skaaa-canvas/             (Tài liệu kiến trúc Theme Canvas, Blank Layout)
 │   ├── skaaa-no-code-design/     (Tài liệu kiến trúc Design, UI/UX, Blocks, JIT)
 │   ├── skaaa-data-pro/           (Tài liệu kiến trúc Database, Smart Object Blueprint)
 │   ├── skaaa-logic-engine/       (Tài liệu kiến trúc Logic, Event Pipeline, Form)
-│   └── skaaa-bridge/             (Tài liệu kiến trúc Adapter chuyển đổi html2tailwind)
+│   └── skaaai/                   (Tài liệu kiến trúc AI Copilot, Context Manifest & Sync Bridge)
 └── 4-rules/
     └── (Tầng chứa các quy chuẩn/luật lệ AI cũ - Thường đã được di chuyển sang thư mục .agent/rules/)
 ```

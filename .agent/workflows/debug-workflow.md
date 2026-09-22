@@ -23,11 +23,12 @@ Nếu bug hoàn toàn mới (không có trong checkpoint): Bỏ qua bước 3, c
 Step 1 — Comprehend & Clarify (CHƯA ĐƯỢC CHẠM VÀO CODE)
 Mục đích: Hiểu đúng vấn đề trước khi hành động.
 
-Phân tích thông tin đầu vào: mã nguồn, dữ liệu test, hành vi mong đợi vs. hành vi thực tế, log lỗi.
-Trả lời 2 câu hỏi bắt buộc:
-"Logic gãy ở đâu?" — Mô tả chính xác điểm đứt gãy (syntax, logic flow, data mismatch, race condition…).
-"Tại sao nó xảy ra?" — Giải thích nguyên nhân gốc rễ (không phải triệu chứng).
-Nếu chưa đủ dữ liệu để trả lời → DỪNG LẠI, hỏi User hoặc đề xuất thêm log (xem Fail-Safe Logging Rule bên dưới).
+1. Phân tích thông tin đầu vào: mã nguồn, dữ liệu test, hành vi mong đợi vs. hành vi thực tế, log lỗi.
+2. **Cache Invalidation Check (Kiểm tra Cache Hệ Thống):** Trước khi kết luận logic gãy, hãy kiểm tra xem sự cố có phải do Stale Cache (Transient CSS JIT `skaaa_dynamic_tailwind_classes_cache`, cache Organisms `organisms-cache.json`, hoặc Design Tokens `tokens.json`) hay không. Thử xóa transient / nạp lại cache trước khi đụng vào code.
+3. Trả lời 2 câu hỏi bắt buộc:
+   - "Logic gãy ở đâu?" — Mô tả chính xác điểm đứt gãy (syntax, logic flow, data mismatch, race condition…).
+   - "Tại sao nó xảy ra?" — Giải thích nguyên nhân gốc rễ (không phải triệu chứng).
+4. Nếu chưa đủ dữ liệu để trả lời → DỪNG LẠI, hỏi User hoặc đề xuất thêm log (xem Fail-Safe Logging Rule bên dưới).
 Step 2 — Isolate & Impact Assessment
 Mục đích: Khoanh vùng chính xác và đánh giá rủi ro.
 
@@ -54,9 +55,8 @@ Tuân thủ kiến trúc hiện tại (OOP, Namespace, WPCS, Tailwind JIT…).
 Tự động bump PATCH version trong file header (Version: X.Y.Z) nếu sửa code nguồn Plugin/Theme.
 4b. Browser/Runtime Verification:
 
-Đối với lỗi Frontend (Alpine.js, React, DOM): Phải xác minh trên trình duyệt thực tế, KHÔNG chỉ dựa vào CLI/unit test.
-Đối với lỗi Backend (PHP, MySQL): Kiểm tra debug.log sau khi reproduce lỗi.
-Nếu có Chrome DevTools MCP → Dùng take_screenshot, evaluate_script, hoặc list_console_messages để xác minh.
+- Đối với lỗi Frontend (Alpine.js, React, DOM): Ưu tiên cung cấp **Checklist từng bước cho User test tay** trên trình duyệt thực tế. Tuyệt đối KHÔNG tự ý kích hoạt Browser Subagent hoặc chụp screenshot liên tục gây tốn token (tuân thủ `MISTAKE-003`). Chỉ dùng Chrome DevTools MCP khi User yêu cầu rõ ràng.
+- Đối với lỗi Backend (PHP, MySQL): Kiểm tra `debug.log` sau khi reproduce lỗi hoặc dùng log tiền tố `[SKAAA-DEBUG]`.
 4c. Cleanup:
 
 Xóa mọi error_log() / console.log() tạm thời sau khi fix xong (trừ khi User yêu cầu giữ lại).

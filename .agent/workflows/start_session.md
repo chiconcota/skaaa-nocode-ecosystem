@@ -6,7 +6,7 @@ description: Bắt đầu phiên làm việc chuẩn chuẩn Vibecoding App Buil
    - Đọc file `.skaaa-ai/2-memory/checkpoint.md` LÀ BƯỚC ĐẦU TIÊN để nhận bàn giao trạng thái công việc, Git branch, và bug đang làm dở từ phiên trước.
    - Dựa trên file checkpoint, đọc file project manager đang làm, trong thưc mục '.skaaa-ai/1-overview/project-managers' để biết công việc đang ở giai đoạn nào 
    - Đọc file `.skaaa-ai/1-overview/system_map.md`. Đây là bước BẮT BUỘC để nắm cấu trúc App Builder
-   - Đọc file `.skaaa-ai/2-memory/decision-log.md` để biết những quyết định thiết kế gần nhất.
+   - Đọc file `.skaaa-ai/2-memory/decision-log.md` (Chỉ đọc phần Bàn giao kiến trúc và các Quyết định gần nhất ở đầu file để tiết kiệm token, không đọc ngược về lịch sử cũ).
    - Đọc file `.skaaa-ai/2-memory/self-improve.md` để nạp danh sách lỗi hành vi cần tránh và quy tắc tự sửa lỗi của Agent.
 
 2. **Xác định tiêu điểm & Nhánh làm việc (Focus & Git Branch Decision):**

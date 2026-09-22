@@ -18,10 +18,9 @@ Bước 3. **Ghi sổ quyết định (Decision Log, System Map, self-improve & 
    - Đọc và cập nhật file `.skaaa-ai/1-overview/system_map.md`:
      - **Tình trạng Plugin/Theme:** Chuyển trạng thái từ 🔴 Pending -> 🟡 In Progress -> 🟢 Done trong bảng Module Registry.
      - **Change Log:** Thêm dòng gạch đầu dòng ngắn ngọn cho ngày cập nhật.
-   - Tìm, Đọc và cập nhật file module tương ứng trong folder `.skaaa-ai/3-ecosystem/` đã sửa trong phiên làm việc.
    - Mở và GHI ĐÈ dữ liệu vào file tương ứng với module tương ứng `.skaaa-ai/1-overview/project-managers/` để lưu lại tiến độ dự án.
    - Mở và GHI ĐÈ dữ liệu vào file `.skaaa-ai/2-memory/checkpoint.md` để lưu lại tiến độ đang code dở, danh sách file, các lỗi hiện tại, và đặc biệt phải ghi rõ tên nhánh Git hiện tại đang làm việc để bàn giao cho Agent phiên sau.
-   - Cập nhật Git: Hỏi ý kiến User xem có nên commit và push lên GitHub không? Nếu đang ở nhánh feature, có cần tạo Pull Request hoặc merge vào `main` luôn không? Thực hiện theo quyết định của User.
+   - **Cleansing Check & Cập nhật Git:** Trước khi commit, tự kiểm tra xem có lỡ tạo file `.md` nào ngoài 4 ngăn kéo không (nếu có phải xóa ngay). Sau đó hỏi ý kiến User xem có nên commit và push lên GitHub không? Nếu đang ở nhánh feature, có cần tạo Pull Request hoặc merge vào `main` luôn không? Thực hiện theo quyết định của User.
 Bước 4. **Đánh giá phiên làm việc tương tác (Interactive Session Review & self-improve):**
    - AI dự thảo danh sách các lỗi hành vi (mistakes) hoặc quy tắc tự sửa lỗi mới phát sinh trong phiên.
    - Trình bày danh sách này cho User để nhận phản hồi: *"Bạn có đồng ý ghi nhận các lỗi/quy tắc tự sửa đổi này vào self-improve.md không?"*.

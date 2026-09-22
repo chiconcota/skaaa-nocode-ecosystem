@@ -1,5 +1,5 @@
 # AGENT SELF-IMPROVEMENT LOG (self-improve.md)
-@status: ACTIVE | @last_update: 2026-09-15
+@status: ACTIVE | @last_update: 2026-09-22
 
 > Nhật ký tự cải thiện hành vi và sửa sai của Agent. Chứa các lỗi thao tác thực tế và quy tắc tự sửa lỗi.
 > **Luật dọn dẹp:** File này không được vượt quá 80 dòng. Các lỗi đã giải quyết (Resolved) sau 3 phiên sẽ được lưu trữ.
@@ -9,66 +9,35 @@
 ## 🚨 DANH SÁCH LỖI HÀNH VI ĐANG ĐƯỢC GIÁM SÁT (ACTIVE)
 
 ### MISTAKE-001: CLI mysql tương tác trực tiếp
-- Lỗi: Chạy CLI mysql trực tiếp gây treo.
-- Sửa đổi: Dừng và báo cáo ngay cho User để được hỗ trợ.
-
-### MISTAKE-002: Vi phạm chuẩn i18n & Text cứng
-- Lỗi: Viết text hiển thị tiếng Việt hoặc text cứng không bọc i18n.
-- Sửa đổi: Tất cả text hiển thị UI phải là tiếng Anh và bọc i18n: `__( 'Text', 'skaaa-domain' )`.
+- **Lỗi:** Chạy CLI mysql trực tiếp qua terminal gây treo shell.
+- **Sửa đổi:** Tuyệt đối không chạy lệnh `mysql` trực tiếp. Báo cáo ngay cho User để được hỗ trợ truy vấn.
 
 ### MISTAKE-003: Lạm dụng Browser MCP & Screenshot
-- Lỗi: Tự ý chạy DevTools, Browser Subagent hoặc chụp screenshot liên tục gây tốn token.
-- Sửa đổi: Chỉ kích hoạt browser/screenshot khi User yêu cầu rõ ràng. Ưu tiên checklist cho User test tay.
-
-### MISTAKE-004: Nhúng script thủ công bỏ qua WP Dependency
-- Lỗi: In script cứng không enqueue dẫn đến lỗi `wp is not defined`.
-- Sửa đổi: Luôn dùng `wp_enqueue_script` / `wp_enqueue_style` với đầy đủ dependencies.
+- **Lỗi:** Tự ý chạy DevTools, Browser Subagent hoặc chụp screenshot liên tục gây tốn token.
+- **Sửa đổi:** Chỉ kích hoạt browser/screenshot khi User yêu cầu rõ ràng. Ưu tiên checklist từng bước cho User test tay.
 
 ### MISTAKE-006: Thiếu đăng ký Webpack entry point
-- Lỗi: Tạo block mới trong `src/` nhưng quên khai báo trong `webpack.config.js`.
-- Sửa đổi: Luôn kiểm tra và đăng ký entry point webpack trước khi build.
+- **Lỗi:** Tạo block mới trong `src/` nhưng quên khai báo trong `webpack.config.js`.
+- **Sửa đổi:** Luôn kiểm tra và đăng ký entry point webpack trước khi chạy build.
 
 ### MISTAKE-008: ArtifactMetadata sai chỗ
-- Lỗi: Dùng ArtifactMetadata cho file code nguồn dự án ngoài thư mục artifacts.
-- Sửa đổi: Chỉ dùng cho file markdown trong thư mục artifacts của conversation.
+- **Lỗi:** Dùng ArtifactMetadata cho file code nguồn dự án ngoài thư mục artifacts.
+- **Sửa đổi:** Chỉ dùng cho file markdown nằm trong thư mục artifacts của conversation.
 
 ### MISTAKE-009: Thiếu Fail-Safe Fallback cho Dynamic UI
-- Lỗi: Import thiếu component hoặc thiếu map icon gây crash trang.
-- Sửa đổi: Luôn có fail-safe fallback (VD: icon mặc định `ServerCog` khi lỗi).
-
-### MISTAKE-010: Xung đột bộ gõ tiếng Việt (Style Reflow)
-- Lỗi: Reset hash compile (`previousHash`) liên tục mỗi 5s làm ghi đè CSSOM, gây nhảy con trỏ và mất chữ bộ gõ `fcitx5-lotus`.
-- Sửa đổi: Lưu vết `activeIframeDoc`, chỉ reset hash 1 lần duy nhất khi reload hoặc đổi iframe.
-
-### MISTAKE-012: Thẻ Editor Selector bị CSV trượt Selector
-- Lỗi: Nối chuỗi CSS selector dạng CSV dễ bị trượt vế và áp sai thuộc tính lên toàn bộ iframe wrapper.
-- Sửa đổi: Luôn gom nhóm editor selector dưới `:where(.editor-styles-wrapper)` để đảm bảo tính scoped tuyệt đối.
-
-### MISTAKE-013: Sự kiện Click tự đính thêm dấu # vào URL
-- Lỗi: Sử dụng handler `@click` trên nút bấm hoặc liên kết mà không dùng modifier `.prevent` gây nhảy cuộn trang và đính `#` URL.
-- Sửa đổi: Tất cả handler sự kiện `@click` trong Alpine.js bắt buộc dùng `@click.prevent` để giữ URL luôn sạch.
-
-### MISTAKE-014: Thẻ HTML tĩnh thô trong Dynamic Block Markup
-- Lỗi: Chèn thẻ HTML wrapper tĩnh thô (`<main>`, `<div>`, `<h1>`, `<p>`) lồng bên trong comment block của Dynamic Blocks làm Gutenberg Block Validation báo lỗi Invalid Content.
-- Sửa đổi: Dynamic Blocks bắt buộc lưu đúng chuẩn comment Gutenberg thuần (Container chỉ chứa inner blocks, Text/Loop dùng dạng tự đóng `<!-- wp:... {...} /-->`).
-
-### MISTAKE-015: Sót cờ !important trong Editor Script
-- Lỗi: Để sót cờ `!important` trong override của `skaaa-editor-helper.js` (vi phạm Clean Slate).
-- Sửa đổi: Tuyệt đối không dùng `!important`. Mọi override CSS phải dùng Specificity Scope (`.editor-styles-wrapper.editor-styles-wrapper` hoặc `body.wp-admin.wp-admin`).
-
-### MISTAKE-016: Đặt @import CSS sau các CSS rule khác
-- Lỗi: Nối chuỗi `@import` sau các CSS rule làm vi phạm chuẩn W3C khiến trình duyệt bỏ qua việc nạp Google Font vào Editor Canvas.
-- Sửa đổi: Mọi chỉ thị `@import` phải luôn đứng ở dòng đầu tiên tuyệt đối của stylesheet trước bất kỳ CSS rule nào.
-
-### MISTAKE-017: Xuất file ZIP đóng gói thiếu số phiên bản
-- Lỗi: `zip-all.js` chỉ xuất tên file tĩnh không có số phiên bản, gây khó khăn cho việc quản lý phát hành.
-- Sửa đổi: Tự động trích xuất version từ file PHP chính và đặt tên file định dạng `${pluginFolder}-v${version}.zip`.
-
-### MISTAKE-018: Xuất Changelog / Release Notes đơn điệu
-- Lỗi: Xuất Release Notes bằng cách copy nguyên xi log thô một dòng từ system_map.md.
-- Sửa đổi: Mọi changelog phát hành GitHub bắt buộc phân loại rõ theo 3 nhóm chuẩn (tham chiếu fcitx5-lilypad): Added (Tính năng mới), Improved (Cải tiến & Tối ưu), Fixed (Sửa lỗi).
+- **Lỗi:** Import thiếu component hoặc thiếu map icon từ backend gây crash trang trắng.
+- **Sửa đổi:** Luôn thiết lập fail-safe fallback an toàn (VD: icon mặc định `ServerCog` khi tên icon lạ).
 
 ---
 
 ## 🟢 LỊCH SỬ LỖI ĐÃ KHẮC PHỤC (RESOLVED)
-*(Trống)*
+- **MISTAKE-010 (Xung đột bộ gõ tiếng Việt fcitx5-lotus):** Đã fix triệt để trong `skaaawind.js` (lưu vết `activeIframeDoc`, chỉ reset hash 1 lần khi đổi document, chấm dứt style reflow làm mất chữ bộ gõ).
+- **MISTAKE-012 (Editor Selector bị CSV trượt):** Đã fix chuyển sang selector an toàn `:where(.editor-styles-wrapper)` trong `skaaa-editor-helper.js`.
+- **MISTAKE-016 (Đặt @import CSS sau các rule khác):** Đã fix chuẩn hóa đưa `@import` lên dòng đầu tiên tuyệt đối trong cả PHP và JS.
+- **MISTAKE-017 (Xuất file ZIP đóng gói thiếu số phiên bản):** Đã fix trong `zip-all.js` và `release.js` (tự động trích xuất version PHP xuất `${pluginFolder}-v${version}.zip`).
+- **MISTAKE-018 (Xuất Release Notes đơn điệu):** Đã fix trong `release.js` và quy trình `/release-github` (phân loại 3 nhóm Added, Improved, Fixed).
+
+---
+
+> **Quy chuẩn hóa thành Luật vĩnh viễn:**  
+> Các lỗi **MISTAKE-002** (i18n tiếng Anh UI), **MISTAKE-004** (Enqueue script dependencies), **MISTAKE-013** (`@click.prevent` Alpine), **MISTAKE-014** (Comment Gutenberg thuần), và **MISTAKE-015** (Zero `!important`) đã được chuyển thành **Luật kỹ thuật vĩnh viễn** trong [wp-architect.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.agent/rules/wp-architect.md) và [skaaa-nocode-system.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.agent/rules/skaaa-nocode-system.md).

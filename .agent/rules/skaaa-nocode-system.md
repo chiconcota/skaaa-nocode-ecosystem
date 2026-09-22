@@ -15,11 +15,11 @@ trigger: always_on
 
 ## 1. PHÂN CÁCH TRÁCH NHIỆM (BOUNDARY ISOLATION)
 Trước khi Code, Agent BẮT BUỘC nhận diện code mình viết sẽ rơi vào Plugin nào để không lẫn lộn:
-- **Skaaa Blank Theme:** Loại bỏ hoàn toàn `.wp-block-library` và CSS mặc định của WP. Cung cấp một Blank Canvas thuần khiết.
-- **Skaaa No-Code Design:** Nhốt toàn bô trách nhiệm của builder cũ vào một khối: Render mã HTML cực sạch (Atomic Blocks), bảng điều khiển Inspector, Skaaapine Engine (Alpine.js) phục vụ Live Preview tương tác thời gian thực, và cỗ máy JIT Tailwind v4. Cấm chỉ định Hardcode CSS Inline.
-- **Skaaa Data Pro:** Đọc/Ghi dữ liệu dưới Database (Bảng phẳng `skaaa_data_*`). Trọng tâm vào Schema Manager và xuất nhập Smart Object Blueprint qua định dạng JSON Native.
-- **Skaaa Logic Engine:** Tổ hợp Event-Driven (The Trinity). Khai thác ngôn ngữ biểu thức SkaaaFX DSL (AST Evaluator) phục vụ Dynamic Binding, Data Healing và bảo vệ Nonce quy trình Form Submission.
-- **Skaaa Bridge (Adapter):** Lớp cầu nối dịch thuật html2tailwind và xuất API JSON cho giao diện Headless (Next.js).
+- **Skaaa Canvas Theme:** Loại bỏ hoàn toàn `.wp-block-library` và CSS rác của WP. Cung cấp một Blank Canvas thuần khiết, tự động bù trừ thanh Admin Bar cho Header cố định.
+- **Skaaa No-Code Design:** Nhốt toàn bộ trách nhiệm builder: Render mã HTML cực sạch (Atomic Blocks), bảng điều khiển Inspector, Skaaapine Engine (Alpine.js) tương tác thời gian thực, cỗ máy JIT Tailwind v4 offline, và bộ chuyển đổi `html2tailwind`. Cấm chỉ định Hardcode CSS Inline.
+- **Skaaa Data Pro:** Đọc/Ghi dữ liệu dưới Database (Bảng phẳng `skaaa_data_*`). Trọng tâm vào Schema Manager, DataGrid Strategy và xuất nhập Smart Object Blueprint JSON Native.
+- **Skaaa Logic Engine:** Tổ hợp Event-Driven. Khai thác ngôn ngữ biểu thức SkaaaFX DSL (AST Evaluator), đồ thị DAG kéo thả (React Flow), Pluggable Nodes Framework và tiến trình nền bất đồng bộ.
+- **Skaaai (AI & Sync Bridge):** Tự động xuất bản Context Manifest (`ai-manifest.json` & `/wp-json/skaaai/v1/context`), Cầu nối đồng bộ bài viết 2 chiều (Local ⟷ Host qua `skaaa_uuid`) và các AI Automation Logic Nodes.
 
 ## 2. AI WORKFLOW PROTOCOL BẮT BUỘC
 - **Step 1 (Context):** Quét `/1-overview/` để nắm giới hạn ranh giới (System Map).
@@ -35,6 +35,8 @@ Trước khi Code, Agent BẮT BUỘC nhận diện code mình viết sẽ rơi 
 - Nếu có Tailwind, chỉ xài Design Engine.
 - Ở ngoài Editor (Backend JSX), hạn chế hardcode CSS, bắt mọi thuộc tính phải quy về class Tailwind (Nguồn gốc: Single Source Of Truth). Không được tự ý nhúng mã `<style>` nội tuyến nếu không có sự phê duyệt.
 - Tránh ghi đè global nếu không có phạm vi cách ly (scoped). Dùng `.skaaaaa-builder [class*='wp-block-skaaaaa-builder']`. Tránh làm gãy Theme khác.
+- **Hash-less Event Handler Protocol (Alpine.js):** Tất cả handler sự kiện click trong Alpine.js bắt buộc dùng modifier `@click.prevent` để ngăn chặn hành vi đính `#` vào URL và tự ý nhảy cuộn trang lên đầu.
+- **Clean Dynamic Block Comment Protocol:** Dynamic Blocks bắt buộc lưu đúng chuẩn comment Gutenberg thuần (`Container` chỉ chứa inner blocks, `Text`/`Loop` dùng dạng tự đóng `<!-- wp:... {...} /-->`). Tuyệt đối KHÔNG chèn thẻ HTML tĩnh thô (`<main>`, `<div>`) lồng bên trong comment block khiến Gutenberg Validation báo lỗi Invalid Content.
 
 ## 5. VERSIONING RULES (QUY TẮC ĐÁNH DẤU PHIÊN BẢN)
 - **Chuẩn Semantic Versioning (SemVer):** Tất cả Plugin/Theme trong hệ sinh thái Skaaa bắt buộc tuân thủ định dạng `MAJOR.MINOR.PATCH` (Ví dụ: `1.0.0`).

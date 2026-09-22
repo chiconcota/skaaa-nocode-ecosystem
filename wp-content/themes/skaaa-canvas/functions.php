@@ -3,7 +3,7 @@
  * Skaaa Canvas Theme Functions
  * 
  * @package SkaaaCanvas
- * @version 1.0.0
+ * @version 1.0.1
  * 
  * ⚠️ RULES OF SKAAA CANVAS:
  * This theme must remain absolutely clean. 
@@ -109,4 +109,34 @@ function skaaa_canvas_hide_site_editor() {
 	remove_submenu_page( 'themes.php', 'site-editor.php' ); // Removes "Editor" under Appearance
 }
 add_action( 'admin_menu', 'skaaa_canvas_hide_site_editor', 999 );
+
+/**
+ * 7. ADMIN BAR OFFSET FOR FIXED / STICKY HEADERS
+ * 
+ * Bù khoảng cách top cho các phần tử fixed/sticky khi WordPress Admin Bar hiển thị.
+ */
+function skaaa_canvas_admin_bar_fix() {
+	if ( ! is_admin_bar_showing() ) {
+		return;
+	}
+	?>
+	<style id="skaaa-canvas-admin-bar-fix">
+		@media screen {
+			html body.admin-bar.skaaaaa-builder header.fixed,
+			html body.admin-bar.skaaaaa-builder .fixed.top-0,
+			html body.admin-bar.skaaaaa-builder .sticky.top-0 {
+				top: 32px;
+			}
+		}
+		@media screen and (max-width: 782px) {
+			html body.admin-bar.skaaaaa-builder header.fixed,
+			html body.admin-bar.skaaaaa-builder .fixed.top-0,
+			html body.admin-bar.skaaaaa-builder .sticky.top-0 {
+				top: 46px;
+			}
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'skaaa_canvas_admin_bar_fix', 100 );
 

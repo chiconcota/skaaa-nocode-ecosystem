@@ -1,56 +1,66 @@
-# SKAAA ECOSYSTEM - MASTER PLAN (AI-READABLE)
-@version: 3.0.0 | @stack: WP-Core, Tailwind JIT, Flat Tables, Logic DAG, AI (Gemini/OpenAI) | @focus: Native SSR Monolith + AI Automation
+# SKAAA ECOSYSTEM - MASTER PLAN (PROJECT VISION)
+@version: 3.1.0 | @stack: WP-Core 6.x, PHP 8.2+, Tailwind JIT, Flat Tables, Logic DAG, Skaaai (AI & Bridge) | @focus: Native SSR Monolith + Bidirectional Sync
 
-## 1. TẦM NHÌN HỆ SINH THÁI (THE TRINITY + AI ADDRON ARCHITECTURE)
-Chúng ta định vị **SKAAA** là một **Hệ điều hành ứng dụng tự chủ (Self-hosted App OS)** chạy trực tiếp trên WordPress core dưới dạng **Native SSR Monolith** (tối ưu hóa tốc độ tải trang 0ms bằng Alpine.js và Tailwind JIT, loại bỏ định hướng headless Next.js).
+## 1. TẦM NHÌN HỆ SINH THÁI (THE TRINITY + SKAAAI AI & BRIDGE)
+Chúng ta định vị **SKAAA** là một **Hệ điều hành ứng dụng tự chủ (Self-hosted App OS)** chạy trực tiếp trên WordPress core dưới dạng **Native SSR Monolith** (tối ưu hóa tốc độ tải trang cực nhanh bằng Alpine.js và Tailwind v4 JIT offline, không phụ thuộc headless Next.js).
 
-Hệ sinh thái SKAAA được xây dựng vững chắc dựa trên 3 trụ cột cốt lõi (The Trinity) và 1 Addon trí tuệ nhân tạo:
+Hệ sinh thái SKAAA được xây dựng vững chắc dựa trên 3 trụ cột cốt lõi (The Trinity), 1 Theme nền tảng sạch và 1 Plugin trí tuệ nhân tạo & đồng bộ:
 
-1.  **System Design (Skaaa No-Code Design):** Xử lý bộ khung giao diện nguyên tử (Atomic Blocks) và Design Engine (Tailwind CSS v4, Local JIT Compiler, Skaaapine Engine mô phỏng Alpine.js tương tác thời gian thực). Tích hợp sẵn bộ parser chuyển đổi mã nguồn `html2tailwind`.
-2.  **Key Database (Skaaa Data Pro):** Hệ thống cơ sở dữ liệu bảng phẳng phẳng MySQL (`skaaa_data_*`) thay thế hoàn toàn mô hình EAV (`wp_postmeta`). Cung cấp Schema Manager tạo bảng tự động, DataGrid Strategy, và các cổng truy cập dữ liệu tĩnh **Integration REST APIs**.
-3.  **AI Automation (Skaaa Logic Engine):** Bộ não điều khiển luồng hoạt động kéo thả đồ thị (DAG Graph Canvas). Chịu trách nhiệm về luồng sự kiện (Events Pipeline), biểu thức nội suy dữ liệu (SkaaaFX DSL) và bắt tín hiệu sự kiện từ bên ngoài thông qua **Webhooks**.
-4.  **AI Integration (Skaaai - Plugin mới):** Addon chuyên biệt tích hợp các trạm xử lý AI (AIPromptNode, AIParserNode, Semantic Classifier) kết nối trực tiếp với LLM API (Gemini/OpenAI) và chạy các Agentic Workflows tự chủ.
+1. **Theme Nền Tảng (Skaaa Canvas):** Blank Canvas thuần khiết, triệt tiêu 100% CSS/JS rác của WordPress (`.wp-block-library`), tự động bù trừ thanh Admin Bar cho các layout fixed/sticky header, đem lại khung vẽ trắng tinh khiết.
+2. **System Design (Skaaa No-Code Design):** Xử lý bộ khung giao diện nguyên tử (Atomic Blocks: `Container`, `Text`, `Button`, `SVG`, `Code`, `Loop`) và Design Engine (Tailwind CSS v4 JIT Compiler offline 100% Parity PHP/JS, Skaaapine Engine tương tác thời gian thực bằng Alpine.js). Tích hợp bộ chuyển đổi mã nguồn `html2tailwind`.
+3. **Key Database (Skaaa Data Pro):** Hệ thống cơ sở dữ liệu bảng phẳng MySQL (`skaaa_data_*`) thay thế hoàn toàn mô hình EAV (`wp_postmeta`). Cung cấp Schema Manager, DataGrid Strategy Pattern (Inline Edit), Smart Object JSON Blueprint di động và bảo vệ schema bảng hệ thống.
+4. **Logic Engine (Skaaa Logic Engine):** Bộ não điều khiển luồng hoạt động dạng đồ thị DAG kéo thả (React Flow v11). Xử lý luồng sự kiện (Events Pipeline), biểu thức nội suy dữ liệu (SkaaaFX AST), Pluggable Nodes Framework và tiến trình nền bất đồng bộ (Action Scheduler).
+5. **AI & Sync Bridge (Skaaai - Plugin mới):** 
+   - **Self-Documenting Context Engine:** Tự động phát sinh `ai-manifest.json` và REST API endpoint để AI Copilot ngoài môi trường hiểu thấu đáo toàn bộ hệ thống Blocks, DB Schemas mà không phụ thuộc vào thư mục `.skaaa-ai`.
+   - **Bidirectional Content Sync:** Cầu nối đồng bộ bài viết và giao diện 2 chiều an toàn giữa Localhost và Webhost (Staging/Production) thông qua định danh toàn cục `skaaa_uuid`, cơ chế phát hiện xung đột và tự động sao lưu WordPress Revisions.
+   - **AI Logic Nodes:** Tích hợp các Node xử lý trí tuệ nhân tạo (`AIPromptNode`, `AIParserNode`) vào đồ thị DAG kết nối LLM (Gemini/OpenAI).
 
 ---
 
 ## 2. DIRECTORY ARCHITECTURE (SKAAA ECOSYSTEM)
 ```text
-skaaa-ecosystem/
-├── .skaaa-ai/ (BRAIN)        -> .cursorrules, system_map, memory/, modules-docs/
-├── wp-content/themes/
-│   └── skaaa-canvas/         -> [THEME] Blank canvas, zero CSS/JS overhead
-└── wp-content/plugins/
-    ├── skaaa-no-code-design/ -> [UI/UX] Base Blocks + Tailwind JIT + html2tailwind
-    ├── skaaa-data-pro/       -> [DATA] Flat Tables Schema + DataGrid + Integration REST APIs
-    ├── skaaa-logic-engine/   -> [LOGIC] DAG Graph Editor + SkaaaFX + Webhooks
-    └── skaaai/               # [AI ADDON] Prompt Node, Structured Parser & Agentic Flow (Gemini/OpenAI)
+wp-content/
+├── themes/
+│   └── skaaa-canvas/           # [THEME] Blank Canvas (Zero CSS/JS overhead, Native Admin Bar Offset)
+└── plugins/
+    ├── skaaa-no-code-design/  # [UI/UX] Atomic Blocks, Tailwind v4 JIT Compiler, Skaaapine, html2tailwind
+    ├── skaaa-data-pro/        # [DATA] Flat Tables DB Engine, Smart Object JSON Blueprint, DataGrid
+    ├── skaaa-logic-engine/    # [LOGIC] DAG Workflow Canvas, SkaaaFX AST, Pluggable Nodes, Webhooks
+    └── skaaai/                # [AI & BRIDGE] Self-Documenting Context, Bidirectional Content Sync (Local ⟷ Host), AI Nodes
 ```
 
 ---
 
 ## 3. BẢN ĐỒ PHÂN CHIA TRÁCH NHIỆM (BOUNDARY ISOLATION)
-Để tuân thủ triết lý **Decoupled Monolith**, các plugin giao tiếp hoàn toàn qua WordPress Action/Filter hooks và Alpine.js global store (`Alpine.store`), tuyệt đối không gọi class chéo nhau trực tiếp.
+Để tuân thủ triết lý **Decoupled Architecture**, các plugin tuyệt đối KHÔNG gọi trực tiếp class của nhau, mọi tương tác diễn ra độc quyền qua:
+- WordPress Action/Filter hooks (`do_action`, `apply_filters`).
+- Alpine.js global store (`Alpine.store`) cho các tương tác phía client.
 
-*   **Design ➔ Logic**: Gửi dữ liệu form submit lên endpoint để kích hoạt workflow.
-*   **Logic ➔ Data**: Các node `DBQueryNode` và `DBActionNode` gọi WP Filters để đọc/ghi dữ liệu vào các bảng phẳng của Data Pro.
-*   **Skaaai ➔ Logic**: Đăng ký các Node AI mới vào bộ đăng ký tập trung của Logic Engine thông qua registry filter `skaaa_logic_registered_nodes`.
-
----
-
-## 4. DEVELOPMENT ROADMAP
-*   **Phase 1 & 2 (COMPLETED):** Kiến trúc nền tảng (Base Blocks, Tailwind JIT, Flat Tables Schema, App Portals, shadow scratchpad).
-*   **Phase 3 (COMPLETED - Pluggable Nodes):** Hoàn thành Registry Node tập trung (`Skaaa_Node_Registry`), Sidebar nạp động và Extensions Manager bật/tắt vật lý plugin addon trên Dashboard.
-*   **Phase 4 (CURRENT - AI & Monolith Rebranding):**
-    *   **Bước 1**: Đổi tên toàn bộ codebase và MySQL tables sang thương hiệu **SKAAA**.
-    *   **Bước 2**: Quy hoạch lại vai trò (Phân rã Bridge về Design, Data, Logic).
-    *   **Bước 3**: Khởi tạo plugin mở rộng **Skaaai** và viết Node AI đầu tiên (`AIPromptNode`).
-    *   **Bước 4**: Triển khai `AIParserNode` trích xuất thông tin JSON có cấu trúc bằng Gemini/OpenAI API.
-    *   **Bước 5**: Hoàn thiện kịch bản tự động hóa thông minh (Form Auto-responder) để kiểm thử E2E.
+* **Design ➔ Logic:** Gửi sự kiện form submit và tương tác người dùng lên endpoint để kích hoạt workflow.
+* **Logic ➔ Data:** Các node `DBQueryNode` và `DBActionNode` gọi WP Filters để đọc/ghi dữ liệu vào các bảng phẳng của Data Pro.
+* **Skaaai ➔ Logic:** Đăng ký các Node AI mới vào bộ đăng ký tập trung của Logic Engine thông qua filter `skaaa_logic_registered_nodes`.
+* **Skaaai ➔ Host / Local:** Đồng bộ an toàn bài viết và cấu trúc dữ liệu qua REST API có xác thực Pairing Key bảo mật.
 
 ---
 
-## 5. TECHNICAL CONSTRAINTS
-*   **No-Postmeta Rule**: Tuyệt đối không lạm dụng `wp_postmeta` để lưu trữ dữ liệu ứng dụng. Bắt buộc tạo và dùng Flat Tables MySQL.
-*   **Agnostic Core Libraries**: Mã nguồn lõi của `Skaaapine`, `SkaaaFX` và `Tailwind JIT` phải viết sạch sẽ, hoàn toàn không phụ thuộc WordPress để có thể đóng gói Composer/npm sau này.
-*   **i18n Compliance**: Mọi chuỗi hiển thị trên UI mặc định viết bằng tiếng Anh bọc hàm dịch đa ngôn ngữ chuẩn của WP. Comments code viết bằng tiếng Việt.
-*   **Zero-Trash Policy**: Không tự ý tạo tệp `.md` ngoài 4 ngăn kéo tài liệu.
+## 4. MILESTONES & ROADMAP TẦM NHÌN
+* **Milestone 1: Nền tảng Monolith & Rebranding (COMPLETED):**
+  - Hoàn tất Atomic Blocks, bộ đôi JIT Compiler Tailwind v4 (100% Compiler Parity).
+  - Hoàn thiện Flat Tables Schema, Smart Object Blueprint và DataGrid Strategy Pattern.
+  - Hoàn thành Pluggable Nodes Framework, SkaaaFX AST Evaluator và Extensions Manager.
+  - Chuẩn hóa toàn bộ hệ sinh thái sang nhận diện thương hiệu thống nhất **SKAAA**.
+* **Milestone 2: Skaaai Copilot & Bidirectional Sync (ACTIVE):**
+  - Khởi tạo plugin `skaaai` với cơ chế xác thực kết nối Sender (Local) ⟷ Receiver (Host).
+  - Xây dựng Self-Documenting Context Engine (`ai-manifest.json` & `/wp-json/skaaai/v1/context`).
+  - Động cơ đồng bộ nội dung 2 chiều (Push to Live / Pull from Live) dựa trên `skaaa_uuid`.
+  - Nút Push 1-Click trên Gutenberg Editor Toolbar.
+  - Tích hợp các AI Logic Nodes (Gemini/OpenAI) vào DAG Canvas.
+
+---
+
+## 5. NGUYÊN TẮC CỐT LÕI (TECHNICAL CONSTRAINTS)
+1. **No-Postmeta Rule:** Tuyệt đối không lạm dụng `wp_postmeta` để lưu trữ dữ liệu ứng dụng. Bắt buộc tạo và dùng bảng phẳng MySQL (`skaaa_data_*`).
+2. **Framework-Agnostic Core Libraries:** Mã nguồn lõi của `Skaaapine`, `SkaaaFX` và `Tailwind JIT` phải viết độc lập, không phụ thuộc WordPress để sẵn sàng trích xuất thành package độc lập.
+3. **Decoupled Plugins Rule:** Không có sự phụ thuộc cứng (hard dependency) giữa các plugin. Nếu một plugin tắt, các plugin khác vẫn hoạt động ổn định.
+4. **i18n Compliance:** Mọi chuỗi hiển thị trên UI mặc định viết bằng tiếng Anh và bọc hàm chuẩn WordPress i18n (`__()`, `esc_html__()`). Chú thích code viết bằng tiếng Việt.
+5. **Zero-Trash Policy:** Giữ tài liệu ngăn nắp theo cấu trúc 4 ngăn kéo, không tạo file rác ngoài quy chuẩn.
