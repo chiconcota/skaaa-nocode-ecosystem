@@ -39,6 +39,26 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
 
+## 2026-09-23 - 🟢 Hoàn thành: Khởi tạo Kiến trúc Agent Harness & Bộ nhớ AI 1-Click cho Localhost (Skaaai v1.1.0)
+- **Decision (Local Agent Harness & Memory Scaffolding Initializer - Sender Only):**
+  - **Mục tiêu:** Cung cấp giải pháp triển khai "Buồng lái AI" (Agent Cockpit) tức thì cho mọi website Localhost của khách hàng khi cài plugin `Skaaai`. Chỉ với 1 click, toàn bộ giàn giáo AI (`.agent/`) và cấu trúc bộ nhớ dài hạn (`.skaaa-ai/`) được tự động deploy ra thư mục gốc `app/public/`.
+  - **Khái niệm Agent Harness:** Đây là bộ khung điều phối toàn diện cho các AI Agent (Antigravity, Claude Code, Cursor, Codex...) bao gồm:
+    1. **Guardrails & Rules (`.agent/rules/`):** Rào chắn chuẩn Atomic Blocks, Flat DOM, Tailwind offline, Alpine Skaaapine.
+    2. **Domain Skills (`.agent/skills/`):** Kỹ năng chuyên môn sâu về hệ sinh thái (`skaaa-builder`, `skaaa-flat-db`, `skaaa-sync`).
+    3. **Standard Workflows (`.agent/workflows/`):** Quy trình chuẩn hóa `/start_session`, `/end_session`, `/push_to_live`.
+    4. **Design Tokens & Brand Identity (`.skaaa-ai/1-overview/design.md`):** Nguồn chân lý duy nhất (SSoT) về bảng màu, typography, khoảng cách, radius và công thức component.
+    5. **Long-Term Memory (`.skaaa-ai/2-memory/`):** Sổ quyết định kiến trúc và biên bản bàn giao ca trực liên tục.
+  - **Quy tắc Bảo vệ Sender-Only Tuyệt Đối:**
+    - Tính năng sinh Harness & Memory là **đặc quyền duy nhất của máy Localhost (`role === 'sender'`)**.
+    - Trên Live Webhost (`role === 'receiver'`), giao diện bị ẩn hoàn toàn, backend chặn cứng `WP_Error('skaaai_receiver_forbidden')`.
+    - Động cơ đồng bộ bài viết (Push to Live) tuyệt đối không đẩy thư mục `.agent/` và `.skaaa-ai/` lên server trực tuyến.
+  - **Triển khai Kỹ thuật:**
+    - Lớp `Harness_Initializer` (`inc/class-skaaai-harness-initializer.php`) quét đệ quy thư mục mẫu `scaffold/` và triển khai qua `WP_Filesystem` chuẩn WordPress.
+    - Giao diện Admin: Bổ sung Tab **"Agent Cockpit"** với nút bấm trực quan, real-time status pill và AJAX `skaaai_init_harness`.
+    - Tối ưu kích thước: File `class-skaaai-admin.php` giữ mức an toàn 694 dòng (dưới trần 700 dòng).
+    - Đóng gói tự động bản nâng cấp [skaaai-v1.1.0.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.0.zip).
+
+
 ## 2026-09-23 - 🟢 Hoàn thành: Khởi tạo & Nâng cấp Plugin Skaaai v1.0.3 (1-Click Sync, Persistent Storage & Live Deletion Protection)
 - **Decision (Skaaai 1-Click Sync & Remote Code Deployer via Persistent Storage WP_Filesystem):**
   - **Mục tiêu:** Xây dựng plugin `Skaaai` độc lập đóng vai trò là Cầu nối đồng bộ 1-Click giữa máy tính cá nhân (Localhost Dev) và Hosting trực tuyến (Live Webhost). Mọi tác vụ nặng (thiết kế, code, AI) thực hiện trên PC; Webhost là trang WordPress bình thường nhận nội dung hiển thị y chang 100%.

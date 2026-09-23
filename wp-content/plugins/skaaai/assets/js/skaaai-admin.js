@@ -354,5 +354,42 @@
             });
         });
 
+        // 12. Khởi tạo / Tái đồng bộ Agent Harness & Memory
+        $('#btn-init-agent-harness').on('click', function() {
+            var $btn = $(this);
+            var $spinner = $('#harness-spinner');
+            var $notice = $('#harness-notice-container');
+            var overwrite = $('#skaaai-harness-overwrite').is(':checked') ? 1 : 0;
+            var originalText = $btn.find('.btn-text').text();
+
+            $btn.prop('disabled', true);
+            $btn.find('.btn-text').text(skaaaiAdmin.i18n.init_harness || 'Initializing...');
+            $spinner.addClass('is-active');
+            $notice.hide().empty();
+
+            $.post(skaaaiAdmin.ajax_url, {
+                action: 'skaaai_init_harness',
+                nonce: skaaaiAdmin.nonce,
+                overwrite: overwrite
+            }, function(response) {
+                $btn.prop('disabled', false);
+                $spinner.removeClass('is-active');
+
+                if (response.success) {
+                    $('#harness-status-pill').html('<span class="skaaai-status-pill pill-green">● ' + (skaaaiAdmin.i18n.ready_for_ai || 'Ready for AI') + '</span>');
+                    $btn.find('.btn-text').text(skaaaiAdmin.i18n.harness_success || 'Ready!');
+                    $notice.html('<div class="notice notice-success inline" style="margin:0;padding:10px 12px;"><p><strong>' + response.data.message + '</strong></p></div>').fadeIn(200);
+                } else {
+                    $btn.find('.btn-text').text(originalText);
+                    $notice.html('<div class="notice notice-error inline" style="margin:0;padding:10px 12px;"><p>' + (response.data.message || 'Initialization failed.') + '</p></div>').fadeIn(200);
+                }
+            }).fail(function() {
+                $btn.prop('disabled', false);
+                $btn.find('.btn-text').text(originalText);
+                $spinner.removeClass('is-active');
+                $notice.html('<div class="notice notice-error inline" style="margin:0;padding:10px 12px;"><p>Network error initializing agent cockpit.</p></div>').fadeIn(200);
+            });
+        });
+
     });
 })(jQuery);

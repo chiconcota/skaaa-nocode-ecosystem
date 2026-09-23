@@ -46,6 +46,7 @@ class Core {
     private function includes(): void {
         require_once SKAAAI_DIR . 'inc/class-skaaai-pairing.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-file-deployer.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-harness-initializer.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-post.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-rest-api.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-admin.php';

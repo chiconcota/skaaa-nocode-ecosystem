@@ -3,7 +3,7 @@
  * Plugin Name: Skaaai
  * Plugin URI: https://skaaa.net
  * Description: The 1-Click Sync & Deployment Bridge between Localhost Dev and Live Webhost for the Skaaa Ecosystem.
- * Version: 1.0.3
+ * Version: 1.1.0
  * Author: Ly Tat Thanh + Antigravity AI
  * Author URI: https://lytatthanh.com
  * Text Domain: skaaai
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Khai báo hằng số hệ thống
-define( 'SKAAAI_VERSION', '1.0.3' );
+define( 'SKAAAI_VERSION', '1.1.0' );
 define( 'SKAAAI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAAAI_URL', plugin_dir_url( __FILE__ ) );
 define( 'SKAAAI_FILE', __FILE__ );

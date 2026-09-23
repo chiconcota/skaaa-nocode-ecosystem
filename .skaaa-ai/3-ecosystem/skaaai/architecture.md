@@ -40,11 +40,24 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **Sideload Media:** Tự động tải hình ảnh từ máy local về Media Library trên hosting.
   - **Tự động tạo Revision:** Trước khi ghi đè trên Receiver, luôn gọi `wp_save_post_revision()` để có thể Undo phục hồi 1-click trong WordPress History.
 
-### Trụ cột 3: Self-Documenting Context Engine (AI Copilot Ready)
-- **Mục tiêu:** Giúp AI ngoài môi trường (như Antigravity/Cursor/Windsurf) hiểu thấu đáo toàn bộ hệ thống Blocks, DB Schemas khi dev trên site thật mà không cần thư mục `.skaaa-ai`.
+### Trụ cột 3: Local Agent Harness & Memory Scaffolding
+- **Mục tiêu:** Cung cấp bộ công cụ, CLI, Scripts tiện ích và Hệ thống Bộ nhớ dài hạn chạy trực tiếp dưới máy Localhost để AI Agent (như Antigravity/CLI) thao tác chuẩn xác, ghi nhớ ngữ cảnh và an toàn tuyệt đối với website.
+- **Quy tắc Bất Biến (Sender-Only Scaffolding):**
+  - Cặp thư mục buồng lái `.agent/` và bộ nhớ `.skaaa-ai/` là **đặc quyền độc nhất của website đóng vai trò `Sender` (Localhost)**.
+  - Trên `Receiver` (Live Webhost), cấm tuyệt đối sinh ra `.agent/` và `.skaaa-ai/`. Động cơ đồng bộ Push to Live tuyệt đối không đồng bộ 2 thư mục này lên Live Hosting nhằm triệt tiêu nguy cơ lộ bảo mật và tối ưu hiệu năng.
+- **Cấu trúc Buồng lái Kép tại Website Sender:**
+  1. **Thư mục `.agent/` (Quy tắc & Công cụ điều khiển):**
+     - `.agent/rules/`: Luật lệ phát triển (Atomic Blocks, Flat DB, Tailwind JIT).
+     - `.agent/workflows/`: Quy trình hành động (/push-to-live, /start_session, /end_session).
+     - `.agent/harness/`: Scripts CLI (tra cứu DB, validate block, kiểm tra CSS).
+  2. **Thư mục `.skaaa-ai/` (Bản đồ & Bộ nhớ Ngữ cảnh của Site):**
+     - `.skaaa-ai/1-overview/`: Bản đồ cấu trúc website (`site_map.md`), danh sách Pages, Apps và bảng dữ liệu hiện có trên site.
+     - `.skaaa-ai/2-memory/`: Bộ nhớ tiến độ (`checkpoint.md`, `decision-log.md`) giúp AI ghi nhớ trạng thái dở dang giữa các phiên làm việc.
 - **Thực thi:**
-  - Cung cấp REST API Endpoint: `GET /wp-json/skaaai/v1/context` (Yêu cầu `X-Skaaai-Key` bảo mật).
-  - Nội dung context: Danh mục Atomic Blocks (`Container`, `Text`, `Loop`...), từ điển class Tailwind v4 hợp lệ, danh sách bảng phẳng `skaaa_data_*` và cấu trúc các trường dữ liệu.
+  - **1-Click Init:** Nút bấm trên giao diện Admin Skaaai (chỉ hiện khi `role === 'sender'`) tự động xuất bản (deploy) toàn bộ cấu trúc `.agent/` và `.skaaa-ai/` vào thư mục gốc `app/public/`.
+  - **Block Synthesizer & Validator:** Helper sinh mã và kiểm thử cú pháp Atomic Blocks (`container`, `text`, `loop`...) chuẩn comment Gutenberg thuần, bắt buộc `@click.prevent` Alpine.js, loại bỏ triệt để nguy cơ Gutenberg Invalid Content.
+  - **Flat Database Inspector:** Module an toàn giúp AI Agent tra cứu schema, danh sách cột và trích xuất mẫu dữ liệu các bảng phẳng `skaaa_data_*` dưới Localhost mà không cần gõ lệnh `mysql` trực tiếp qua CLI (triệt tiêu lỗi treo shell MISTAKE-001).
+  - **Tailwind JIT Pre-flight Checker:** Đối soát class dự kiến sinh ra với từ điển `tailwind-rules.json` của JIT offline, đảm bảo 100% Compiler Parity.
 
 ---
 

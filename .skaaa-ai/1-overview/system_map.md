@@ -31,7 +31,7 @@ wp-content/
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
 | **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules. | 🟢 Stable (v2.4.4) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge & Deployer)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host) & Remote Code Deployer qua WP_Filesystem. | 🟢 Stable (v1.0.3) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer & 1-Click Local Agent Harness Initializer. | 🟢 Stable (v1.1.0) |
 
 ---
 
@@ -52,6 +52,7 @@ wp-content/
 
 ---
 
+- **2026-09-23 - 🟢 Done (Skaaai Plugin v1.1.0 - 1-Click Local Agent Harness & Memory Scaffolding Initializer):** Triển khai tính năng khởi tạo buồng lái AI 1-click cho website Localhost (`role === 'sender'`). Sử dụng `WP_Filesystem` xuất bản tự động toàn bộ cấu trúc kép `.agent/` (`rules/`, `skills/` với 3 kỹ năng `skaaa-builder`, `skaaa-flat-db`, `skaaa-sync`, `workflows/` và `harness/`) cùng `.skaaa-ai/` (`1-overview/design.md` nhận diện thương hiệu Design Tokens, `site_map.md` và `2-memory/` checkpoint, decision-log). Khóa bảo vệ nghiêm ngặt: cấm tuyệt đối khởi tạo trên máy chủ Live (`Receiver`), không bao giờ đồng bộ thư mục này lên web hosting. Đóng gói tự động `skaaai-v1.1.0.zip` qua `zip-all.js`.
 - **2026-09-23 - 🟢 Done (Skaaai Plugin v1.0.3 - Persistent Custom Nodes Storage outside Plugin Directory):** Di dời toàn bộ thư mục lưu trữ mã nguồn tùy biến từ `wp-content/plugins/skaaai/custom-nodes/` ra thư mục bền vững `wp-content/skaaa-custom-nodes/` (Persistent Storage). Khắc phục triệt để lỗi mất toàn bộ file custom nodes khi người dùng update plugin bằng file zip (do cơ chế WordPress xóa trắng thư mục plugin khi cập nhật). Tích hợp cơ chế tự động khởi tạo và di cư (auto-migration) các file cũ từ legacy plugin dir. Giữ trọn vẹn 100% tốc độ thực thi qua PHP OPcache (0ms) mà không phụ thuộc vào `eval()` hay query Database. Đóng gói tự động `skaaai-v1.0.3.zip` qua `zip-all.js`.
 - **2026-09-23 - 🟢 Done (Skaaai Plugin v1.0.2 - 1-Click Sync & Deployment Bridge + Live Deletion Protection):** Khởi tạo và nâng cấp plugin `Skaaai v1.0.2` độc lập. Triển khai cơ chế ghép đôi bảo mật Pairing Protocol (`skaaai_pair://...` 1-click copy/paste, token 64-char, REST API Handshake). Tích hợp module Remote Code Deployer hỗ trợ đồng bộ mã nguồn 2 chiều (tự động lưu bản sao vào `custom-nodes/` của Localhost đồng thời đẩy qua REST API lên Live Webhost an toàn qua `WP_Filesystem` kết hợp lá chắn Syntax Validator ngăn chặn WSoD). Khóa quyền xóa file trực tiếp trên Live Webhost (Receiver Read-only Protection) tuân thủ triệt để nguyên tắc Localhost Single Source of Truth; xóa file trên Local tự động xóa sạch trên Live Webhost. Bổ sung huy hiệu `.bak` và huy hiệu Live Protected trực quan trên bảng quản trị. Xây dựng Post Sync Engine tự động hoán đổi domain URL, nạp media về hosting và tạo WordPress Revisions bảo vệ dữ liệu. Đã tích hợp và đóng gói tự động `skaaai-v1.0.2.zip` qua `zip-all.js`.
 - **2026-09-22 - 🟢 Done (Skaaa Canvas Theme v1.0.1 - Admin Bar Offset for Fixed/Sticky Headers):** Bổ sung hàm `skaaa_canvas_admin_bar_fix` hook vào `wp_head` của theme `Skaaa Canvas` khi `is_admin_bar_showing()`. Sử dụng selector ưu tiên tự nhiên `html body.admin-bar.skaaaaa-builder header.fixed, .fixed.top-0, .sticky.top-0` tự động bù `top: 32px` trên Desktop và `top: 46px` trên Mobile (<= 782px). Đảm bảo thanh điều hướng không bị thanh Admin Bar của WordPress che khuất nội dung mà không dùng cờ `!important` và hoàn toàn zero-overhead cho khách vãng lai.
@@ -64,10 +65,9 @@ wp-content/
 
 ---
 
-## 7. ACTIVE ROADMAP (MILESTONE 2 - SKAAAI COPILOT & BRIDGE)
-- [x] **Phase 1: Plugin Bootstrap & Pairing:** Khởi tạo `wp-content/plugins/skaaai/` (v1.0.3), trang cài đặt Sender ⟷ Receiver, và module Remote Code Deployer an toàn bền vững.
-- [ ] **Phase 2: Self-Documenting Context Engine:** Xuất bản `ai-manifest.json` và REST API endpoint `/wp-json/skaaai/v1/context`.
-- [ ] **Phase 3: Bidirectional Content Sync Engine:** Động cơ `Push to Live` & `Pull from Live` dựa trên `skaaa_uuid`, chống đè dữ liệu và tự động tạo WordPress Revisions.
-- [ ] **Phase 4: Gutenberg UI & Post List Sync Badges:** Tích hợp nút 1-click "🚀 Push to Live" trên Gutenberg Editor Toolbar.
-- [ ] **Phase 5: AI Logic Nodes:** Triển khai các node AI Automation (Prompt & Parser) tích hợp vào Skaaa Logic Engine.
-- [ ] **Phase 6: E2E Testing & Ecosystem Packaging:** Kiểm thử Push/Pull và đóng gói tự động `skaaai-v1.0.2.zip`.
+## 7. ACTIVE ROADMAP (MILESTONE 2 - LOCAL AGENT HARNESS & 1-CLICK SYNC)
+- [x] **Phase 1: Plugin Bootstrap, Pairing & Persistent Deployer:** Khởi tạo `wp-content/plugins/skaaai/` (v1.0.3), cài đặt Sender ⟷ Receiver, Remote Code Deployer qua Persistent Storage `wp-content/skaaa-custom-nodes/` và Live Deletion Lock.
+- [ ] **Phase 2: Local Agent Harness:** Bộ công cụ/CLI/Scripts hỗ trợ AI dưới Localhost (Block Synthesizer & Validator, Flat DB Inspector, Tailwind JIT Pre-flight Checker).
+- [ ] **Phase 3: Giao diện 1-Click Push to Live:** Nút "🚀 Push to Live" trên Gutenberg Editor Toolbar và cột trạng thái "Skaaa Sync" trong danh sách bài viết (`edit.php`).
+- [ ] **Phase 4: AI Logic Nodes:** Triển khai các node AI Automation (Prompt & Parser) tích hợp vào Skaaa Logic Engine trên Localhost.
+- [ ] **Phase 5: Kiểm thử E2E & Đóng gói Hệ sinh thái:** Kiểm thử Local Harness, Push to Live và đóng gói tự động qua `zip-all.js`.

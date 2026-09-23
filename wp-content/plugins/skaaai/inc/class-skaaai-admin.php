@@ -36,6 +36,8 @@ class Admin {
         add_action( 'wp_ajax_skaaai_push_existing_file', [ $this, 'ajax_push_existing_file' ] );
         add_action( 'wp_ajax_skaaai_load_file_content', [ $this, 'ajax_load_file_content' ] );
         add_action( 'wp_ajax_skaaai_delete_custom_file', [ $this, 'ajax_delete_file' ] );
+        add_action( 'wp_ajax_skaaai_init_harness', [ $this, 'ajax_init_harness' ] );
+        add_action( 'wp_ajax_skaaai_get_harness_status', [ $this, 'ajax_get_harness_status' ] );
     }
 
     /**
@@ -45,36 +47,13 @@ class Admin {
         global $menu;
         $parent_slug = 'skaaa-system-dashboard';
 
-        // Kiểm tra xem menu cha skaaa-system-dashboard có tồn tại không
-        $parent_exists = false;
-        if ( is_array( $menu ) ) {
-            foreach ( $menu as $item ) {
-                if ( isset( $item[2] ) && $item[2] === $parent_slug ) {
-                    $parent_exists = true;
-                    break;
-                }
-            }
-        }
+        $parent_slug   = 'skaaa-system-dashboard';
+        $parent_exists = is_array( $menu ) && in_array( $parent_slug, array_column( $menu, 2 ), true );
 
         if ( $parent_exists ) {
-            add_submenu_page(
-                $parent_slug,
-                __( 'Skaaa Bridge & Sync', 'skaaai' ),
-                __( 'Bridge & Sync', 'skaaai' ),
-                'manage_options',
-                'skaaai-settings',
-                [ $this, 'render_admin_page' ]
-            );
+            add_submenu_page( $parent_slug, __( 'Skaaa Bridge & Sync', 'skaaai' ), __( 'Bridge & Sync', 'skaaai' ), 'manage_options', 'skaaai-settings', [ $this, 'render_admin_page' ] );
         } else {
-            add_menu_page(
-                __( 'Skaaa Bridge', 'skaaai' ),
-                __( 'Skaaa Bridge', 'skaaai' ),
-                'manage_options',
-                'skaaai-settings',
-                [ $this, 'render_admin_page' ],
-                'dashicons-rest-api',
-                30
-            );
+            add_menu_page( __( 'Skaaa Bridge', 'skaaai' ), __( 'Skaaa Bridge', 'skaaai' ), 'manage_options', 'skaaai-settings', [ $this, 'render_admin_page' ], 'dashicons-rest-api', 30 );
         }
     }
 
@@ -114,6 +93,10 @@ class Admin {
                 'pushing'         => __( 'Pushing file to remote server...', 'skaaai' ),
                 'push_success'    => __( 'File pushed successfully to remote webhost!', 'skaaai' ),
                 'loading_file'    => __( 'Loading file content...', 'skaaai' ),
+                'init_harness'    => __( 'Initializing Agent Cockpit & Memory...', 'skaaai' ),
+                'harness_success' => __( 'Agent Cockpit & Memory initialized successfully!', 'skaaai' ),
+                'ready_for_ai'    => __( 'Ready for AI', 'skaaai' ),
+                'not_initialized' => __( 'Not Initialized', 'skaaai' ),
             ],
         ] );
     }
@@ -410,6 +393,40 @@ class Admin {
     }
 
     /**
+     * AJAX Khởi tạo hoặc Tái đồng bộ Buồng lái Agent Harness & Memory (Sender Only)
+     */
+    public function ajax_init_harness(): void {
+        check_ajax_referer( 'skaaai_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+        }
+
+        $overwrite = ! empty( $_POST['overwrite'] );
+        $result    = Harness_Initializer::initialize( $overwrite );
+
+        if ( $result['success'] ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
+
+    /**
+     * AJAX Lấy trạng thái Buồng lái Agent Harness
+     */
+    public function ajax_get_harness_status(): void {
+        check_ajax_referer( 'skaaai_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+        }
+
+        $status = Harness_Initializer::check_status();
+        wp_send_json_success( $status );
+    }
+
+    /**
      * Render giao diện HTML trang quản trị
      */
     public function render_admin_page(): void {
@@ -443,6 +460,11 @@ class Admin {
                 <button type="button" class="skaaai-tab-btn" data-tab="deployer">
                     <span class="dashicons dashicons-media-code"></span> <?php esc_html_e( 'Code & Node Deployer', 'skaaai' ); ?>
                 </button>
+                <?php if ( $role === 'sender' ) : ?>
+                <button type="button" class="skaaai-tab-btn" data-tab="agent-cockpit">
+                    <span class="dashicons dashicons-superhero"></span> <?php esc_html_e( 'Agent Cockpit', 'skaaai' ); ?>
+                </button>
+                <?php endif; ?>
             </nav>
 
             <!-- TAB 1: PAIRING & CONNECTION -->
@@ -645,33 +667,24 @@ class Admin {
                     </div>
                 </div>
             </section>
+
+            <?php if ( $role === 'sender' ) : ?>
+                <?php Harness_Initializer::render_admin_tab(); ?>
+            <?php endif; ?>
         </div>
 
         <script type="text/html" id="tmpl-skaaai-custom-node-row">
             <tr data-file="{{ data.filename }}">
-                <td>
-                    <strong><code>{{ data.filename }}</code></strong>
-                    <# if ( data.has_bak ) { #>
-                        <span class="skaaai-bak-badge" title="<?php esc_attr_e( 'Backup file exists (.bak)', 'skaaai' ); ?>">📦 .bak</span>
-                    <# } #>
-                </td>
+                <td><strong><code>{{ data.filename }}</code></strong><# if ( data.has_bak ) { #><span class="skaaai-bak-badge" title="<?php esc_attr_e( 'Backup file exists (.bak)', 'skaaai' ); ?>">📦 .bak</span><# } #></td>
                 <td class="file-size">{{ data.size }}</td>
                 <td class="file-modified">{{ data.modified }}</td>
                 <td style="white-space: nowrap;">
-                    <button type="button" class="button button-small btn-load-file" data-file="{{ data.filename }}" title="<?php esc_attr_e( 'Load into code editor', 'skaaai' ); ?>">
-                        <span class="dashicons dashicons-edit" style="font-size:14px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Edit', 'skaaai' ); ?>
-                    </button>
+                    <button type="button" class="button button-small btn-load-file" data-file="{{ data.filename }}" title="<?php esc_attr_e( 'Load into code editor', 'skaaai' ); ?>"><span class="dashicons dashicons-edit" style="font-size:14px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Edit', 'skaaai' ); ?></button>
                     <# if ( data.is_sender ) { #>
-                        <button type="button" class="button button-small btn-push-file" data-file="{{ data.filename }}" title="<?php esc_attr_e( 'Push to paired remote webhost', 'skaaai' ); ?>">
-                            <span class="dashicons dashicons-upload" style="font-size:14px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Push', 'skaaai' ); ?>
-                        </button>
-                        <button type="button" class="button button-small button-link-delete btn-delete-file" data-file="{{ data.filename }}">
-                            <?php esc_html_e( 'Delete', 'skaaai' ); ?>
-                        </button>
+                        <button type="button" class="button button-small btn-push-file" data-file="{{ data.filename }}" title="<?php esc_attr_e( 'Push to paired remote webhost', 'skaaai' ); ?>"><span class="dashicons dashicons-upload" style="font-size:14px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Push', 'skaaai' ); ?></button>
+                        <button type="button" class="button button-small button-link-delete btn-delete-file" data-file="{{ data.filename }}"><?php esc_html_e( 'Delete', 'skaaai' ); ?></button>
                     <# } else { #>
-                        <span class="skaaai-readonly-badge">
-                            <span class="dashicons dashicons-lock" style="font-size:13px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Live Protected', 'skaaai' ); ?>
-                        </span>
+                        <span class="skaaai-readonly-badge"><span class="dashicons dashicons-lock" style="font-size:13px;vertical-align:middle;margin-top:-2px;"></span> <?php esc_html_e( 'Live Protected', 'skaaai' ); ?></span>
                     <# } #>
                 </td>
             </tr>
