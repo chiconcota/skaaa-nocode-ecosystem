@@ -1,0 +1,291 @@
+/* Skaaai Admin Stylesheet */
+.skaaai-admin-wrap {
+    max-width: 1100px;
+    margin: 20px 20px 40px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.skaaai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.skaaai-header h1 {
+    margin: 4px 0 0 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.skaaai-subtitle {
+    margin: 4px 0 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.skaaai-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.skaaai-status-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pill-green {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.pill-blue {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+/* Tabs */
+.skaaai-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0;
+}
+
+.skaaai-tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+}
+
+.skaaai-tab-btn:hover {
+    color: #0f172a;
+}
+
+.skaaai-tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.skaaai-tab-pane {
+    display: none;
+}
+
+.skaaai-tab-pane.active {
+    display: block;
+}
+
+/* Cards */
+.skaaai-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.skaaai-card h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.skaaai-card p.description {
+    margin: 0 0 16px 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Radio Cards */
+.skaaai-radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.skaaai-radio-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.skaaai-radio-card input {
+    margin-top: 3px;
+}
+
+.skaaai-radio-card.selected {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.radio-card-content strong {
+    display: block;
+    font-size: 14px;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.radio-card-content span {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Form inputs */
+.skaaai-form-group {
+    margin-bottom: 16px;
+}
+
+.skaaai-form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.skaaai-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.skaaai-input-group input {
+    flex: 1;
+}
+
+.help-text {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+.skaaai-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 820px) {
+    .skaaai-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.skaaai-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Console log */
+.skaaai-console-box {
+    margin-top: 15px;
+    padding: 12px 16px;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: monospace;
+    font-size: 12px;
+    border-radius: 6px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.skaaai-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.skaaai-submit-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.skaaai-inline-result {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.skaaai-inline-result.success {
+    color: #16a34a;
+}
+
+.skaaai-inline-result.error {
+    color: #dc2626;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.skaaai-bak-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    color: #0369a1;
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.skaaai-readonly-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 2px 7px;
+}

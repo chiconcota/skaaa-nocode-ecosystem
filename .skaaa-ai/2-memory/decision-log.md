@@ -39,6 +39,28 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
 
+## 2026-09-23 - 🟢 Hoàn thành: Khởi tạo & Nâng cấp Plugin Skaaai v1.0.3 (1-Click Sync, Persistent Storage & Live Deletion Protection)
+- **Decision (Skaaai 1-Click Sync & Remote Code Deployer via Persistent Storage WP_Filesystem):**
+  - **Mục tiêu:** Xây dựng plugin `Skaaai` độc lập đóng vai trò là Cầu nối đồng bộ 1-Click giữa máy tính cá nhân (Localhost Dev) và Hosting trực tuyến (Live Webhost). Mọi tác vụ nặng (thiết kế, code, AI) thực hiện trên PC; Webhost là trang WordPress bình thường nhận nội dung hiển thị y chang 100%.
+  - **Quyết định Kiến trúc:**
+    1. **Khung sườn Plugin & Cấu hình Phẳng (No-Postmeta):** Tạo plugin `wp-content/plugins/skaaai/` (SemVer 1.0.3, PHP 8.2+). Lưu trữ toàn bộ cấu hình vào bảng phẳng MySQL `wp_skaaa_data_sys_settings` (`skaaai_get_setting` / `skaaai_set_setting`).
+    2. **Cơ chế Ghép đôi (Pairing Protocol):** Receiver sinh chuỗi `skaaai_pair://...` (URL + Token 64-char ngẫu nhiên) hỗ trợ 1-click Copy & Paste. Bắt tay Handshake an toàn qua REST API `GET /wp-json/skaaai/v1/handshake` với `hash_equals()`.
+    3. **Lưu Trữ Bền Vững Ngoài Plugin (Persistent Storage `wp-content/skaaa-custom-nodes/`):**
+       - **Vấn đề:** Khi cập nhật plugin bằng file `.zip` (hoặc giải nén ghi đè), WordPress mặc định xóa sạch thư mục plugin cũ `wp-content/plugins/skaaai/`, làm mất toàn bộ file custom nodes nếu lưu bên trong plugin.
+       - **Giải pháp:** Di dời thư mục lưu trữ custom nodes ra vị trí bền vững `wp-content/skaaa-custom-nodes/` (ngang hàng với `wp-content/uploads/`). Khi cập nhật plugin lên bất kỳ phiên bản nào, WordPress chỉ ghi đè thư mục plugin, tuyệt đối không động chạm đến `wp-content/skaaa-custom-nodes/`.
+       - **Tự động Khởi tạo & Di cư (Auto-Migration):** Hàm `File_Deployer::ensure_target_dir()` tự động sinh thư mục kèm `index.php` bảo vệ, đồng thời tự động quét và copy toàn bộ file từ thư mục cũ `SKAAAI_DIR . 'custom-nodes/'` nếu phát hiện có file tồn tại.
+       - **Hiệu năng Tối đa (Zero-Latency OPcache):** Tiếp tục thực thi mã nguồn bằng file vật lý nạp qua `require_once` để tận dụng PHP OPcache (0ms), tuyệt đối không lưu và chạy code qua `eval()` từ Database vì sẽ làm chậm và mất bảo mật.
+    4. **Lá chắn Triển khai Code, Bảo vệ Live & Đồng bộ 2 Chiều (Code Deployer & Live SSoT Protection):**
+       - Khi bấm Deploy từ máy Dev: hệ thống tự động lưu 1 bản sao vào `wp-content/skaaa-custom-nodes/` của Localhost Dev trước (`File_Deployer::save_local_file()`), sau đó gửi qua REST API `POST /wp-json/skaaai/v1/deploy-file` lên Live Webhost.
+       - Tích hợp **Syntax Validator Shield** chạy Tokenizer (`token_get_all`) và Linter trước khi ghi, chặn 100% nguy cơ lỗi cú pháp làm sập web.
+       - Ghi file qua `WP_Filesystem` chuẩn WordPress vào thư mục cách ly `wp-content/skaaa-custom-nodes/`.
+       - Tự động tạo bản sao lưu `.bak` trước khi ghi đè, hiển thị huy hiệu `📦 .bak` trên giao diện bảng danh sách.
+       - **Live Deletion Protection & Local SSoT:** Khóa quyền xóa file trực tiếp trên Live Webhost (`role === 'receiver'`). Nút Delete trên Live được ẩn và thay bằng huy hiệu `🔒 Live Protected`. Thao tác xóa bắt buộc xuất phát từ Localhost (Sender), khi xóa trên Local sẽ tự động kích hoạt REST API `POST /delete-file` dọn sạch file trên Live Webhost, bảo vệ triệt để tính toàn vẹn của mã nguồn.
+       - Tự động nạp (autoload) và đăng ký Node mới vào hook `skaaa_logic_registered_nodes` của Logic Engine.
+       - Giao diện Admin: Bổ sung nút **Edit** (nạp ngược file vào editor để sửa) và **Push** (đẩy 1-click lên hosting) cho các custom node có sẵn, bảng danh sách tự cập nhật thời gian thực bằng `wp.template`. Tự động lưu thiết lập `allow_code_deploy` khi chuyển trạng thái checkbox.
+    5. **Động cơ Đồng bộ Bài viết (Post Sync Engine):** Định danh bài viết bằng `_skaaa_uuid`, tự động hoán đổi URL domain cục bộ sang live domain, tự động tải ảnh (Sideload Media) về Media Library của hosting và tạo điểm khôi phục `wp_save_post_revision()`.
+    6. **Tự động Đóng gói Phân phối:** Bổ sung `skaaai` vào `zip-all.js` tạo `skaaai-v1.0.3.zip` tự động.
+
 ## 2026-09-22 - 🟢 Hoàn thành: Hệ thống hóa Tài liệu Hệ sinh thái & Định nghĩa Kiến trúc Skaaai (AI & Sync Bridge)
 - **Decision (Ecosystem Documentation Systemization & Zero-Trash Compliance):**
   - **Mục tiêu:** Dọn sạch tài liệu, quy chuẩn lại cấu trúc 4 ngăn kéo theo thiết quân luật `skaaa-docs-management.md`, chuẩn bị nền tảng rõ ràng cho phiên kế tiếp.

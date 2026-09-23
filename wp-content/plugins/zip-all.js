@@ -22,7 +22,7 @@ function getThemeVersion(themeDir) {
     return '';
 }
 
-const plugins = ['skaaa-no-code-design', 'skaaa-data-pro', 'skaaa-logic-engine'];
+const plugins = ['skaaa-no-code-design', 'skaaa-data-pro', 'skaaa-logic-engine', 'skaaai'];
 
 plugins.forEach(pluginFolder => {
     const version = getPluginVersion(pluginFolder);

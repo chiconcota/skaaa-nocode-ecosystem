@@ -18,13 +18,14 @@
 
 ## 2. TIẾN ĐỘ THỰC HIỆN (PHASED ROADMAP)
 
-### ⚪ Phase 1: Khởi tạo Khung xương Plugin & Ghép nối (Core & Pairing)
-- [ ] Thiết lập thư mục và tệp chính `wp-content/plugins/skaaai/skaaai.php` (SemVer `1.0.0`, text domain `skaaai`).
-- [ ] Xây dựng class `Skaaai_Core` và trang Cài đặt `Skaaa AI & Bridge` trong WP Admin.
-- [ ] Cơ chế cấu hình vai trò:
-  - **Sender (Local Dev):** Lưu Remote Site URL + Pairing Key / App Password.
-  - **Receiver (Publish Hosting):** Sinh Pairing Secret Key bảo mật.
-- [ ] Lưu trữ cấu hình an toàn vào bảng phẳng hệ thống `wp_skaaa_data_sys_settings`.
+### 🟢 Phase 1: Khởi tạo Khung xương Plugin & Ghép nối (Core & Pairing) - Hoàn thành v1.0.0
+- [x] Thiết lập thư mục và tệp chính `wp-content/plugins/skaaai/skaaai.php` (SemVer `1.0.0`, text domain `skaaai`).
+- [x] Xây dựng class `Skaaai\Core` và trang Cài đặt `Skaaa Bridge & Sync` trong WP Admin.
+- [x] Cơ chế cấu hình vai trò:
+  - **Sender (Local Dev):** Lưu Remote Site URL + Pairing Key.
+  - **Receiver (Publish Hosting):** Sinh Pairing Secret Key bảo mật (`skaaai_pair://...`).
+- [x] Lưu trữ cấu hình an toàn vào bảng phẳng hệ thống `wp_skaaa_data_sys_settings`.
+- [x] Bổ sung module **Remote Code & Node Deployer** sử dụng `WP_Filesystem` kết hợp lá chắn kiểm tra cú pháp PHP (Syntax Validator).
 
 ### ⚪ Phase 2: Self-Documenting AI Context Engine
 - [ ] Tạo file `wp-content/plugins/skaaai/ai-manifest.json` định nghĩa chuẩn JSON Schema của tất cả Skaaa Blocks (`container`, `text`, `button`, `svg`, `code`) và cú pháp Alpine.
