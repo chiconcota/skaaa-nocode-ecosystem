@@ -29,14 +29,14 @@
 ### 🟡 Phase 2: Local Agent Harness & Memory Scaffolding (Buồng Lái & Bộ Nhớ Dưới Localhost)
 > **Thiết quân luật:** Cặp thư mục buồng lái `.agent/` và bộ nhớ `.skaaa-ai/` là đặc quyền **DUY NHẤT của Sender (Localhost)**. Trên **Receiver (Live Webhost)**, cấm tuyệt đối việc khởi tạo; động cơ đồng bộ Push to Live cũng không bao giờ đồng bộ `.agent/` và `.skaaa-ai/` lên Live nhằm bảo mật và tối ưu hiệu năng.
 
-- [x] **Bộ Khởi Tạo 1-Click (Agent Harness & Memory Initializer - Sender Only) - Hoàn thành v1.1.0:**
+- [x] **Bộ Khởi Tạo 1-Click (Agent Harness & Memory Initializer - Sender Only) - Hoàn thành v1.1.1:**
   - Trong Admin Skaaai (`role === 'sender'`), thêm nút bấm **"⚡ Initialize Agent Harness & Memory"**.
-  - Khi bấm, Skaaai tự động xuất bản (deploy) toàn bộ cấu trúc kép vào thư mục gốc của website Localhost (`app/public/`):
+  - Khi bấm, Skaaai tự động xuất bản (deploy) toàn bộ cấu trúc kép gồm 17 tệp vào thư mục gốc website Localhost (`app/public/`):
     - **`.agent/` (Buồng lái điều khiển):**
-      - `.agent/rules/`: Bộ luật cho AI (`skaaa-blocks.md`).
-      - `.agent/skills/`: Kỹ năng nghiệp vụ chuyên sâu (`skaaa-builder`, `skaaa-flat-db`, `skaaa-sync`).
-      - `.agent/workflows/`: Các quy trình rút gọn (`push_to_live.md`, `start_session.md`, `end_session.md`).
-      - `.agent/harness/`: Bộ công cụ dòng lệnh (CLI & PHP helpers).
+      - `.agent/rules/`: 3 rào chắn độc lập (`skaaa-blocks.md`, `skaaa-data.md`, `skaaa-logic.md`).
+      - `.agent/skills/`: 7 kỹ năng chuyên sâu (`ui-ux-design`, `system-design`, `skaaa-theme-builder`, `skaaa-builder`, `skaaa-flat-db`, `skaaa-logic`, `skaaa-sync`).
+      - `.agent/workflows/`: 4 quy trình hành động (`build_app.md` chuẩn Human-in-the-loop, `push_to_live.md`, `start_session.md`, `end_session.md`).
+      - `.agent/harness/`: Bộ công cụ dòng lệnh (CLI & PHP helpers `README.md`).
     - **`.skaaa-ai/` (Bản đồ, Nhận diện Thương hiệu & Bộ nhớ Ngữ cảnh của Site):**
       - `.skaaa-ai/1-overview/`: Bản đồ cấu trúc website (`site_map.md`) & Nhận diện thương hiệu Design System (`design.md`).
       - `.skaaa-ai/2-memory/`: Bộ nhớ tiến độ (`checkpoint.md`, `decision-log.md`) ghi nhận tiến độ dở dang giữa các phiên làm việc của AI trên site này.

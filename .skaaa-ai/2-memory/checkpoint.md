@@ -1,5 +1,5 @@
 # CHECKPOINT - PHẦN BÀN GIAO TIẾN ĐỘ
-*Ngày cập nhật: 2026-09-23 | Phiên làm việc: Milestone 2 - Skaaai Phase 2 (Local Agent Harness Initializer)*
+*Ngày cập nhật: 2026-09-24 | Phiên làm việc: Milestone 2 - Skaaai Phase 2 (Hoàn thiện AI Scaffold 3 Rules, 7 Skills & Workflow HITL)*
 
 ---
 
@@ -7,7 +7,7 @@
 - **Git Branch:** `feature/skaaai-core`
 - **Thư mục làm việc:** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Phiên bản Hệ Sinh Thái Hiện Tại:**
-  - `Skaaai: v1.1.0` (🟢 Hoàn thành Phase 2 - 1-Click Agent Harness & Memory Scaffolding Initializer)
+  - `Skaaai: v1.1.1` (🟢 Hoàn thành Toàn Diện Bộ Khung AI Scaffold 17 tệp)
   - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
   - `Skaaa No-Code Design: v2.4.4` (🟢 Stable)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
@@ -19,76 +19,62 @@
 
 ### A. Mã Nguồn Lõi Plugin Skaaai (`wp-content/plugins/skaaai/`)
 1. [skaaai.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/skaaai.php):
-   - Nâng phiên bản SemVer lên `v1.1.0`.
-   - Khai báo hằng số template: `define( 'SKAAAI_SCAFFOLD_DIR', SKAAAI_DIR . 'scaffold/' );`.
-2. [inc/class-skaaai-core.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-core.php):
-   - Nạp lớp `Harness_Initializer` (`class-skaaai-harness-initializer.php`).
-   - Khởi tạo điều phối trong hàm `init()`.
-3. [inc/class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php) *(NEW)*:
-   - Quản lý trạng thái Harness tại `ABSPATH` (`app/public/`).
-   - Kiểm tra vai trò: Chặn đứng `receiver` (chỉ cho phép `sender` khởi tạo).
-   - Quét đệ quy `SKAAAI_SCAFFOLD_DIR` và triển khai an toàn qua `WP_Filesystem`.
-   - Render giao diện tab `Agent Cockpit`.
-4. [inc/class-skaaai-admin.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-admin.php):
-   - Đăng ký AJAX handler: `skaaai_init_harness` và `skaaai_get_harness_status`.
-   - Thêm Tab **"Agent Cockpit"** (chỉ hiển thị trên máy Sender Localhost).
-   - Tối ưu kích thước file đạt chuẩn: 694 dòng (< 700 dòng).
-5. [assets/js/skaaai-admin.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/assets/js/skaaai-admin.js):
-   - Xử lý tương tác nút bấm *"Initialize Agent Harness & Memory"*.
-   - Hiển thị spinner, cập nhật real-time status pill và danh sách tệp được triển khai.
+   - Nâng phiên bản SemVer lên `v1.1.1`.
+2. [inc/class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php):
+   - Cập nhật danh sách hiển thị các tệp Rules, Skills, Workflows mới trên tab **Agent Cockpit** (331 dòng, tuân thủ nghiêm ngặt < 700 dòng).
+3. [wp-content/plugins/skaaai-v1.1.1.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.1.zip):
+   - Đóng gói tự động bản zip cài đặt v1.1.1 qua `zip-all.js`.
 
 ### B. Kho Tệp Mẫu Agent Harness Scaffolding (`wp-content/plugins/skaaai/scaffold/`)
-1. [scaffold/.agent/rules/skaaa-blocks.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/skaaa-blocks.md) *(NEW)*: Bộ quy chuẩn Atomic Blocks, Flat DOM, Tailwind CSS offline và Alpine Skaaapine.
-2. [scaffold/.agent/skills/skaaa-builder/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-builder/SKILL.md) *(NEW)*: Kỹ năng dựng Block, giao diện No-code.
-3. [scaffold/.agent/skills/skaaa-flat-db/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-flat-db/SKILL.md) *(NEW)*: Kỹ năng quản trị bảng phẳng `skaaa_data_*` và Smart Object Blueprint.
-4. [scaffold/.agent/skills/skaaa-sync/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-sync/SKILL.md) *(NEW)*: Kỹ năng đồng bộ bài viết và deploy custom node lên Live Webhost.
-5. [scaffold/.agent/workflows/start_session.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/start_session.md) *(NEW)*: Quy trình bắt đầu phiên làm việc.
-6. [scaffold/.agent/workflows/end_session.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/end_session.md) *(NEW)*: Quy trình kết thúc phiên và niêm phong checkpoint.
-7. [scaffold/.agent/workflows/push_to_live.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/push_to_live.md) *(NEW)*: Quy trình kiểm tra an toàn và đồng bộ sang Hosting.
-8. [scaffold/.agent/harness/README.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/harness/README.md) *(NEW)*: Tài liệu cấu hình CLI/Harness cho Agent.
-9. [scaffold/.skaaa-ai/1-overview/design.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/1-overview/design.md) *(NEW)*: Nguồn chân lý duy nhất (SSoT) về nhận diện thương hiệu, Design Tokens (bảng màu, typo, radius, components).
-10. [scaffold/.skaaa-ai/1-overview/site_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/1-overview/site_map.md) *(NEW)*: Bản đồ cấu trúc website và hệ thống dữ liệu.
-11. [scaffold/.skaaa-ai/2-memory/checkpoint.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/2-memory/checkpoint.md) *(NEW)*: File bàn giao ca trực mẫu.
-12. [scaffold/.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/2-memory/decision-log.md) *(NEW)*: Sổ quyết định kiến trúc mẫu.
+1. [scaffold/.agent/rules/skaaa-blocks.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/skaaa-blocks.md): Rào chắn chuẩn Design, Atomic Blocks, Flat DOM, Tailwind CSS v4 JIT, Alpine Skaaapine.
+2. [scaffold/.agent/rules/skaaa-data.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/skaaa-data.md) *(NEW)*: Rào chắn CSDL Flat Tables `skaaa_data_*`, Native MySQL JSON, triệt tiêu `wp_postmeta`, cấm CLI mysql trực tiếp (MISTAKE-001).
+3. [scaffold/.agent/rules/skaaa-logic.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/skaaa-logic.md) *(NEW)*: Rào chắn Logic DAG, cú pháp SkaaaFX AST, Custom Nodes tại `skaaa-custom-nodes/`.
+4. [scaffold/.agent/skills/ui-ux-design/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/ui-ux-design/SKILL.md) *(NEW)*: Kỹ năng tư duy thẩm mỹ cao cấp (Quy tắc phối màu 60-30-10, Visual Hierarchy, nhịp điệu khoảng cách 8px grid, Micro-interactions, tối ưu Mobile-first A11Y).
+5. [scaffold/.agent/skills/system-design/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/system-design/SKILL.md) *(NEW)*: Kỹ năng tư duy kiến trúc hệ thống (Bóc tách thực thể nghiệp vụ, chuẩn hóa quan hệ 1-N / N-N dạng JSON, State Machine, chuẩn đặt tên toàn cục).
+6. [scaffold/.agent/skills/skaaa-theme-builder/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-theme-builder/SKILL.md) *(NEW)*: Kỹ năng cắt Header, Footer, Sidebar thành Organisms (`sys_organisms`) và Theme Templates (`sys_theme_templates`) toàn site, Smart Virtual Wrapper.
+7. [scaffold/.agent/skills/skaaa-builder/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-builder/SKILL.md) *(UPGRADED)*: Bổ sung bản đồ năng lực 6 khối Atomic, Attributes Schema, Bảng đối chiếu Sai vs Đúng (tránh lỗi Gutenberg Invalid Content), snippet Hero Section hoàn chỉnh.
+8. [scaffold/.agent/skills/skaaa-flat-db/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-flat-db/SKILL.md) *(UPGRADED)*: Bổ sung bảng quy chuẩn kiểu cột, Native MySQL JSON cho quan hệ, Bảng Sai vs Đúng, code PHP mẫu tạo bảng và nạp mock data an toàn.
+9. [scaffold/.agent/skills/skaaa-logic/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-logic/SKILL.md) *(NEW & UPGRADED)*: Bổ sung Bảng đối chiếu Sai vs Đúng dập tắt thói quen cũ của AI, Whitelist 7 hàm SkaaaFX AST (`IF`, `CONCAT`, `UPPER`, `LOWER`, `ROUND`, `IS_NULL`, `LIST_COL`), Pluggable Custom Nodes.
+10. [scaffold/.agent/skills/skaaa-sync/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/skaaa-sync/SKILL.md) *(UPGRADED)*: Bổ sung định danh toàn cầu `_skaaa_uuid`, quy trình Pre-flight Checklist 4 bước trước khi Push to Live.
+11. [scaffold/.agent/workflows/build_app.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/build_app.md) *(NEW)*: Quy trình 4 bước kiến tạo App chuẩn Human-In-The-Loop với 2 Cổng dừng xin phê duyệt của Người Dùng (Gate 1 duyệt Schema, Gate 2 duyệt Bố cục giao diện) kết hợp On-Demand Dynamic Skill Loading.
 
 ### C. Tài Liệu Hệ Sinh Thái & Bản Đồ Quản Lý
-1. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md): Nâng version Skaaai lên `1.1.0`, bổ sung Recent Log.
-2. [.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md): Đánh dấu hoàn thành toàn bộ mục tiêu Phase 2 (Local Agent Scaffolding).
-3. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md): Bổ sung quyết định kiến trúc Agent Harness & Memory Scaffolding Initializer.
-4. [.skaaa-ai/3-ecosystem/skaaai/architecture.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/3-ecosystem/skaaai/architecture.md): Cập nhật Trụ cột 3 (Local Agent Harness & Memory Scaffolding).
-5. [wp-content/plugins/skaaai-v1.1.0.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.0.zip): Đóng gói zip tự động.
+1. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md): Nâng version Skaaai lên `1.1.1`, bổ sung Recent Log ngày 2026-09-24.
+2. [.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md): Cập nhật hoàn thành Phase 2 với đầy đủ 17 tệp harness và memory.
+3. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md): Ghi nhận quyết định kiến trúc Buồng lái AI toàn diện kết hợp tư duy nền tảng và thực thi công cụ.
+4. [.skaaa-ai/3-ecosystem/skaaai/architecture.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/3-ecosystem/skaaai/architecture.md): Nâng version `1.1.1`, cập nhật Trụ cột 3 (3 Rules, 7 Skills, 4 Workflows).
 
 ---
 
 ## 3. Các Lỗi & Vấn Đề Đã Xử Lý Dứt Điểm Trong Phiên (Resolved Issues)
-1. **Làm rõ ranh giới Agent Harness vs Live Webhost:**
-   - *Vấn đề:* Khách hàng có thể hiểu nhầm hoặc deploy nhầm thư mục `.agent/` và `.skaaa-ai/` lên Live hosting.
-   - *Khắc phục:* Thiết lập cơ chế **Sender-Only Lock**. Tính năng khởi tạo chỉ kích hoạt khi website đóng vai trò `sender` (Localhost). Receiver bị khóa 100%. Luồng Sync tuyệt đối loại trừ các thư mục này.
-2. **Quyền ghi tệp `ABSPATH` của Plugin WordPress:**
-   - *Khắc phục:* Sử dụng `WP_Filesystem` chuẩn WordPress với fallback an toàn `mkdir` và `copy` đệ quy, đảm bảo hoạt động trơn tru trên mọi môi trường Localhost (Local by Flywheel, Docker, XAMPP).
-3. **Tuân thủ giới hạn độ dài tệp (File Size Limit < 700 lines):**
-   - *Khắc phục:* Tách toàn bộ logic render tab và deploy sang class chuyên biệt `Harness_Initializer`, giữ `class-skaaai-admin.php` ở mức 694 dòng.
+1. **Triệt tiêu nguy cơ ảo giác cú pháp độc quyền Skaaa (Syntax Hallucination):**
+   - *Vấn đề:* AI chưa từng được train trên SkaaaFX AST hay Atomic Blocks, dẫn đến xu hướng tự tiện viết cú pháp Blade `{{ $payload->email }}` hay nhét thẻ HTML thô ngoài comment.
+   - *Khắc phục:* Bổ sung **Bảng đối chiếu Sai ➔ Đúng (Negative Prompting)** và **Whitelist 7 hàm đóng** vào các kỹ năng `skaaa-logic` và `skaaa-builder`.
+2. **Khắc phục tư duy "lặp Header/Footer vào từng bài viết":**
+   - *Khắc phục:* Tạo kỹ năng `skaaa-theme-builder` hướng dẫn AI bóc tách Header/Footer thành Organisms và đăng ký Theme Templates toàn site qua Smart Virtual Wrapper.
+3. **Chống ô nhiễm ngữ cảnh (Context Pollution) & Tránh AI tự tung tự tác:**
+   - *Khắc phục:* Tạo workflow `build_app.md` với cơ chế **On-Demand Dynamic Skill Loading** và **2 Cổng dừng Human-In-The-Loop Approval Gates** (Gate 1 duyệt Schema, Gate 2 duyệt Wireframe).
+4. **Nâng tầm AI từ "thợ gõ công cụ" thành "Lead Architect":**
+   - *Khắc phục:* Bổ sung 2 kỹ năng tư duy nền tảng `ui-ux-design` và `system-design` phối hợp nhịp nhàng với các công cụ thực thi của Skaaa.
 
 ---
 
 ## 4. Kết Quả Kiểm Thử Thực Tế (100% Passed)
-Đã thực thi kiểm thử trực tiếp trên site thử nghiệm [lytatthanh-localremote](file:///home/chiconcota/Local%20Sites/lytatthanh-localremote/app/public):
-- [x] **Test 1:** Chạy `Harness_Initializer::initialize()` trên website `sender`, tự động tạo thành công 12/12 tệp trong `.agent/` và `.skaaa-ai/` tại `app/public/`.
-- [x] **Test 2:** Chạy kiểm tra trên website `receiver`, hệ thống chặn cứng với thông báo lỗi `skaaai_receiver_forbidden`.
-- [x] **Test 3:** Gọi `Harness_Initializer::get_status()` xác nhận trạng thái `initialized: true`, danh sách tệp tồn tại chính xác 100%.
+- [x] **Kiểm tra Cú pháp PHP (`php -l`):** 100% không phát sinh bất kỳ lỗi cú pháp nào trong `skaaai.php` và `class-skaaai-harness-initializer.php`.
+- [x] **Kiểm tra Giới hạn Kích thước Tệp:** `class-skaaai-harness-initializer.php` (331 dòng) và `class-skaaai-admin.php` (694 dòng) đều tuân thủ nghiêm ngặt < 700 dòng.
+- [x] **Đóng gói Tự động:** Chạy `node zip-all.js` tạo thành công tệp [skaaai-v1.1.1.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.1.zip) dung lượng tối ưu (0.03 MB).
+- [ ] **Kiểm thử Người Dùng (Manual Testing):** Người dùng yêu cầu `/end_session` để trực tiếp kiểm thử trên môi trường Localhost.
 
 ---
 
 ## 5. Kế Hoạch Bàn Giao Phiên Kế Tiếp (Ready for Next Session)
-Người dùng đã xác nhận: *"tới đây thôi phiên sau mình sẽ bàn về nội dung của từng file một"*.
+Người dùng đang trực tiếp test buồng lái AI Harness và các file scaffold vừa hoàn thiện.
 
 Khi mở phiên làm việc tiếp theo (`/start_session`), Agent kế tiếp cần:
-1. **Bàn thảo chi tiết nội dung từng file trong bộ Agent Harness:**
-   - Cùng người dùng rà soát và hoàn thiện nội dung chuyên sâu của:
-     - Các file **Skills** (`.agent/skills/skaaa-builder/SKILL.md`, `skaaa-flat-db/SKILL.md`, `skaaa-sync/SKILL.md`).
-     - File **Design Tokens & Brand** (`.skaaa-ai/1-overview/design.md`).
-     - Các file **Workflows** (`start_session.md`, `end_session.md`, `push_to_live.md`).
-     - File **Rules** (`skaaa-blocks.md`).
-2. **Đồng bộ các cập nhật nội dung vào thư mục template:**
-   - Sau khi thống nhất nội dung với người dùng, cập nhật ngược lại vào thư mục nguồn `wp-content/plugins/skaaai/scaffold/`.
-   - Đóng gói lại plugin `skaaai-v1.1.x.zip`.
+1. **Tiếp nhận phản hồi sau kiểm thử của Người Dùng:**
+   - Lắng nghe đánh giá của User về quá trình khởi tạo Harness trên trang quản trị Localhost.
+   - Điều chỉnh hoặc tối ưu thêm nếu User có yêu cầu bổ sung.
+2. **Triển khai các công cụ dòng lệnh trong `.agent/harness/` (Tiếp nối Phase 2):**
+   - Xây dựng tiện ích kiểm tra cú pháp và sinh block: `.agent/harness/block-tool.php`.
+   - Xây dựng tiện ích tra cứu schema và query an toàn không treo shell: `.agent/harness/db-tool.php`.
+   - Xây dựng tiện ích kiểm tra tương thích Tailwind JIT offline: `.agent/harness/jit-tool.php`.

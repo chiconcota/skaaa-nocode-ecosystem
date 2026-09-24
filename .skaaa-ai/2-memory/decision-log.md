@@ -39,6 +39,23 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
 
+## 2026-09-24 - 🟢 Hoàn thành: Thiết lập Hệ thống Buồng lái AI Toàn diện (3 Rules, 7 Skills, HITL Workflow build_app - Skaaai v1.1.1)
+- **Decision (Comprehensive AI Cockpit with Gated Workflows & Grounded Mindset Skills):**
+  - **Mục tiêu:** Nâng tầm AI Agent từ một "thợ gõ công cụ" (Tool Operator) thành "Lead Product Designer & System Architect" thông qua hệ thống buồng lái 17 tệp chuẩn hóa cao độ, giải quyết triệt để 2 nguy cơ: ô nhiễm ngữ cảnh (Context Pollution) và ảo giác cú pháp đối với hệ sinh thái độc quyền Skaaa.
+  - **Quyết định Kiến trúc:**
+    1. **Tách 3 Rào Chắn Độc Lập (`.agent/rules/`):** Phân chia rào chắn theo đúng 3 plugin lõi (`skaaa-blocks.md` cho Design, `skaaa-data.md` cho Data Pro, `skaaa-logic.md` cho Logic Engine) giúp Sub-agents hoạt động độc lập, không ô nhiễm ngữ cảnh chéo.
+    2. **Bộ Ngũ Kỹ Năng Thực Thi (5 Skaaa Implementation Skills):** 
+       - `skaaa-theme-builder`: Khung sườn website, Dual-Table (`sys_organisms` + `sys_theme_templates`), Smart Virtual Wrapper tự động kẹp Header/Footer toàn site.
+       - `skaaa-builder`: 6 Atomic Blocks, bảng thuộc tính chi tiết, snippet Hero chuẩn Flat DOM.
+       - `skaaa-flat-db`: Kiểu cột phẳng, quan hệ Native MySQL JSON, code PHP `$wpdb` an toàn chống treo shell.
+       - `skaaa-logic`: Đồ thị DAG, bảng đối chiếu Sai ➔ Đúng của SkaaaFX AST, Whitelist 7 hàm đóng.
+       - `skaaa-sync`: Định danh toàn cầu `_skaaa_uuid`, pre-flight checklist 4 bước xuất bản 1-Click.
+    3. **Bộ Đôi Kỹ Năng Tư Duy Nền Tảng (2 Agnostic Mindset Skills):**
+       - `ui-ux-design`: Phân cấp thị giác F/Z, quy tắc phối màu 60-30-10, nhịp điệu khoảng cách 8px grid, chuyển động vi mô (Micro-interactions) và tối ưu mobile-first.
+       - `system-design`: Bóc tách thực thể nghiệp vụ, chuẩn hóa quan hệ 1-N / N-N dạng JSON, kiến trúc máy trạng thái (State Machine) và quy chuẩn đặt tên toàn cục.
+    4. **Workflow Điều Phối Có Điểm Dừng Phê Duyệt (`build_app.md`):** Quy trình 4 bước chuẩn App Builder kết hợp nạp kỹ năng động theo từng bước và 2 Cổng dừng kiểm soát bắt buộc của Con người (Human-In-The-Loop Approval Gates: Gate 1 duyệt Schema, Gate 2 duyệt Bố cục giao diện).
+    5. **Cập nhật & Đóng gói:** Nâng phiên bản `Skaaai` lên `v1.1.1`, cập nhật tab Agent Cockpit và đóng gói tự động `skaaai-v1.1.1.zip`.
+
 ## 2026-09-23 - 🟢 Hoàn thành: Khởi tạo Kiến trúc Agent Harness & Bộ nhớ AI 1-Click cho Localhost (Skaaai v1.1.0)
 - **Decision (Local Agent Harness & Memory Scaffolding Initializer - Sender Only):**
   - **Mục tiêu:** Cung cấp giải pháp triển khai "Buồng lái AI" (Agent Cockpit) tức thì cho mọi website Localhost của khách hàng khi cài plugin `Skaaai`. Chỉ với 1 click, toàn bộ giàn giáo AI (`.agent/`) và cấu trúc bộ nhớ dài hạn (`.skaaa-ai/`) được tự động deploy ra thư mục gốc `app/public/`.

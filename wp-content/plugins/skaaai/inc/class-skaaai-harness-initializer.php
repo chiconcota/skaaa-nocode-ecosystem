@@ -278,10 +278,17 @@ class Harness_Initializer {
                         </h4>
                         <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Contains rules, workflows, and local execution tools for AI.', 'skaaai' ); ?></p>
                         <ul class="skaaai-path-list" style="margin:0;padding-left:18px;font-size:13px;line-height:1.8;">
-                            <li><code>.agent/rules/skaaa-blocks.md</code></li>
+                            <li><code>.agent/rules/skaaa-blocks.md</code> (Design & UI)</li>
+                            <li><code>.agent/rules/skaaa-data.md</code> (Database Flat Tables)</li>
+                            <li><code>.agent/rules/skaaa-logic.md</code> (Logic DAG & AST)</li>
+                            <li><code>.agent/skills/ui-ux-design/SKILL.md</code> (UI/UX Best Practices)</li>
+                            <li><code>.agent/skills/system-design/SKILL.md</code> (Data Architecture)</li>
                             <li><code>.agent/skills/skaaa-builder/SKILL.md</code></li>
+                            <li><code>.agent/skills/skaaa-theme-builder/SKILL.md</code></li>
                             <li><code>.agent/skills/skaaa-flat-db/SKILL.md</code></li>
+                            <li><code>.agent/skills/skaaa-logic/SKILL.md</code></li>
                             <li><code>.agent/skills/skaaa-sync/SKILL.md</code></li>
+                            <li><code>.agent/workflows/build_app.md</code> (App Builder Pipeline)</li>
                             <li><code>.agent/workflows/push_to_live.md</code></li>
                             <li><code>.agent/harness/README.md</code></li>
                         </ul>

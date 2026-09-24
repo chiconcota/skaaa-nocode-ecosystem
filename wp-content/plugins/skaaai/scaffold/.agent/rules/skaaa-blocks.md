@@ -1,5 +1,5 @@
-# SKAAA ATOMIC BLOCKS & STYLING RULES
-@target: Skaaa No-Code Ecosystem | @mode: Local Development
+# SKAAA ATOMIC BLOCKS & STYLING RULES (skaaa-blocks.md)
+@target: Skaaa No-Code Design | @mode: Local Development | @architecture: Atomic Blocks & Skaaapine
 
 ## 1. ATOMIC BLOCKS & FLAT DOM
 - Chỉ sử dụng 6 khối Atomic Blocks chuẩn: `Container`, `Text`, `Button`, `SVG`, `Code`, `Loop`.
