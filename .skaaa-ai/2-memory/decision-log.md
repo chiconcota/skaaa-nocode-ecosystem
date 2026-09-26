@@ -39,6 +39,16 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
 
+## 2026-09-26 - 🟢 Hoàn thành: Tái Cấu Trúc Toàn Diện AI Kit Tinh Gọn & Cổng Dừng HITL Bắt Buộc (Skaaai v1.1.2)
+- **Decision (Lean AI Kit with Mandatory HITL Intake Gate & Project Documents Directory):**
+  - **Bối cảnh & Vấn đề thực tế:** Khi chạy thử nghiệm thực tế với Antigravity CLI (`team-preview`), AI chạy liên tục trong 1 tiếng đồng hồ, đốt sạch ngân sách token nhưng chỉ tạo ra 1 header và 1 footer hoàn toàn không có logo, không có hình ảnh. Nguyên nhân: (1) Rules rải rác bị tiêm tự động vào mọi prompt làm phình to context; (2) Dạy lý thuyết suông (UI/UX, System Design) thừa thãi mà thiếu code mẫu; (3) AI thiếu hoàn toàn khâu phỏng vấn Human-In-The-Loop ban đầu nên tự cắm đầu làm trong mù quáng.
+  - **Quyết định Kiến trúc Mới:**
+    1. **Quy về 1 Rào Chắn Duy Nhất (`.agent/rules/skaaa-core.md`, ~20 dòng):** Thay thế 3 file rules cũ, cắt giảm 85% lượng token bị nhồi vào context trên mỗi lượt chat.
+    2. **Khởi tạo Ngăn Kéo Tài Liệu Dự Án (`.skaaa-ai/documents/`):** Thiết lập 3 file hồ sơ dự án thống nhất (`brand-assets.md` lưu trữ vị trí Logo & Ảnh, `content-brief.md` lưu trữ copywriting & menu header/footer info, `data-requirements.md` lưu trữ CSDL phẳng & form). Mọi subagent đọc trực tiếp từ đây để lấy URL ảnh thật.
+    3. **Cổng Dừng Phỏng Vấn Bắt Buộc (Human-In-The-Loop Intake Gate):** Trong `build_app.md`, AI bị cấm tuyệt đối sinh mã nếu chưa hỏi người dùng 4 câu về: Logo/Ảnh, Menu Header, Footer info, Copywriting và Dữ liệu.
+    4. **Bố Cục Hoàn Chỉnh Thực Chiến Trong `skaaa-builder`:** Bổ sung các mẫu snippet khung chuẩn Gutenberg có sẵn vị trí cho Logo, Ảnh banner và Chân trang liên hệ để xuất bản 1 nhịp (One-shot delivery), chấm dứt vòng lặp chỉnh sửa CSS vụn vặt gây cháy token.
+    5. **Cập nhật & Đóng gói:** Nâng phiên bản `Skaaai` lên `v1.1.2`, cập nhật `class-skaaai-harness-initializer.php` và đóng gói tự động `skaaai-v1.1.2.zip`.
+
 ## 2026-09-24 - 🟢 Hoàn thành: Thiết lập Hệ thống Buồng lái AI Toàn diện (3 Rules, 7 Skills, HITL Workflow build_app - Skaaai v1.1.1)
 - **Decision (Comprehensive AI Cockpit with Gated Workflows & Grounded Mindset Skills):**
   - **Mục tiêu:** Nâng tầm AI Agent từ một "thợ gõ công cụ" (Tool Operator) thành "Lead Product Designer & System Architect" thông qua hệ thống buồng lái 17 tệp chuẩn hóa cao độ, giải quyết triệt để 2 nguy cơ: ô nhiễm ngữ cảnh (Context Pollution) và ảo giác cú pháp đối với hệ sinh thái độc quyền Skaaa.

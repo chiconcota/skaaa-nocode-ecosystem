@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.1.1)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Rules, Skills, Workflows & Memory).  
+**Status:** 🟢 Stable (v1.1.2)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows & Project Documents).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -40,23 +40,26 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **Sideload Media:** Tự động tải hình ảnh từ máy local về Media Library trên hosting.
   - **Tự động tạo Revision:** Trước khi ghi đè trên Receiver, luôn gọi `wp_save_post_revision()` để có thể Undo phục hồi 1-click trong WordPress History.
 
-### Trụ cột 3: Local Agent Harness & Memory Scaffolding (v1.1.1)
-- **Mục tiêu:** Cung cấp bộ công cụ, CLI, Scripts tiện ích và Hệ thống Bộ nhớ dài hạn chạy trực tiếp dưới máy Localhost để AI Agent (như Antigravity/CLI) thao tác chuẩn xác, ghi nhớ ngữ cảnh và an toàn tuyệt đối với website.
+### Trụ cột 3: Mô Hình Công Ty Công Nghệ Thu Nhỏ & Tủ Tài Liệu Doanh Nghiệp (v1.1.2)
+- **Mục tiêu:** Tái cấu trúc toàn bộ kho AI Kit Scaffolding thành một "Công ty công nghệ thu nhỏ" gồm 4 phòng ban tinh gọn và Tủ tài liệu doanh nghiệp nội bộ. Triệt tiêu hoàn toàn nguy cơ AI chạy mù quáng, đốt token vô ích, đảm bảo 100% trang web sinh ra có đủ Logo, Hình ảnh thật và Copywriting.
 - **Quy tắc Bất Biến (Sender-Only Scaffolding):**
-  - Cặp thư mục buồng lái `.agent/` và bộ nhớ `.skaaa-ai/` là **đặc quyền độc nhất của website đóng vai trò `Sender` (Localhost)**.
-  - Trên `Receiver` (Live Webhost), cấm tuyệt đối sinh ra `.agent/` và `.skaaa-ai/`. Động cơ đồng bộ Push to Live tuyệt đối không đồng bộ 2 thư mục này lên Live Hosting nhằm triệt tiêu nguy cơ lộ bảo mật và tối ưu hiệu năng.
-- **Cấu trúc Buồng lái Kép tại Website Sender:**
-  1. **Thư mục `.agent/` (Quy tắc & Công cụ điều khiển):**
-     - `.agent/rules/`: 3 rào chắn độc lập (`skaaa-blocks.md` cho Design, `skaaa-data.md` cho Data Pro, `skaaa-logic.md` cho Logic Engine).
-     - `.agent/skills/`: 7 kỹ năng chuyên sâu gồm 2 kỹ năng tư duy nền tảng (`ui-ux-design`, `system-design`) và 5 kỹ năng thực thi (`skaaa-theme-builder`, `skaaa-builder`, `skaaa-flat-db`, `skaaa-logic`, `skaaa-sync`).
-     - `.agent/workflows/`: Các quy trình điều phối có Human-in-the-loop (`build_app.md` có 2 Cổng dừng Gate 1/Gate 2, `start_session.md`, `end_session.md`, `push_to_live.md`).
-     - `.agent/harness/`: Scripts CLI (tra cứu DB, validate block, kiểm tra CSS).
-  2. **Thư mục `.skaaa-ai/` (Bản đồ & Bộ nhớ Ngữ cảnh của Site):**
-     - `.skaaa-ai/1-overview/`: Bản đồ cấu trúc website (`site_map.md`), SSoT nhận diện thương hiệu Design Tokens (`design.md`).
-     - `.skaaa-ai/2-memory/`: Bộ nhớ tiến độ (`checkpoint.md`, `decision-log.md`) ghi nhận tiến độ dở dang giữa các phiên làm việc.
+  - Cặp thư mục điều hành `.agent/` và tài liệu `.skaaa-ai/` là **đặc quyền độc nhất của website đóng vai trò `Sender` (Localhost)**. Cấm tuyệt đối khởi tạo hoặc đồng bộ lên `Receiver` (Live Webhost).
+- **Cấu trúc 10 Tệp Nguyên Tử của Công Ty:**
+  1. **Khối Điều Hành & Thực Thi (`.agent/`):**
+     - `.agent/rules/company-rules.md`: Công cụ quản trị của Giám Đốc (Bạn là Giám Đốc, cấm làm mù, cấm đốt token, chuẩn Skaaa).
+     - `.agent/workflows/1-client-intake.md`: Đồ nghề của Account/BA (kịch bản phỏng vấn Giám Đốc lấy Logo, Ảnh, Menu, Footer).
+     - `.agent/workflows/2-assembly-delivery.md`: Đồ nghề của Dev & QC (ráp block 1 nhịp, soát lỗi Gutenberg và bàn giao link nghiệm thu).
+     - `.agent/skills/designer-patterns.md`: Đồ nghề của Designer (mẫu khung có ô chứa Logo, Ảnh banner Hero, Footer và bảng Sai ➔ Đúng).
+     - `.agent/skills/developer-blocks.md`: Đồ nghề của Developer (cú pháp 6 Atomic blocks và PHP `$wpdb` tạo bảng phẳng an toàn).
+  2. **Tủ Tài Liệu Nội Bộ Doanh Nghiệp (`.skaaa-ai/`):**
+     - `.skaaa-ai/1-company-profile/system-map.md`: Hồ sơ năng lực & bản đồ công nghệ (4 plugin + 1 theme).
+     - `.skaaa-ai/1-company-profile/brand-guidelines.md`: Quy chuẩn nhận diện thương hiệu & Design Tokens.
+     - `.skaaa-ai/2-company-memory/decision-log.md`: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt.
+     - `.skaaa-ai/2-company-memory/checkpoint.md`: Sổ bàn giao ca kíp giữa các phiên làm việc.
+     - `.skaaa-ai/3-project-dossier/client-brief.md`: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting.
 - **Thực thi:**
-  - **1-Click Init:** Nút bấm trên giao diện Admin Skaaai (chỉ hiện khi `role === 'sender'`) tự động xuất bản (deploy) toàn bộ cấu trúc 17 tệp `.agent/` và `.skaaa-ai/` vào thư mục gốc `app/public/`.
-  - **On-Demand Context Loading & Negative Prompting:** Dạy AI nạp skill theo từng bước và áp dụng các bảng đối chiếu Sai ➔ Đúng triệt tiêu 100% ảo giác cú pháp SkaaaFX AST và Gutenberg Invalid Content.
+  - Nút bấm trên Admin Skaaai (`role === 'sender'`) deploy tự động toàn bộ 10 tệp vào `app/public/`.
+  - Giảm từ 17 tệp rườm rà xuống 10 tệp nguyên tử tinh gọn (< 400 dòng), tiết kiệm hơn 85% token và đảm bảo sản phẩm ra đúng 100% ý Giám Đốc.
 
 ---
 

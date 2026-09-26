@@ -29,17 +29,20 @@
 ### 🟡 Phase 2: Local Agent Harness & Memory Scaffolding (Buồng Lái & Bộ Nhớ Dưới Localhost)
 > **Thiết quân luật:** Cặp thư mục buồng lái `.agent/` và bộ nhớ `.skaaa-ai/` là đặc quyền **DUY NHẤT của Sender (Localhost)**. Trên **Receiver (Live Webhost)**, cấm tuyệt đối việc khởi tạo; động cơ đồng bộ Push to Live cũng không bao giờ đồng bộ `.agent/` và `.skaaa-ai/` lên Live nhằm bảo mật và tối ưu hiệu năng.
 
-- [x] **Bộ Khởi Tạo 1-Click (Agent Harness & Memory Initializer - Sender Only) - Hoàn thành v1.1.1:**
-  - Trong Admin Skaaai (`role === 'sender'`), thêm nút bấm **"⚡ Initialize Agent Harness & Memory"**.
-  - Khi bấm, Skaaai tự động xuất bản (deploy) toàn bộ cấu trúc kép gồm 17 tệp vào thư mục gốc website Localhost (`app/public/`):
-    - **`.agent/` (Buồng lái điều khiển):**
-      - `.agent/rules/`: 3 rào chắn độc lập (`skaaa-blocks.md`, `skaaa-data.md`, `skaaa-logic.md`).
-      - `.agent/skills/`: 7 kỹ năng chuyên sâu (`ui-ux-design`, `system-design`, `skaaa-theme-builder`, `skaaa-builder`, `skaaa-flat-db`, `skaaa-logic`, `skaaa-sync`).
-      - `.agent/workflows/`: 4 quy trình hành động (`build_app.md` chuẩn Human-in-the-loop, `push_to_live.md`, `start_session.md`, `end_session.md`).
-      - `.agent/harness/`: Bộ công cụ dòng lệnh (CLI & PHP helpers `README.md`).
-    - **`.skaaa-ai/` (Bản đồ, Nhận diện Thương hiệu & Bộ nhớ Ngữ cảnh của Site):**
-      - `.skaaa-ai/1-overview/`: Bản đồ cấu trúc website (`site_map.md`) & Nhận diện thương hiệu Design System (`design.md`).
-      - `.skaaa-ai/2-memory/`: Bộ nhớ tiến độ (`checkpoint.md`, `decision-log.md`) ghi nhận tiến độ dở dang giữa các phiên làm việc của AI trên site này.
+- [x] **Mô Hình Công Ty Công Nghệ Thu Nhỏ & Tủ Tài Liệu Doanh Nghiệp (Sender Only) - Hoàn thành v1.1.2:**
+  - Trong Admin Skaaai (`role === 'sender'`), tab **Agent Cockpit** tự động xuất bản (deploy) toàn bộ cấu trúc 10 tệp nguyên tử tinh gọn vào thư mục gốc `app/public/`:
+    - **`.agent/` (Bộ máy điều hành & thực thi):**
+      - `.agent/rules/company-rules.md`: Công cụ quản trị của Giám Đốc (Bạn là Giám Đốc, cấm làm mù, cấm đốt token, chuẩn Skaaa).
+      - `.agent/workflows/1-client-intake.md`: Đồ nghề của Account/BA (Kịch bản phỏng vấn Giám Đốc lấy Logo, Ảnh, Menu, Footer).
+      - `.agent/workflows/2-assembly-delivery.md`: Đồ nghề của Dev & QC (Lắp ráp block 1 nhịp, kiểm định và bàn giao).
+      - `.agent/skills/designer-patterns.md`: Đồ nghề của Designer (Mẫu khung Header có ô chứa Logo, Hero có ô chứa Banner Image, Footer liên hệ và bảng Sai ➔ Đúng).
+      - `.agent/skills/developer-blocks.md`: Đồ nghề của Developer (Cú pháp 6 Atomic blocks và PHP `$wpdb` tạo bảng phẳng MySQL an toàn).
+    - **`.skaaa-ai/` (Tủ tài liệu nội bộ doanh nghiệp & Hồ sơ dự án):**
+      - `.skaaa-ai/1-company-profile/system-map.md`: Hồ sơ năng lực & bản đồ công nghệ doanh nghiệp.
+      - `.skaaa-ai/1-company-profile/brand-guidelines.md`: Quy chuẩn nhận diện thương hiệu & Design Tokens.
+      - `.skaaa-ai/2-company-memory/decision-log.md`: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt.
+      - `.skaaa-ai/2-company-memory/checkpoint.md`: Sổ bàn giao ca kíp giữa các phiên làm việc.
+      - `.skaaa-ai/3-project-dossier/client-brief.md`: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting sếp duyệt.
 - [ ] **Block Synthesizer & Validator Tool (`.agent/harness/block-tool.php`):**
   - Tiện ích sinh mã Atomic Blocks chuẩn Gutenberg (`container`, `text`, `button`, `svg`, `code`, `loop`), đảm bảo Flat DOM, không sinh thẻ HTML thô thừa gây Gutenberg Invalid Content.
   - Bộ kiểm tra (Validator) cú pháp Skaaapine: bắt buộc `@click.prevent`, giao tiếp qua `Alpine.store`, ngăn chặn lỗi scope shadowing.
