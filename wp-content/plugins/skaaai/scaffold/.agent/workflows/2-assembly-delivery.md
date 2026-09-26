@@ -31,10 +31,15 @@
 ---
 
 ## BƯỚC 3: KIỂM ĐỊNH CHẤT LƯỢNG (QC PRE-FLIGHT CHECK)
-Chuyên viên QC đối soát 3 tiêu chuẩn bắt buộc:
-- [ ] Không có thẻ HTML thô (`<div>`, `<main>`) bọc ngoài comment block (100% không bị Gutenberg Invalid Content).
-- [ ] Ảnh banner và Logo hiển thị đúng, có fallback `onerror` an toàn.
-- [ ] Các nút bấm Alpine.js đều có modifier `@click.prevent`.
+Chuyên viên QC đối soát các tiêu chuẩn bắt buộc bằng bộ công cụ CLI:
+- [ ] **Tiền kiểm Block & DOM:** Chạy `php .agent/harness/block-tool.php --validate="<file_or_markup>"`:
+  - 100% không có thẻ HTML thô (`<div>`, `<main>`) bọc ngoài comment block (chống lỗi Invalid Content).
+  - Khối tự đóng đóng đúng chuẩn `<!-- wp:... /-->`.
+  - Các nút bấm Alpine.js đều có modifier `@click.prevent`.
+- [ ] **Tiền kiểm Cú pháp Tailwind JIT:** Chạy `php .agent/harness/jit-tool.php --scan="<file_or_markup>"`:
+  - 100% class CSS hợp lệ với `tailwind-rules.json`.
+  - Không có typo (`flex-center`, `text-bold`, `bg-slate900`, `w-300px`).
+- [ ] **Kiểm tra Media:** Ảnh banner và Logo hiển thị đúng, có fallback `onerror` an toàn.
 
 ---
 

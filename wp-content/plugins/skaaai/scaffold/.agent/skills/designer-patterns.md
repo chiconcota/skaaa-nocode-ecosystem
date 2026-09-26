@@ -109,3 +109,39 @@
 | `<div class="hero">` bọc ngoài comment block | Dùng khối `container` với thuộc tính `{"tag":"section","classes":"hero ..."}` | Báo lỗi đỏ Invalid Content trên Gutenberg. |
 | Để trống logo hoặc không hỏi logo | Lấy Logo từ `client-brief.md` (ảnh hoặc text + svg) | Header bị mù logo, Giám Đốc không duyệt. |
 | Quên fallback ảnh banner | Luôn thêm thuộc tính `onerror="this.src='...'"` | Ảnh bị vỡ icon xám xịt khi link hỏng. |
+
+---
+
+## 5. CÔNG CỤ TIỀN KIỂM CÚ PHÁP TAILWIND JIT (jit-tool.php)
+
+> **Thiết quân luật cho Designer:** Tuyệt đối không giao block chứa class rác hoặc sai cú pháp (như `flex-center`, `text-bold`, `bg-slate900`, `w-300px`). Trước khi bàn giao giao diện, **BẮT BUỘC** chạy công cụ kiểm tra cú pháp:
+
+### 1. Kiểm tra nhanh một danh sách class:
+```bash
+php .agent/harness/jit-tool.php --check="flex items-center text-sm font-semibold bg-slate-900 text-white p-4 rounded-xl"
+```
+
+### 2. Quét toàn bộ file mẫu hoặc đoạn mã HTML / Gutenberg Block:
+```bash
+# Quét trực tiếp file layout vừa thiết kế
+php .agent/harness/jit-tool.php --scan="path/to/my-block.html"
+
+# Quét kèm xem trước mã CSS được sinh ra
+php .agent/harness/jit-tool.php --scan="path/to/my-block.html" --compile
+```
+
+### 3. Tra cứu từ điển quy tắc JIT đang được nạp:
+```bash
+php .agent/harness/jit-tool.php --rules
+```
+
+### 4. Bảng Lỗi Phổ Biến & Cách Sửa Nhanh (Gợi ý tự động từ Tool):
+| Lỗi Designer Thường Mắc | Nguyên Nhân | Sửa Lại Cho Đúng |
+| :--- | :--- | :--- |
+| `flex-center` | Không có utility này | `items-center justify-center` |
+| `text-bold` | Nhầm chữ với độ dày font | `font-bold` |
+| `bg-slate900` | Thiếu dấu gạch nối giữa màu và độ đậm | `bg-slate-900` |
+| `w-300px` | Giá trị tuỳ biến thiếu ngoặc vuông | `w-[300px]` |
+| `cursor-hand` | Tên thuộc tính CSS sai | `cursor-pointer` |
+| `shadow-box` | Tên shadow không chuẩn | `shadow` hoặc `shadow-md` |
+

@@ -1,5 +1,5 @@
 # CHECKPOINT - PHẦN BÀN GIAO TIẾN ĐỘ
-*Ngày cập nhật: 2026-09-26 | Phiên làm việc: Milestone 2 - Skaaai Phase 2 (Thiết Lập Mô Hình Công Ty Công Nghệ Thu Nhỏ & Tủ Tài Liệu Doanh Nghiệp v1.1.2)*
+*Ngày cập nhật: 2026-09-27 | Phiên làm việc: Milestone 2 - Skaaai Phase 2 (Hoàn Thành Bộ 3 Công Cụ CLI Harness: db-tool.php, block-tool.php & jit-tool.php v1.2.1)*
 
 ---
 
@@ -7,7 +7,7 @@
 - **Git Branch:** `feature/skaaai-core`
 - **Thư mục làm việc:** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Phiên bản Hệ Sinh Thái Hiện Tại:**
-  - `Skaaai: v1.1.2` (🟢 Hoàn thành Bộ Khung 10 Tệp Công Ty Công Nghệ & Tủ Tài Liệu Doanh Nghiệp)
+  - `Skaaai: v1.2.1` (🟢 Hoàn thành Trọn Bộ 3 Tiện Ích CLI: db-tool, block-tool & jit-tool)
   - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
   - `Skaaa No-Code Design: v2.4.4` (🟢 Stable)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
@@ -18,50 +18,49 @@
 ## 2. Danh Sách Tệp Tin Đã Tạo & Chỉnh Sửa Trong Phiên (File Change Manifest)
 
 ### A. Mã Nguồn Lõi Plugin Skaaai (`wp-content/plugins/skaaai/`)
-1. [skaaai.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/skaaai.php): Nâng phiên bản SemVer lên `v1.1.2`.
-2. [inc/class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php): Nâng version lên `v1.1.2`, cập nhật `dirs_to_ensure` và giao diện tab Agent Cockpit hiển thị đúng 10 tệp nguyên tử mới (331 dòng, tuân thủ < 700 dòng).
-3. [wp-content/plugins/skaaai-v1.1.2.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.2.zip): Đóng gói tự động bản zip cài đặt v1.1.2 qua `zip-all.js`.
+1. [skaaai.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/skaaai.php): Nâng phiên bản SemVer lên `v1.2.1`.
+2. [inc/class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php): Nâng version lên `v1.2.1`, bổ sung `jit-tool.php` vào danh sách công cụ Buồng lái Agent Cockpit.
+3. [wp-content/plugins/skaaai-v1.2.1.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.2.1.zip): Đóng gói tự động bản zip cài đặt v1.2.1 qua `zip-all.js` (0.03 MB).
 
-### B. Kho Tệp Mẫu Công Ty Công Nghệ Thu Nhỏ (`wp-content/plugins/skaaai/scaffold/`)
-1. [scaffold/.agent/rules/company-rules.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/company-rules.md) *(NEW)*: Công cụ lãnh đạo của Giám Đốc (Bạn là Giám Đốc, Lệnh cấm làm mù, Lệnh kỷ luật ngân sách, Tiêu chuẩn kỹ thuật Skaaa).
-2. [scaffold/.agent/workflows/1-client-intake.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/1-client-intake.md) *(NEW)*: Đồ nghề của Account/BA (Kịch bản khảo sát Giám Đốc đúng 4 câu hỏi cốt lõi: Logo/Ảnh, Menu/Footer, Data, Copywriting).
-3. [scaffold/.agent/workflows/2-assembly-delivery.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/2-assembly-delivery.md) *(NEW)*: Đồ nghề của Dev & QC (Lắp ráp block 1 nhịp từ brief, kiểm định lỗi Gutenberg và bàn giao link nghiệm thu).
-4. [scaffold/.agent/skills/designer-patterns.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/designer-patterns.md) *(NEW)*: Đồ nghề của Designer (Mẫu khung Header có ô chứa Logo, Hero có ô chứa Banner Image, Footer liên hệ và bảng Sai ➔ Đúng).
-5. [scaffold/.agent/skills/developer-blocks.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/developer-blocks.md) *(NEW)*: Đồ nghề của Developer (Cú pháp JSON 6 khối Atomic và mẫu PHP `$wpdb` tạo bảng phẳng MySQL `skaaa_data_*` an toàn).
-6. [scaffold/.skaaa-ai/1-company-profile/system-map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/1-company-profile/system-map.md) *(NEW)*: Hồ sơ năng lực & bản đồ công nghệ doanh nghiệp (4 plugin + 1 theme).
-7. [scaffold/.skaaa-ai/1-company-profile/brand-guidelines.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/1-company-profile/brand-guidelines.md) *(NEW)*: Quy chuẩn nhận diện thương hiệu & Design Tokens doanh nghiệp.
-8. [scaffold/.skaaa-ai/2-company-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/2-company-memory/decision-log.md) *(NEW)*: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt (không được tự ý lật lại).
-9. [scaffold/.skaaa-ai/2-company-memory/checkpoint.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/2-company-memory/checkpoint.md) *(NEW)*: Sổ bàn giao ca kíp giữa các phiên làm việc.
-10. [scaffold/.skaaa-ai/3-project-dossier/client-brief.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.skaaa-ai/3-project-dossier/client-brief.md) *(NEW)*: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting sếp duyệt.
+### B. Bộ Tiện Ích CLI, Workflows & Kho Mẫu Scaffold (`wp-content/plugins/skaaai/scaffold/`)
+1. [scaffold/.agent/harness/jit-tool.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/harness/jit-tool.php) *(NEW)*: Tool CLI tiền kiểm cú pháp Tailwind CSS JIT thời gian thực, quét file/markup, hỗ trợ modifiers, chẩn đoán typo thông minh và biên dịch xem trước CSS (--compile).
+2. [scaffold/.agent/harness/db-tool.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/harness/db-tool.php): Tool CLI kiểm tra cấu trúc bảng phẳng `wp_skaaa_data_*`, lấy sample rows, chạy SELECT an toàn và preflight check DB.
+3. [scaffold/.agent/harness/block-tool.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/harness/block-tool.php): Tool CLI kiểm định tĩnh block (Flat DOM, tự đóng `/-->`, `@click.prevent`, fallback `onerror`) và tạo trang test 1-click.
+4. [scaffold/.agent/skills/designer-patterns.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/designer-patterns.md): Cập nhật Mục 5 Thiết quân luật tiền kiểm JIT và bảng gợi ý sửa lỗi typo phổ biến.
+5. [scaffold/.agent/workflows/2-assembly-delivery.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/2-assembly-delivery.md): Cập nhật Bước 3 QC Pre-flight Check tự động hóa với `block-tool.php` và `jit-tool.php`.
 
 ### C. Tài Liệu Hệ Sinh Thái & Bản Đồ Quản Lý
-1. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md): Nâng version Skaaai lên `1.1.2`, cập nhật Recent Log ngày 2026-09-26.
-2. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md): Ghi nhận quyết định kiến trúc Mô hình Công Ty Công Nghệ Thu Nhỏ & Tủ Tài Liệu Doanh Nghiệp.
-3. [.skaaa-ai/3-ecosystem/skaaai/architecture.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/3-ecosystem/skaaai/architecture.md): Nâng version `1.1.2`, cập nhật Trụ cột 3.
+1. [.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_ai_automation_integration.md): Đánh dấu hoàn thành toàn bộ Phase 2 (bao gồm `jit-tool.php`).
+2. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md): Nâng version Skaaai lên `1.2.1`, bổ sung Recent Log ngày 2026-09-27.
+3. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md): Ghi nhận quyết định kiến trúc Tiện ích Tiền kiểm Cú pháp Tailwind JIT `jit-tool.php` v1.2.1.
 
 ---
 
 ## 3. Các Vấn Đề Đã Giải Quyết Dứt Điểm Trong Phiên (Resolved Issues)
-1. **Triệt tiêu thảm kịch AI chạy 1 tiếng mù quáng, đốt token mà không có logo/ảnh:**
-   - *Nguyên nhân:* Thiếu khâu phỏng vấn Human-In-The-Loop ban đầu, AI tự biên tự diễn, các subagent chạy vòng lặp vô bổ săm soi CSS vụn vặt.
-   - *Khắc phục:* Thiết lập mô hình Quản lý phẳng (Bạn là Giám Đốc trực tiếp chỉ đạo 4 chuyên viên), ban hành Lệnh cấm làm mù trong `company-rules.md`, bắt buộc Account phải phỏng vấn lấy đủ Logo/Ảnh thật trước khi làm.
-2. **Khắc phục "bệnh nghề nghiệp của lập trình viên" (Developer Myopia):**
-   - *Khắc phục:* Trang bị công cụ lao động cho cả Account (`1-client-intake.md` + `client-brief.md`) và Designer (`designer-patterns.md`), không chỉ chăm chăm vào mỗi CLI của dev.
-3. **Bổ sung Tủ Tài Liệu Nội Bộ Doanh Nghiệp:**
-   - *Khắc phục:* Bổ sung 2 ngăn tài liệu cốt lõi (`1-company-profile` và `2-company-memory`) giúp mọi nhân viên AI khi vào làm việc đều hiểu rõ năng lực công nghệ và quy chuẩn của công ty.
+1. **Triệt tiêu lỗi Typo CSS Class của UX/UI Designer & Agent:**
+   - *Khắc phục:* `jit-tool.php` tự động nhận diện và chẩn đoán các lỗi `flex-center`, `text-bold`, `bg-slate900`, `w-300px`, `cursor-hand` kèm gợi ý sửa nhanh về class chuẩn của Tailwind.
+2. **Khả năng quét tự động cây khối Gutenberg:**
+   - *Khắc phục:* Lệnh `php .agent/harness/jit-tool.php --scan="<file_or_markup>"` tự động bóc tách toàn bộ class từ cả thẻ HTML thông thường lẫn thuộc tính `"classes":"..."` trong comment Gutenberg JSON.
+3. **Biên dịch xem trước CSS Offline không cần chạy WordPress / DB:**
+   - *Khắc phục:* Cờ `--compile` xuất trực tiếp khối mã CSS được biên dịch xem trước với bộ chọn chuẩn của Skaaa Builder.
 
 ---
 
 ## 4. Kết Quả Kiểm Thử Thực Tế (100% Passed)
-- [x] **Kiểm tra Cú pháp PHP (`php -l`):** 100% không phát sinh lỗi trong `skaaai.php` và `class-skaaai-harness-initializer.php`.
-- [x] **Kiểm tra Dung Lượng & Tối Ưu:** Toàn bộ kho scaffold chỉ gồm 10 tệp nguyên tử (398 dòng, 25KB), giảm 60% số dòng và giảm 85% token so với bản cũ.
-- [x] **Đóng gói Tự động:** Tạo thành công tệp [skaaai-v1.1.2.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.1.2.zip) dung lượng tối ưu (0.03 MB).
+- [x] **Kiểm tra Cú pháp PHP (`php -l`):** 100% không phát sinh lỗi trên toàn bộ các tệp mới và tệp sửa đổi.
+- [x] **Kiểm tra Chức năng `jit-tool.php`:**
+  - Lệnh `--help`: Chạy mượt mà tức thì.
+  - Lệnh `--rules`: Đọc chính xác 10 media queries, 24 palettes, 5 basic colors, 20 layout utils... từ `tailwind-rules.json`.
+  - Lệnh `--check` với class hợp lệ: Báo `PASSED (Valid)` 100%.
+  - Lệnh `--check` với class typo: Bắt chính xác 4 lỗi và đưa ra 4 Hints trực quan.
+  - Lệnh `--scan` với file markdown và chuỗi block: Bóc tách chính xác các class và xuất preview CSS (--compile).
+- [x] **Đóng gói Tự động:** Tạo thành công tệp [skaaai-v1.2.1.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.2.1.zip) (0.03 MB).
 
 ---
 
 ## 5. Kế Hoạch Bàn Giao Phiên Kế Tiếp (Ready for Next Session)
-- **Tình trạng hiện tại:** Giám Đốc đang tạm dừng để đọc và rà soát lại toàn bộ bộ khung 10 tệp vừa xây dựng.
-- **Khi mở phiên kế tiếp (`/start_session`):**
-  1. Lắng nghe phản hồi và đánh giá của Giám Đốc sau khi đọc bộ khung.
-  2. Tinh chỉnh các file theo yêu cầu cụ thể của Giám Đốc (nếu có).
-  3. Tiến hành kiểm thử thực tế với Antigravity CLI để kiểm chứng khả năng tiết kiệm token và tính hiệu quả của bộ khung mới.
+- **Tình trạng hiện tại:** Đã hoàn thành 100% Phase 2 của Skaaai (Trọn bộ 3 công cụ Harness: `db-tool.php`, `block-tool.php`, `jit-tool.php`).
+- **Hạng mục tiếp theo:**
+  - [ ] **Phase 3: Giao diện Người dùng 1-Click Push to Live:**
+    - Nút Gutenberg Editor Toolbar ("🚀 Push to Live") tại `assets/js/skaaai-editor-toolbar.js`.
+    - Quản lý đồng bộ danh sách bài viết (`edit.php`) với cột trạng thái "Skaaa Sync".

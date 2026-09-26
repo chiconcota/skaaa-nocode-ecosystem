@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.1.2)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows & Project Documents).  
+**Status:** 🟢 Stable (v1.2.1)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, Project Documents & Developer/Designer CLI Tools).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -40,26 +40,36 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **Sideload Media:** Tự động tải hình ảnh từ máy local về Media Library trên hosting.
   - **Tự động tạo Revision:** Trước khi ghi đè trên Receiver, luôn gọi `wp_save_post_revision()` để có thể Undo phục hồi 1-click trong WordPress History.
 
-### Trụ cột 3: Mô Hình Công Ty Công Nghệ Thu Nhỏ & Tủ Tài Liệu Doanh Nghiệp (v1.1.2)
-- **Mục tiêu:** Tái cấu trúc toàn bộ kho AI Kit Scaffolding thành một "Công ty công nghệ thu nhỏ" gồm 4 phòng ban tinh gọn và Tủ tài liệu doanh nghiệp nội bộ. Triệt tiêu hoàn toàn nguy cơ AI chạy mù quáng, đốt token vô ích, đảm bảo 100% trang web sinh ra có đủ Logo, Hình ảnh thật và Copywriting.
+### Trụ cột 3: Mô Hình Công Ty Công Nghệ Thu Nhỏ & Bộ Công Cụ Developer/Designer CLI (v1.2.1)
+- **Mục tiêu:** Tái cấu trúc toàn bộ kho AI Kit Scaffolding thành một "Công ty công nghệ thu nhỏ" gồm 4 phòng ban tinh gọn, Tủ tài liệu doanh nghiệp nội bộ và bộ 3 CLI Tools hỗ trợ Developer/Designer. Triệt tiêu hoàn toàn nguy cơ AI chạy mù quáng, đốt token vô ích, làm treo terminal khi truy vấn CSDL hoặc xuất bản class CSS sai cú pháp.
 - **Quy tắc Bất Biến (Sender-Only Scaffolding):**
   - Cặp thư mục điều hành `.agent/` và tài liệu `.skaaa-ai/` là **đặc quyền độc nhất của website đóng vai trò `Sender` (Localhost)**. Cấm tuyệt đối khởi tạo hoặc đồng bộ lên `Receiver` (Live Webhost).
-- **Cấu trúc 10 Tệp Nguyên Tử của Công Ty:**
-  1. **Khối Điều Hành & Thực Thi (`.agent/`):**
-     - `.agent/rules/company-rules.md`: Công cụ quản trị của Giám Đốc (Bạn là Giám Đốc, cấm làm mù, cấm đốt token, chuẩn Skaaa).
-     - `.agent/workflows/1-client-intake.md`: Đồ nghề của Account/BA (kịch bản phỏng vấn Giám Đốc lấy Logo, Ảnh, Menu, Footer).
-     - `.agent/workflows/2-assembly-delivery.md`: Đồ nghề của Dev & QC (ráp block 1 nhịp, soát lỗi Gutenberg và bàn giao link nghiệm thu).
-     - `.agent/skills/designer-patterns.md`: Đồ nghề của Designer (mẫu khung có ô chứa Logo, Ảnh banner Hero, Footer và bảng Sai ➔ Đúng).
-     - `.agent/skills/developer-blocks.md`: Đồ nghề của Developer (cú pháp 6 Atomic blocks và PHP `$wpdb` tạo bảng phẳng an toàn).
-  2. **Tủ Tài Liệu Nội Bộ Doanh Nghiệp (`.skaaa-ai/`):**
-     - `.skaaa-ai/1-company-profile/system-map.md`: Hồ sơ năng lực & bản đồ công nghệ (4 plugin + 1 theme).
-     - `.skaaa-ai/1-company-profile/brand-guidelines.md`: Quy chuẩn nhận diện thương hiệu & Design Tokens.
-     - `.skaaa-ai/2-company-memory/decision-log.md`: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt.
-     - `.skaaa-ai/2-company-memory/checkpoint.md`: Sổ bàn giao ca kíp giữa các phiên làm việc.
-     - `.skaaa-ai/3-project-dossier/client-brief.md`: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting.
+- **Bộ Công Cụ Harness CLI (Mã nguồn nằm trong `scaffold/.agent/harness/` của plugin Skaaai):**
+  - `db-tool.php`: Tra cứu bảng phẳng `wp_skaaa_data_*`, kiểm tra schema, xem sample rows và chạy câu lệnh `SELECT` an toàn (tự động áp `LIMIT 50`, chặn câu lệnh phá hoại nếu thiếu `--force`, tích hợp preflight check DB chống lỗi treo shell terminal MISTAKE-001).
+  - `block-tool.php`: Bộ kiểm định tĩnh (Static Validator) kiểm tra Flat DOM, soát cú pháp tự đóng `/-->`, kiểm tra Skaaapine `@click.prevent`, cấm `onclick` thô; hỗ trợ tạo trang WordPress thử nghiệm 1-click trả về link preview (`--create-test-page`) và xem trước HTML render (`--render`).
+  - `jit-tool.php`: Bộ tiền kiểm cú pháp Tailwind CSS JIT đối soát trực tiếp với `tailwind-rules.json`, chẩn đoán lỗi typo kinh điển của Designer kèm gợi ý sửa nhanh (Hint) và xuất mã CSS biên dịch xem trước (`--compile`). Chạy Standalone 100% không phụ thuộc database.
+- **Cấu trúc Thư Mục Template Scaffold trong Plugin Skaaai (`wp-content/plugins/skaaai/scaffold/`):**
+  *(Khi khởi tạo trên site Localhost đích, toàn bộ sẽ được deploy tự động ra thư mục gốc `app/public/` của website đó)*
+  1. **Khối Buồng Lái & Thực Thi (`scaffold/.agent/`):**
+     - `rules/company-rules.md`: Công cụ quản trị của Giám Đốc (Bạn là Giám Đốc, cấm làm mù, cấm đốt token, chuẩn Skaaa).
+     - `workflows/start_session.md`: Khởi động ca kíp, nạp bộ nhớ.
+     - `workflows/end_session.md`: Kết thúc ca kíp, niêm phong tiến độ.
+     - `workflows/1-client-intake.md`: Đồ nghề của Account/BA (kịch bản phỏng vấn Giám Đốc lấy Logo, Ảnh, Menu, Footer).
+     - `workflows/2-assembly-delivery.md`: Đồ nghề của Dev & QC (ráp block 1 nhịp, soát lỗi Gutenberg và bàn giao link nghiệm thu).
+     - `skills/designer-patterns.md`: Đồ nghề của Designer (mẫu khung Logo/Banner, thiết quân luật tiền kiểm JIT và bảng Sai ➔ Đúng).
+     - `skills/developer-blocks.md`: Đồ nghề của Developer (cú pháp 6 Atomic blocks, PHP `$wpdb` và hướng dẫn bộ tool CLI).
+     - `harness/db-tool.php`: Công cụ CLI kiểm tra CSDL phẳng an toàn.
+     - `harness/block-tool.php`: Công cụ CLI kiểm định block & tạo trang test 1-nhịp.
+     - `harness/jit-tool.php`: Công cụ CLI tiền kiểm cú pháp Tailwind CSS JIT.
+  2. **Tủ Tài Liệu Nội Bộ Doanh Nghiệp Mẫu (`scaffold/.skaaa-ai/`):**
+     - `1-company-profile/system-map.md`: Hồ sơ năng lực & bản đồ công nghệ (4 plugin + 1 theme).
+     - `1-company-profile/brand-guidelines.md`: Quy chuẩn nhận diện thương hiệu & Design Tokens.
+     - `2-company-memory/decision-log.md`: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt.
+     - `2-company-memory/checkpoint.md`: Sổ bàn giao ca kíp giữa các phiên làm việc.
+     - `3-project-dossier/client-brief.md`: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting.
 - **Thực thi:**
-  - Nút bấm trên Admin Skaaai (`role === 'sender'`) deploy tự động toàn bộ 10 tệp vào `app/public/`.
-  - Giảm từ 17 tệp rườm rà xuống 10 tệp nguyên tử tinh gọn (< 400 dòng), tiết kiệm hơn 85% token và đảm bảo sản phẩm ra đúng 100% ý Giám Đốc.
+  - Nút bấm trên Admin Skaaai (`role === 'sender'`) deploy tự động toàn bộ cấu trúc vào `app/public/`.
+  - Tối ưu token tối đa, cung cấp đầy đủ công cụ CLI để dev/agent kiểm tra tức thời tại terminal.
 
 ---
 

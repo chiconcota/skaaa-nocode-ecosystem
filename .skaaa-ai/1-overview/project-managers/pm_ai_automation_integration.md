@@ -33,24 +33,34 @@
   - Trong Admin Skaaai (`role === 'sender'`), tab **Agent Cockpit** tự động xuất bản (deploy) toàn bộ cấu trúc 10 tệp nguyên tử tinh gọn vào thư mục gốc `app/public/`:
     - **`.agent/` (Bộ máy điều hành & thực thi):**
       - `.agent/rules/company-rules.md`: Công cụ quản trị của Giám Đốc (Bạn là Giám Đốc, cấm làm mù, cấm đốt token, chuẩn Skaaa).
+      - `.agent/workflows/start_session.md`: Bắt đầu ca làm việc (Nạp hồ sơ công ty & Sổ bàn giao ca trước).
+      - `.agent/workflows/end_session.md`: Kết thúc ca làm việc (Niêm phong bàn giao vào checkpoint & ghi sổ quyết định).
       - `.agent/workflows/1-client-intake.md`: Đồ nghề của Account/BA (Kịch bản phỏng vấn Giám Đốc lấy Logo, Ảnh, Menu, Footer).
       - `.agent/workflows/2-assembly-delivery.md`: Đồ nghề của Dev & QC (Lắp ráp block 1 nhịp, kiểm định và bàn giao).
       - `.agent/skills/designer-patterns.md`: Đồ nghề của Designer (Mẫu khung Header có ô chứa Logo, Hero có ô chứa Banner Image, Footer liên hệ và bảng Sai ➔ Đúng).
-      - `.agent/skills/developer-blocks.md`: Đồ nghề của Developer (Cú pháp 6 Atomic blocks và PHP `$wpdb` tạo bảng phẳng MySQL an toàn).
+      - `.agent/skills/developer-blocks.md`: Đồ nghề của Developer (Cú pháp 6 Atomic blocks, PHP `$wpdb` và hướng dẫn bộ tool CLI).
+      - `.agent/harness/db-tool.php`: Công cụ CLI kiểm tra CSDL phẳng an toàn.
+      - `.agent/harness/block-tool.php`: Công cụ CLI kiểm định block & tạo trang test 1-nhịp.
     - **`.skaaa-ai/` (Tủ tài liệu nội bộ doanh nghiệp & Hồ sơ dự án):**
       - `.skaaa-ai/1-company-profile/system-map.md`: Hồ sơ năng lực & bản đồ công nghệ doanh nghiệp.
       - `.skaaa-ai/1-company-profile/brand-guidelines.md`: Quy chuẩn nhận diện thương hiệu & Design Tokens.
       - `.skaaa-ai/2-company-memory/decision-log.md`: Sổ tay ghi nhớ quyết định kiến trúc sếp chốt.
       - `.skaaa-ai/2-company-memory/checkpoint.md`: Sổ bàn giao ca kíp giữa các phiên làm việc.
       - `.skaaa-ai/3-project-dossier/client-brief.md`: Hồ sơ dự án cất giữ URL Logo thật, Ảnh thật và Copywriting sếp duyệt.
-- [ ] **Block Synthesizer & Validator Tool (`.agent/harness/block-tool.php`):**
-  - Tiện ích sinh mã Atomic Blocks chuẩn Gutenberg (`container`, `text`, `button`, `svg`, `code`, `loop`), đảm bảo Flat DOM, không sinh thẻ HTML thô thừa gây Gutenberg Invalid Content.
-  - Bộ kiểm tra (Validator) cú pháp Skaaapine: bắt buộc `@click.prevent`, giao tiếp qua `Alpine.store`, ngăn chặn lỗi scope shadowing.
-- [ ] **Flat Database Inspector & Safe Query Runner (`.agent/harness/db-tool.php`):**
+- [x] **Block Synthesizer & Validator Tool (`.agent/harness/block-tool.php` - Hoàn thành v1.2.0):**
+  - Tiện ích kiểm định cú pháp Atomic Blocks chuẩn Gutenberg (`container`, `text`, `button`, `svg`, `code`, `loop`), bắt lỗi Flat DOM vi phạm thẻ HTML thô gây Gutenberg Invalid Content.
+  - Bộ kiểm tra cú pháp Skaaapine / Alpine.js: bắt buộc `@click.prevent`, cấm sự kiện `onclick` thô, cảnh báo lồng `x-data` gây scope shadowing.
+  - Hỗ trợ tạo WordPress page thử nghiệm 1-click trả về link preview (`--create-test-page`) và xem trước HTML qua `do_blocks()` (`--render`).
+- [x] **Flat Database Inspector & Safe Query Runner (`.agent/harness/db-tool.php` - Hoàn thành v1.2.0):**
   - Script/Helper cho phép Agent tra cứu cấu trúc các bảng phẳng `skaaa_data_*` (tên bảng, danh sách cột, kiểu dữ liệu `text`, `number`, `json`, `relation`).
-  - Hỗ trợ Agent query lấy dữ liệu mẫu an toàn mà không cần gõ lệnh `mysql` trực tiếp qua CLI (triệt tiêu lỗi MISTAKE-001 làm treo shell).
-- [ ] **Tailwind JIT Pre-flight Checker (`.agent/harness/jit-tool.php`):**
-  - Kiểm tra tập class CSS mà Agent dự định sinh ra với từ điển `tailwind-rules.json` của JIT offline, cảnh báo sớm các class chưa được hỗ trợ.
+  - Hỗ trợ Agent query lấy dữ liệu mẫu an toàn mà không cần gõ lệnh `mysql` trực tiếp qua CLI (triệt tiêu lỗi MISTAKE-001 làm treo shell), tự động ép `LIMIT 50` và chặn các câu lệnh phá hoại nếu thiếu cờ `--force`.
+  - Cơ chế Preflight check kết nối database thông minh, triệt tiêu trang lỗi HTML `wp_die` khi server chưa chạy.
+- [x] **Tailwind JIT Pre-flight Checker (`.agent/harness/jit-tool.php` - Hoàn thành v1.2.1):**
+  - Tiện ích kiểm định cú pháp Tailwind CSS JIT thời gian thực đối chiếu trực tiếp với từ điển `tailwind-rules.json` và cấu hình token offline.
+  - Hỗ trợ kiểm tra chuỗi class rời (`--check="..."`), quét toàn bộ tệp giao diện / comment block Gutenberg (`--scan="..."`), xuất báo cáo dạng ANSI table hoặc JSON chuẩn (`--format=table|json`).
+  - Tự động nhận diện và chẩn đoán các lỗi typo kinh điển của UX/UI Designer (`flex-center`, `text-bold`, `bg-slate900`, `w-300px`, `cursor-hand`) kèm gợi ý sửa nhanh (Hint).
+  - Tích hợp cờ `--compile` hỗ trợ biên dịch và xem trước khối mã CSS chuẩn theo quy chuẩn Skaaa JIT Engine.
+  - Chạy độc lập hoàn toàn (Standalone CLI), không phụ thuộc vào kết nối MySQL database của WordPress.
 
 ### ⚪ Phase 3: Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Post List)
 - [ ] **Gutenberg Editor Toolbar Button ("🚀 Push to Live"):**

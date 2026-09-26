@@ -39,6 +39,46 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
 
+## 2026-09-27 - 🟢 Hoàn thành: Triển khai Tiện ích Tiền kiểm Cú pháp Tailwind JIT (jit-tool.php - Skaaai v1.2.1)
+- **Decision (Tailwind JIT Pre-flight Checker: jit-tool.php):**
+  - **Bối cảnh & Vấn đề thực tế:** 
+    - Khi UI/UX Designer hoặc AI Agent thiết kế xong giao diện bằng các Atomic Blocks, họ thường mắc các lỗi chính tả (typos) CSS class kinh điển như: `flex-center` (thay vì `items-center justify-center`), `text-bold` (thay vì `font-bold`), `bg-slate900` (thiếu gạch nối), `w-300px` (thiếu ngoặc vuông `w-[300px]`), `cursor-hand`...
+    - Trước đây không có công cụ dòng lệnh (CLI) để kiểm tra cú pháp nhanh trước khi lưu block, khiến các class không hỗ trợ bị rơi vào trạng thái unresolved hoặc làm gãy giao diện khi xuất bản.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Xây dựng `jit-tool.php` (`wp-content/plugins/skaaai/scaffold/.agent/harness/jit-tool.php`):**
+       - Tiện ích CLI Standalone 100%, tự động định vị và nạp từ điển quy tắc `tailwind-rules.json` từ `wp-content/plugins/skaaa-no-code-design/inc/design-engine/` mà không cần khởi động WordPress hay kết nối MySQL database.
+       - Hỗ trợ phân tích đa tiền tố (chained modifiers): media queries responsive (`sm:`, `md:`, `max-md:`), dark mode (`dark:`), trạng thái (`hover:`, `focus:`, `active:`), group/peer (`group-hover:`, `peer-checked:`).
+       - Bóc tách và kiểm tra đầy đủ mọi họ utility: layout, spacing, dimension, typography (sizeMap, leadingMap, trackingMap), colors (palette, basic, opacity `/50`), arbitrary values (`[#hex]`, `[350px]`, `[calc(...)]`), flexbox v4 (`shrink`, `grow`), borders, rings, shadows, backdrop filters, transitions.
+       - Tự động bỏ qua các class ngữ nghĩa nội bộ của WordPress/Skaaa (`wp-*`, `skaaa-*`, `is-*`) dưới dạng `[SKIPPED INTERNAL]`.
+       - Tích hợp bộ chẩn đoán lỗi typo thông minh (Smart Suggestion / Hint) hướng dẫn Designer sửa nhanh về class chuẩn của Tailwind.
+       - Cung cấp cờ `--compile` xuất trực tiếp khối mã CSS được biên dịch xem trước, và cờ `--format=json` phục vụ chuỗi CI/CD của AI Agent.
+    2. **Tích hợp Quy trình & Tài liệu:**
+       - Cập nhật [designer-patterns.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/designer-patterns.md) mục 5 quy định thiết quân luật kiểm tra JIT trước khi giao layout.
+       - Cập nhật bước 3 QC Pre-flight Check trong [2-assembly-delivery.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/workflows/2-assembly-delivery.md).
+       - Cập nhật danh sách công cụ trong Buồng lái Admin [class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php).
+    3. **Phiên bản & Đóng gói:**
+       - Tăng số phiên bản plugin `Skaaai` lên `v1.2.1` tuân thủ chuẩn SemVer.
+       - Đóng gói file phân phối [skaaai-v1.2.1.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.2.1.zip) qua `node zip-all.js`.
+
+## 2026-09-27 - 🟢 Hoàn thành: Triển khai Bộ Đôi Công Cụ CLI Kiểm Thử Database & Block (Skaaai v1.2.0)
+- **Decision (Local Agent Harness Developer CLI Tools: db-tool.php & block-tool.php):**
+  - **Bối cảnh & Vấn đề thực tế:** 
+    1. Khi dev hoặc AI Agent cần thao tác với cơ sở dữ liệu phẳng MySQL `skaaa_data_*`, việc chạy lệnh `mysql` tương tác CLI trực tiếp thường làm treo shell terminal (lỗi MISTAKE-001) hoặc gây lỗi HTML `wp_die` khi server chưa chạy.
+    2. Khi lắp ráp cây khối Gutenberg, AI rất dễ mắc 3 lỗi: lẫn thẻ HTML thô ngoài comment block gây Gutenberg Invalid Content, comment khối tự đóng sai cú pháp, và directive Alpine thiếu `@click.prevent` hoặc dùng `onclick` thô.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **`db-tool.php` (.agent/harness/db-tool.php):**
+       - Tiện ích CLI tra cứu an toàn 100%: `--list-tables` (liệt kê bảng, số rows, kích thước KB), `--schema=TABLE` (cấu trúc chi tiết cột), `--sample=TABLE` (lấy mẫu N bản ghi), `--query="SQL"` (chạy SELECT an toàn, tự động ép `LIMIT 50`, chặn câu lệnh phá hoại nếu thiếu `--force`).
+       - Tích hợp **Preflight Connection Check**: Kiểm tra kết nối MySQL trực tiếp với timeout 1s trước khi gọi WordPress, xuất thông báo lỗi ngắn gọn chuẩn CLI/JSON, triệt tiêu hoàn toàn trang lỗi HTML `wp_die`.
+       - Hỗ trợ cả 2 định dạng: ASCII Table cho người xem và JSON cho AI Agent phân tích.
+    2. **`block-tool.php` (.agent/harness/block-tool.php):**
+       - Tiện ích kiểm định tĩnh (Static Validator) hoạt động độc lập không cần database: kiểm tra Flat DOM (bắt thẻ `<div>`, `<main>`, `<section>` thừa ngoài comment), soát cú pháp tự đóng `/-->`, kiểm tra Skaaapine `@click.prevent` (dùng regex negative lookahead bắt chính xác cả trong JSON escape), cấm `onclick` thô và bắt lỗi lồng `x-data`.
+       - Tích hợp lệnh `--create-test-page="<markup>"` tạo ngay trang WordPress nháp/publish và trả về URL xem trước, cùng lệnh `--render` kiểm tra output HTML từ `do_blocks()`.
+    3. **Tích hợp Scaffold & Admin Cockpit:**
+       - Đưa cả 2 tool vào `wp-content/plugins/skaaai/scaffold/.agent/harness/` và xuất bản ra `.agent/harness/`.
+       - Cập nhật `Harness_Initializer` (`inc/class-skaaai-harness-initializer.php`), bổ sung `.agent/harness` vào `dirs_to_ensure`.
+       - Cập nhật tài liệu đồ nghề [developer-blocks.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.agent/skills/developer-blocks.md).
+    4. **Nâng phiên bản & Đóng gói:** Nâng `Skaaai` lên `v1.2.0`, đóng gói tự động [skaaai-v1.2.0.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.2.0.zip).
+
 ## 2026-09-26 - 🟢 Hoàn thành: Tái Cấu Trúc Toàn Diện AI Kit Tinh Gọn & Cổng Dừng HITL Bắt Buộc (Skaaai v1.1.2)
 - **Decision (Lean AI Kit with Mandatory HITL Intake Gate & Project Documents Directory):**
   - **Bối cảnh & Vấn đề thực tế:** Khi chạy thử nghiệm thực tế với Antigravity CLI (`team-preview`), AI chạy liên tục trong 1 tiếng đồng hồ, đốt sạch ngân sách token nhưng chỉ tạo ra 1 header và 1 footer hoàn toàn không có logo, không có hình ảnh. Nguyên nhân: (1) Rules rải rác bị tiêm tự động vào mọi prompt làm phình to context; (2) Dạy lý thuyết suông (UI/UX, System Design) thừa thãi mà thiếu code mẫu; (3) AI thiếu hoàn toàn khâu phỏng vấn Human-In-The-Loop ban đầu nên tự cắm đầu làm trong mù quáng.

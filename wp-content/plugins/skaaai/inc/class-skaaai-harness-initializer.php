@@ -8,7 +8,7 @@
  * 3. Kiểm tra trạng thái sẵn sàng của buồng lái để hiển thị trên Admin UI.
  *
  * @package Skaaai
- * @version 1.1.2
+ * @version 1.2.1
  */
 
 namespace Skaaai;
@@ -130,6 +130,7 @@ class Harness_Initializer {
             $base_dir . '.agent/rules',
             $base_dir . '.agent/workflows',
             $base_dir . '.agent/skills',
+            $base_dir . '.agent/harness',
             $base_dir . '.skaaa-ai',
             $base_dir . '.skaaa-ai/1-company-profile',
             $base_dir . '.skaaa-ai/2-company-memory',
@@ -276,10 +277,15 @@ class Harness_Initializer {
                         <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Contains rules, workflows, and local execution tools for AI.', 'skaaai' ); ?></p>
                         <ul class="skaaai-path-list" style="margin:0;padding-left:18px;font-size:13px;line-height:1.8;">
                             <li><code>.agent/rules/company-rules.md</code> (Giám Đốc: Quy chế & Thiết quân luật)</li>
+                            <li><code>.agent/workflows/start_session.md</code> (Bắt đầu ca làm việc: Nạp bộ nhớ)</li>
+                            <li><code>.agent/workflows/end_session.md</code> (Kết thúc ca làm việc: Bàn giao ca)</li>
                             <li><code>.agent/workflows/1-client-intake.md</code> (Account: Kịch bản khảo sát sếp)</li>
                             <li><code>.agent/workflows/2-assembly-delivery.md</code> (Dev & QC: Ráp 1 nhịp & Bàn giao)</li>
                             <li><code>.agent/skills/designer-patterns.md</code> (Designer: Mẫu Logo, Ảnh, Footer)</li>
                             <li><code>.agent/skills/developer-blocks.md</code> (Developer: 6 Atomic Blocks & Flat DB)</li>
+                            <li><code>.agent/harness/db-tool.php</code> (CLI: Tra cứu & Query CSDL an toàn)</li>
+                            <li><code>.agent/harness/block-tool.php</code> (CLI: Validate Block & Test Page 1-nhịp)</li>
+                            <li><code>.agent/harness/jit-tool.php</code> (CLI: Tiền kiểm cú pháp Tailwind CSS JIT)</li>
                         </ul>
                     </div>
                     <div class="skaaai-harness-box" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
