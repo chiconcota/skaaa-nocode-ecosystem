@@ -218,4 +218,191 @@ class Sync_Post {
 
         return $content;
     }
+
+    /**
+     * Tự động gán skaaa_uuid cho bài viết nếu chưa có (hook wp_insert_post)
+     *
+     * @param int      $post_id ID bài viết
+     * @param \WP_Post $post    Đối tượng bài viết
+     * @param bool     $update  Có phải thao tác cập nhật hay không
+     * @return void
+     */
+    public static function ensure_post_uuid( int $post_id, \WP_Post $post, bool $update ): void {
+        // Bỏ qua nếu là autosave, revision, auto-draft hoặc trash
+        if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+            return;
+        }
+
+        if ( in_array( $post->post_status, [ 'auto-draft', 'trash' ], true ) ) {
+            return;
+        }
+
+        $existing_uuid = get_post_meta( $post_id, '_skaaa_uuid', true );
+        if ( empty( $existing_uuid ) ) {
+            $new_uuid = wp_generate_uuid4();
+            update_post_meta( $post_id, '_skaaa_uuid', $new_uuid );
+        }
+    }
+
+    /**
+     * Xác định trạng thái đồng bộ của bài viết
+     *
+     * @param int $post_id ID bài viết
+     * @return array
+     */
+    public static function get_sync_status( int $post_id ): array {
+        $uuid             = get_post_meta( $post_id, '_skaaa_uuid', true );
+        $last_synced      = get_post_meta( $post_id, '_skaaa_last_synced', true );
+        $remote_permalink = get_post_meta( $post_id, '_skaaa_remote_permalink', true );
+        $remote_post_id   = get_post_meta( $post_id, '_skaaa_remote_post_id', true );
+
+        if ( empty( $uuid ) ) {
+            $uuid = wp_generate_uuid4();
+            update_post_meta( $post_id, '_skaaa_uuid', $uuid );
+        }
+
+        if ( empty( $last_synced ) ) {
+            return [
+                'status'           => 'not_synced',
+                'label'            => __( 'Not Synced', 'skaaai' ),
+                'badge_icon'       => '⚪',
+                'last_synced'      => null,
+                'remote_permalink' => '',
+                'remote_post_id'   => null,
+                'uuid'             => $uuid,
+            ];
+        }
+
+        $last_synced_time = strtotime( $last_synced );
+        $modified_time    = get_post_modified_time( 'U', true, $post_id );
+
+        // Nếu modified_time lớn hơn last_synced_time quá 2 giây thì là local ahead
+        if ( $modified_time > ( $last_synced_time + 2 ) ) {
+            return [
+                'status'           => 'ahead',
+                'label'            => __( 'Local Ahead', 'skaaai' ),
+                'badge_icon'       => '⬆️',
+                'last_synced'      => $last_synced,
+                'remote_permalink' => $remote_permalink ?: '',
+                'remote_post_id'   => $remote_post_id ? (int) $remote_post_id : null,
+                'uuid'             => $uuid,
+            ];
+        }
+
+        return [
+            'status'           => 'synced',
+            'label'            => __( 'Synced', 'skaaai' ),
+            'badge_icon'       => '🟢',
+            'last_synced'      => $last_synced,
+            'remote_permalink' => $remote_permalink ?: '',
+            'remote_post_id'   => $remote_post_id ? (int) $remote_post_id : null,
+            'uuid'             => $uuid,
+        ];
+    }
+
+    /**
+     * Đẩy bài viết từ Localhost sang máy Live Webhost
+     *
+     * @param int  $post_id ID bài viết trên Localhost
+     * @param bool $force   Bỏ qua cảnh báo xung đột (Force overwrite)
+     * @return array
+     */
+    public static function push_post_to_remote( int $post_id, bool $force = false ): array {
+        $post = get_post( $post_id );
+        if ( ! $post ) {
+            return [
+                'success' => false,
+                'message' => __( 'Post not found.', 'skaaai' ),
+            ];
+        }
+
+        $remote_url   = esc_url_raw( Core::get_setting( 'skaaai_remote_url', '' ) );
+        $remote_token = sanitize_text_field( Core::get_setting( 'skaaai_remote_token', '' ) );
+
+        if ( empty( $remote_url ) || empty( $remote_token ) ) {
+            return [
+                'success' => false,
+                'message' => __( 'Remote website is not paired. Please configure pairing in Skaaa Bridge settings.', 'skaaai' ),
+            ];
+        }
+
+        // Đảm bảo UUID tồn tại
+        $uuid = get_post_meta( $post_id, '_skaaa_uuid', true );
+        if ( empty( $uuid ) ) {
+            $uuid = wp_generate_uuid4();
+            update_post_meta( $post_id, '_skaaa_uuid', $uuid );
+        }
+
+        $payload = [
+            'uuid'          => $uuid,
+            'title'         => $post->post_title,
+            'content'       => $post->post_content,
+            'post_type'     => $post->post_type,
+            'post_status'   => $post->post_status,
+            'slug'          => $post->post_name,
+            'origin_url'    => site_url(),
+            'last_modified' => get_post_modified_time( 'U', true, $post_id ),
+            'force'         => $force,
+        ];
+
+        $endpoint = rtrim( $remote_url, '/' ) . '/wp-json/skaaai/v1/push-post';
+        $response = wp_remote_post( $endpoint, [
+            'timeout'   => 30,
+            'headers'   => [
+                'X-Skaaai-Token' => $remote_token,
+                'Content-Type'   => 'application/json',
+                'Accept'         => 'application/json',
+            ],
+            'body'      => wp_json_encode( $payload ),
+            'sslverify' => false,
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            return [
+                'success' => false,
+                'message' => sprintf( __( 'Network error communicating with Live Webhost: %s', 'skaaai' ), $response->get_error_message() ),
+            ];
+        }
+
+        $status_code = wp_remote_retrieve_response_code( $response );
+        $body        = wp_remote_retrieve_body( $response );
+        $data        = json_decode( $body, true );
+
+        if ( 409 === $status_code ) {
+            return [
+                'success'  => false,
+                'conflict' => true,
+                'message'  => $data['message'] ?? __( 'Conflict detected: The live website has a newer revision of this post.', 'skaaai' ),
+                'post_id'  => $post_id,
+            ];
+        }
+
+        if ( ! empty( $data['success'] ) ) {
+            // Cập nhật metadata đồng bộ thành công trên Localhost
+            update_post_meta( $post_id, '_skaaa_last_synced', current_time( 'mysql' ) );
+            if ( ! empty( $data['permalink'] ) ) {
+                update_post_meta( $post_id, '_skaaa_remote_permalink', esc_url_raw( $data['permalink'] ) );
+            }
+            if ( ! empty( $data['post_id'] ) ) {
+                update_post_meta( $post_id, '_skaaa_remote_post_id', (int) $data['post_id'] );
+            }
+
+            return [
+                'success'        => true,
+                'message'        => $data['message'] ?? __( 'Post pushed to Live webhost successfully!', 'skaaai' ),
+                'permalink'      => $data['permalink'] ?? '',
+                'remote_post_id' => $data['post_id'] ?? null,
+                'post_id'        => $post_id,
+                'last_synced'    => current_time( 'mysql' ),
+                'sync_status'    => 'synced',
+            ];
+        }
+
+        $err_msg = $data['message'] ?? sprintf( __( 'Remote error (HTTP %d).', 'skaaai' ), $status_code );
+        return [
+            'success' => false,
+            'message' => $err_msg,
+        ];
+    }
 }
+

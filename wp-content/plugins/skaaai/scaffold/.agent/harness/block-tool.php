@@ -18,7 +18,7 @@
  *   --help, -h            Show usage help
  *
  * @package Skaaai
- * @version 1.2.0
+ * @version 1.2.3
  */
 
 // Define clean CLI die handler before WordPress loads
@@ -71,30 +71,154 @@ class Skaaa_Block_Tool {
         }
     }
 
+    /**
+     * Locate WordPress file by ascending directory tree.
+     */
+    private static function locate_wp_file( string $filename ): ?string {
+        if ( defined( 'ABSPATH' ) && file_exists( ABSPATH . $filename ) ) {
+            return ABSPATH . $filename;
+        }
+
+        $start_dirs = [
+            __DIR__,
+            getcwd() ?: '',
+        ];
+
+        foreach ( $start_dirs as $start ) {
+            if ( empty( $start ) ) {
+                continue;
+            }
+            $current = $start;
+            for ( $i = 0; $i < 10; $i++ ) {
+                $check = $current . '/' . $filename;
+                if ( file_exists( $check ) ) {
+                    return $check;
+                }
+                $parent = dirname( $current );
+                if ( $parent === $current ) {
+                    break;
+                }
+                $current = $parent;
+            }
+        }
+
+        $fallbacks = [
+            '/var/www/html/' . $filename,
+        ];
+        foreach ( $fallbacks as $fb ) {
+            if ( file_exists( $fb ) ) {
+                return $fb;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Auto-detect Local by Flywheel MySQL UNIX socket.
+     */
+    private static function detect_local_mysql_socket(): ?string {
+        $env_socket = getenv( 'DB_SOCKET' ) ?: getenv( 'MYSQL_UNIX_PORT' );
+        if ( $env_socket && file_exists( $env_socket ) ) {
+            return $env_socket;
+        }
+
+        $home = getenv( 'HOME' ) ?: ( $_SERVER['HOME'] ?? '' );
+        if ( empty( $home ) && ! empty( $_SERVER['USERPROFILE'] ) ) {
+            $home = $_SERVER['USERPROFILE'];
+        }
+
+        if ( empty( $home ) ) {
+            return null;
+        }
+
+        $current_dirs = [
+            realpath( __DIR__ ) ?: __DIR__,
+            realpath( getcwd() ?: '' ) ?: ( getcwd() ?: '' ),
+        ];
+
+        // 1. Try matching Local sites.json to current path
+        $sites_json_candidates = [
+            $home . '/.config/Local/sites.json',
+            $home . '/Library/Application Support/Local/sites.json',
+            ( getenv( 'APPDATA' ) ?: '' ) . '/Local/sites.json',
+        ];
+
+        foreach ( $sites_json_candidates as $sites_file ) {
+            if ( ! file_exists( $sites_file ) || ! is_readable( $sites_file ) ) {
+                continue;
+            }
+            $sites_data = json_decode( (string) file_get_contents( $sites_file ), true );
+            if ( ! is_array( $sites_data ) ) {
+                continue;
+            }
+
+            foreach ( $sites_data as $site_id => $site_info ) {
+                if ( empty( $site_info['path'] ) ) {
+                    continue;
+                }
+                $normalized_site_path = str_replace( '~', $home, $site_info['path'] );
+                $real_site_path       = realpath( $normalized_site_path ) ?: $normalized_site_path;
+
+                foreach ( $current_dirs as $c_dir ) {
+                    if ( ! empty( $c_dir ) && str_starts_with( $c_dir, $real_site_path ) ) {
+                        $socket_path = $home . "/.config/Local/run/{$site_id}/mysql/mysqld.sock";
+                        if ( file_exists( $socket_path ) ) {
+                            return $socket_path;
+                        }
+                        $mac_socket = $home . "/Library/Application Support/Local/run/{$site_id}/mysql/mysqld.sock";
+                        if ( file_exists( $mac_socket ) ) {
+                            return $mac_socket;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Fallback: Scan active Local run directories for existing mysqld.sock
+        $scan_patterns = [
+            $home . '/.config/Local/run/*/mysql/mysqld.sock',
+            $home . '/Library/Application Support/Local/run/*/mysql/mysqld.sock',
+        ];
+
+        foreach ( $scan_patterns as $pattern ) {
+            $matches = glob( $pattern );
+            if ( ! empty( $matches ) ) {
+                foreach ( $matches as $sock ) {
+                    if ( file_exists( $sock ) ) {
+                        return $sock;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     private static function bootstrap_wordpress(): void {
         if ( defined( 'ABSPATH' ) ) {
             return;
         }
 
-        $search_paths = [
-            dirname( __DIR__, 2 ) . '/wp-load.php',
-            dirname( __DIR__, 3 ) . '/wp-load.php',
-            dirname( __DIR__, 4 ) . '/wp-load.php',
-            '/var/www/html/wp-load.php',
-        ];
-
-        $loaded = false;
-        foreach ( $search_paths as $file ) {
-            if ( file_exists( $file ) ) {
-                @ini_set( 'display_errors', '0' );
-                require_once $file;
-                $loaded = true;
-                break;
-            }
+        // Auto-configure Local by Flywheel socket before WordPress connects
+        $socket = self::detect_local_mysql_socket();
+        if ( $socket && file_exists( $socket ) ) {
+            @ini_set( 'mysqli.default_socket', $socket );
+            @ini_set( 'pdo_mysql.default_socket', $socket );
         }
 
-        if ( ! $loaded || ! defined( 'ABSPATH' ) ) {
+        $wp_load = self::locate_wp_file( 'wp-load.php' );
+
+        if ( ! $wp_load || ! file_exists( $wp_load ) ) {
             fwrite( STDERR, "\033[31m[ERROR]\033[0m Could not locate wp-load.php. Please run within a WordPress installation.\n" );
+            exit( 1 );
+        }
+
+        @ini_set( 'display_errors', '0' );
+        require_once $wp_load;
+
+        if ( ! defined( 'ABSPATH' ) ) {
+            fwrite( STDERR, "\033[31m[ERROR]\033[0m WordPress bootstrap failed. ABSPATH not defined.\n" );
             exit( 1 );
         }
     }
@@ -137,14 +261,14 @@ class Skaaa_Block_Tool {
                     'severity' => 'ERROR',
                     'rule'     => 'Flat DOM Violation',
                     'message'  => "Raw HTML tag {$raw_tag} detected outside Gutenberg block comments. All layout wrappers must use 'skaaaaa-builder/container' block.",
-                    'fix'      => 'Remove raw HTML tags and replace with <!-- wp:skaaaaa-builder/container {"tag":"div","classes":"..."} -->',
+                    'fix'      => 'Remove raw HTML tags and replace with <!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"..."} -->',
                 ];
             }
         }
 
         // 2. Kiểm tra cú pháp comment của các khối Skaaa Atomic Blocks
-        $self_closing_types = [ 'text', 'button', 'svg', 'code' ];
-        $open_close_types   = [ 'container', 'loop' ];
+        $self_closing_types = [ 'text', 'button', 'image', 'icon', 'video', 'svg', 'code', 'input', 'select', 'form-rich-text', 'organism-ref', 'html2tailwind' ];
+        $open_close_types   = [ 'container', 'loop', 'list', 'list-item' ];
 
         if ( preg_match_all( '/<!--\s*wp:(skaaaaa-builder\/([a-z0-9_-]+))\s*(\{.*?\})?\s*(\/)?-->/s', $content, $block_matches, PREG_SET_ORDER ) ) {
             $blocks_count = count( $block_matches );
@@ -165,6 +289,92 @@ class Skaaa_Block_Tool {
                             'message'  => "Invalid JSON attribute string in block {$full_name}: " . json_last_error_msg(),
                             'fix'      => 'Verify quotation marks and escape special characters inside attributes.',
                         ];
+                    } elseif ( is_array( $json_data ) ) {
+                        // Kiểm tra chuẩn tên thuộc tính với skaaa-no-code-design
+                        if ( isset( $json_data['tag'] ) && ! isset( $json_data['tagName'] ) ) {
+                            $issues[] = [
+                                'severity' => 'ERROR',
+                                'rule'     => 'Schema Mismatch (tagName)',
+                                'message'  => "Block {$full_name} uses deprecated attribute 'tag': \"{$json_data['tag']}\". Skaaa Design block schema strictly requires 'tagName'.",
+                                'fix'      => "Replace '\"tag\":\"...\"' with '\"tagName\":\"{$json_data['tag']}\"'.",
+                            ];
+                        }
+                        if ( isset( $json_data['classes'] ) && ! isset( $json_data['tailwindClasses'] ) ) {
+                            $issues[] = [
+                                'severity' => 'ERROR',
+                                'rule'     => 'Schema Mismatch (tailwindClasses)',
+                                'message'  => "Block {$full_name} uses deprecated attribute 'classes': \"{$json_data['classes']}\". Skaaa Design block schema strictly requires 'tailwindClasses'.",
+                                'fix'      => "Replace '\"classes\":\"...\"' with '\"tailwindClasses\":\"{$json_data['classes']}\"'.",
+                            ];
+                        }
+
+                        // 2.1.1 Thẩm định khối Button Native
+                        if ( $block_type === 'button' ) {
+                            if ( isset( $json_data['actionType'] ) ) {
+                                $allowed_actions = [ 'link', 'submit', 'logic_api', 'theme_toggle' ];
+                                if ( ! in_array( $json_data['actionType'], $allowed_actions, true ) ) {
+                                    $issues[] = [
+                                        'severity' => 'ERROR',
+                                        'rule'     => 'Button Action Invalid',
+                                        'message'  => "Block {$full_name} has invalid actionType '{$json_data['actionType']}'. Allowed values: " . implode( ', ', $allowed_actions ),
+                                        'fix'      => "Use one of: 'link', 'submit', 'logic_api', 'theme_toggle'.",
+                                    ];
+                                }
+                            }
+                        }
+
+                        // 2.1.2 Thẩm định chống lạm dụng Code Block cho UI Native
+                        if ( $block_type === 'code' && ! empty( $json_data['inlineCode'] ) ) {
+                            $code_str = (string) $json_data['inlineCode'];
+                            if ( preg_match( '/<(button|form|input|select|img|video)\b|<svg\b|onclick\s*=|theme_toggle|\$store\.skaaaTheme/i', $code_str ) ) {
+                                $issues[] = [
+                                    'severity' => 'ERROR',
+                                    'rule'     => 'Inline Code Abuse',
+                                    'message'  => "Block '{$full_name}' contains raw HTML/JS for native UI elements (button, form, input, img, video, svg, or theme toggle). Skaaa provides native atomic blocks ('skaaaaa-builder/image', 'skaaaaa-builder/button', 'skaaaaa-builder/icon', 'skaaaaa-builder/video', 'skaaaaa-builder/input', 'skaaaaa-builder/select', 'skaaaaa-builder/svg'). Using inline code breaks No-Code editing, bypasses JIT compiler media queries, and causes black boxes in Gutenberg Editor.",
+                                    'fix'      => "Replace with native Skaaa blocks: <!-- wp:skaaaaa-builder/image {...} /-->, <!-- wp:skaaaaa-builder/button {...} /-->, or <!-- wp:skaaaaa-builder/container {\"tagName\":\"form\",\"isSkaaaForm\":true} -->.",
+                                ];
+                            }
+                        }
+
+                        // 2.1.3 Thẩm định Form Container kích hoạt Skaaa Form Engine
+                        if ( $block_type === 'container' && isset( $json_data['tagName'] ) && 'form' === $json_data['tagName'] ) {
+                            if ( empty( $json_data['isSkaaaForm'] ) ) {
+                                $issues[] = [
+                                    'severity' => 'WARNING',
+                                    'rule'     => 'Skaaa Form Engine Inactive',
+                                    'message'  => "Form container ('tagName': 'form') lacks '\"isSkaaaForm\": true'. The Skaaa Form Engine (Alpine Controller, automatic validation & submission) will not activate.",
+                                    'fix'      => 'Add "isSkaaaForm": true and "formActionId": "insert_{table_slug}" to container attributes.',
+                                ];
+                            }
+                        }
+
+                        // 2.1.4 Thẩm định SVG Block bắt buộc có kích thước rõ ràng
+                        if ( $block_type === 'svg' ) {
+                            $tw = $json_data['tailwindClasses'] ?? '';
+                            if ( ! preg_match( '/\bw-[0-9a-z\[\]\.\/]+\b/', $tw ) || ! preg_match( '/\bh-[0-9a-z\[\]\.\/]+\b/', $tw ) ) {
+                                $issues[] = [
+                                    'severity' => 'WARNING',
+                                    'rule'     => 'SVG Dimension Missing',
+                                    'message'  => "Block '{$full_name}' lacks explicit width/height in tailwindClasses (e.g. 'w-6 h-6 shrink-0'). Without explicit dimensions, SVGs risk collapsing to 2px x 2px in browser rendering.",
+                                    'fix'      => "Add 'w-6 h-6 shrink-0' or appropriate dimensions to 'tailwindClasses'.",
+                                ];
+                            }
+                        }
+
+                        // 2.1.5 Thẩm định khối Image Native & Aspect Ratio
+                        if ( $block_type === 'image' ) {
+                            if ( empty( $json_data['aspectRatio'] ) ) {
+                                $tw = $json_data['tailwindClasses'] ?? '';
+                                if ( ! preg_match( '/\baspect-/', $tw ) ) {
+                                    $issues[] = [
+                                        'severity' => 'INFO',
+                                        'rule'     => 'Image Aspect Ratio Notice',
+                                        'message'  => "Block '{$full_name}' does not specify 'aspectRatio'. Skaaa Image render.php defaults to 'aspect-square' (1:1). If your image is portrait or 16:9, specify 'aspectRatio': 'aspect-auto' or 'aspect-[460/580]' to avoid square cropping.",
+                                        'fix'      => 'Add "aspectRatio": "aspect-auto" or custom ratio like "aspect-[W/H]" if image is not 1:1 square.',
+                                    ];
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -235,8 +445,8 @@ class Skaaa_Block_Tool {
                 $issues[] = [
                     'severity' => 'WARNING',
                     'rule'     => 'Zero Inline CSS Directive',
-                    'message'  => "Inline CSS detected: '{$style_str}'. All styling must use Tailwind utility classes in 'classes' attribute.",
-                    'fix'      => 'Convert inline styles to Tailwind v4 classes.',
+                    'message'  => "Inline CSS detected: '{$style_str}'. All styling must use Tailwind utility classes in 'tailwindClasses' attribute.",
+                    'fix'      => 'Convert inline styles to Tailwind v4 classes in tailwindClasses attribute.',
                 ];
             }
         }
@@ -326,9 +536,21 @@ class Skaaa_Block_Tool {
     }
 
     private static function handle_create_test_page( string $content, string $title, string $status ): void {
+        // Establish Administrator context and disable KSES filters in CLI
+        // to prevent stripping SVG code or HTML markup inside Gutenberg block comments
+        if ( function_exists( 'kses_remove_filters' ) ) {
+            kses_remove_filters();
+        }
+        if ( function_exists( 'get_users' ) ) {
+            $admins = get_users( [ 'role' => 'administrator', 'number' => 1 ] );
+            if ( ! empty( $admins[0] ) ) {
+                wp_set_current_user( $admins[0]->ID );
+            }
+        }
+
         $post_data = [
-            'post_title'   => sanitize_text_field( $title ),
-            'post_content' => $content,
+            'post_title'   => wp_slash( sanitize_text_field( $title ) ),
+            'post_content' => wp_slash( $content ),
             'post_status'  => in_array( $status, [ 'draft', 'publish' ], true ) ? $status : 'publish',
             'post_type'    => 'page',
         ];

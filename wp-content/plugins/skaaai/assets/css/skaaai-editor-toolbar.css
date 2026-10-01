@@ -1,0 +1,178 @@
+/**
+ * Skaaai 1-Click Push to Live Styling
+ * (Gutenberg Toolbar, Document Sidebar Panel & Post List Columns)
+ */
+
+/* ==========================================================================
+   1. Gutenberg Header Toolbar Button
+   ========================================================================== */
+.skaaai-header-push-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 12px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-right: 8px !important;
+    text-decoration: none !important;
+}
+
+.skaaai-header-push-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3) !important;
+    transform: translateY(-1px);
+}
+
+.skaaai-header-push-btn:disabled {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.skaaai-header-push-btn .skaaai-spinner-icon {
+    animation: skaaai-spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes skaaai-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   2. Gutenberg Document Sidebar Panel
+   ========================================================================== */
+.skaaai-sync-sidebar-box {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 12px;
+}
+
+.skaaai-sidebar-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.skaaai-sidebar-time-row {
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+.skaaai-sidebar-actions-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.skaaai-sidebar-push-btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   3. Common Sync Status Badges
+   ========================================================================== */
+.skaaai-sync-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.skaaai-badge-synced {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.skaaai-badge-ahead {
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.skaaai-badge-not_synced {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+/* ==========================================================================
+   4. Post List Column (edit.php)
+   ========================================================================== */
+.manage-column.column-skaaa_sync {
+    width: 140px;
+}
+
+.skaaai-sync-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.skaaai-sync-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.skaaai-push-row-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    font-size: 11px !important;
+    height: 24px !important;
+    line-height: 22px !important;
+    padding: 0 8px !important;
+}
+
+.skaaai-push-row-btn .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+.skaaai-push-row-btn.is-loading .dashicons {
+    animation: skaaai-spin 1s linear infinite;
+}
+
+.skaaai-view-live-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    color: #4f46e5;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.skaaai-view-live-link:hover {
+    background-color: #e0e7ff;
+    color: #3730a3;
+}
+
+.skaaai-view-live-link .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}

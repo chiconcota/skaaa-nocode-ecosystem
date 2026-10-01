@@ -23,7 +23,7 @@ Chuyên viên Account dừng lại ngay và đặt đúng 4 câu hỏi cho Giám
 
 ## BƯỚC 2: GHI VÀO HỒ SƠ DỰ ÁN (CLIENT BRIEF)
 Ngay sau khi Giám Đốc trả lời, Chuyên viên Account lập tức mở tệp:
-👉 `.skaaa-ai/3-project-dossier/client-brief.md`  
+👉 `.skaaa-ai/1-overview/client-brief.md`  
 Ghi chép chính xác:
 - URL Logo, URL ảnh banner, danh sách link menu, text tiêu đề H1 và cấu trúc bảng CSDL (nếu có).
 

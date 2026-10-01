@@ -19,7 +19,7 @@
  *   --help, -h            Show usage help
  *
  * @package Skaaai
- * @version 1.2.0
+ * @version 1.2.3
  */
 
 declare(strict_types=1);
@@ -98,13 +98,37 @@ class Skaaa_JIT_Tool {
             return;
         }
 
-        $candidates = [
-            dirname( __DIR__, 4 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json',
-            dirname( __DIR__, 3 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json',
-            dirname( __DIR__, 2 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json',
-            dirname( __DIR__, 5 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json',
-            getcwd() . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json',
+        $candidates = [];
+
+        $start_dirs = [
+            __DIR__,
+            getcwd() ?: '',
         ];
+
+        foreach ( $start_dirs as $start ) {
+            if ( empty( $start ) ) {
+                continue;
+            }
+            $current = $start;
+            for ( $i = 0; $i < 10; $i++ ) {
+                $check = $current . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
+                if ( file_exists( $check ) ) {
+                    $candidates[] = $check;
+                    break;
+                }
+                $parent = dirname( $current );
+                if ( $parent === $current ) {
+                    break;
+                }
+                $current = $parent;
+            }
+        }
+
+        $candidates[] = dirname( __DIR__, 4 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
+        $candidates[] = dirname( __DIR__, 3 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
+        $candidates[] = dirname( __DIR__, 2 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
+        $candidates[] = dirname( __DIR__, 5 ) . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
+        $candidates[] = getcwd() . '/wp-content/plugins/skaaa-no-code-design/inc/design-engine/tailwind-rules.json';
 
         foreach ( $candidates as $path ) {
             if ( file_exists( $path ) ) {
@@ -201,8 +225,8 @@ class Skaaa_JIT_Tool {
         // Extract class strings from HTML / Gutenberg attributes
         $extracted_classes = [];
 
-        // 1. Gutenberg comment attribute: "classes":"..."
-        if ( preg_match_all( '/"classes"\s*:\s*"([^"]+)"/', $content, $matches ) ) {
+        // 1. Gutenberg comment attribute: "tailwindClasses":"..." or legacy "classes":"..."
+        if ( preg_match_all( '/"(?:tailwindClasses|classes)"\s*:\s*"([^"]+)"/', $content, $matches ) ) {
             foreach ( $matches[1] as $cls_str ) {
                 $tokens = preg_split( '/\s+/', $cls_str ) ?: [];
                 foreach ( $tokens as $t ) {

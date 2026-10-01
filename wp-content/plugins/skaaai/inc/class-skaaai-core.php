@@ -48,6 +48,7 @@ class Core {
         require_once SKAAAI_DIR . 'inc/class-skaaai-file-deployer.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-harness-initializer.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-post.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-post-sync-ui.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-rest-api.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-admin.php';
     }
@@ -88,9 +89,13 @@ class Core {
         // Đăng ký REST API
         add_action( 'rest_api_init', [ Rest_Api::class, 'register_routes' ] );
 
+        // Tự động gán skaaa_uuid cho bài viết mới
+        add_action( 'wp_insert_post', [ Sync_Post::class, 'ensure_post_uuid' ], 10, 3 );
+
         // Đăng ký Admin Menu & Enqueue Assets
         if ( is_admin() ) {
             Admin::get_instance();
+            Post_Sync_UI::init();
         }
 
         // Đăng ký các Custom Nodes vào Skaaa Logic Engine nếu có hook

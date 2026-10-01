@@ -8,7 +8,7 @@
  * 3. Kiểm tra trạng thái sẵn sàng của buồng lái để hiển thị trên Admin UI.
  *
  * @package Skaaai
- * @version 1.2.1
+ * @version 1.2.7
  */
 
 namespace Skaaai;
@@ -124,7 +124,18 @@ class Harness_Initializer {
             ];
         }
 
-        // 4. Tạo các thư mục thiết yếu tại ABSPATH
+        // 4. Nếu người dùng chọn ghi đè ($overwrite_existing), dọn sạch thư mục .agent và .skaaa-ai cũ
+        // để loại bỏ hoàn toàn các file rác, file lỗi hoặc tệp mẫu cũ từ phiên bản trước
+        if ( $overwrite_existing ) {
+            if ( $wp_filesystem->is_dir( $base_dir . '.agent' ) ) {
+                $wp_filesystem->delete( $base_dir . '.agent', true );
+            }
+            if ( $wp_filesystem->is_dir( $base_dir . '.skaaa-ai' ) ) {
+                $wp_filesystem->delete( $base_dir . '.skaaa-ai', true );
+            }
+        }
+
+        // 5. Tạo các thư mục thiết yếu tại ABSPATH
         $dirs_to_ensure = [
             $base_dir . '.agent',
             $base_dir . '.agent/rules',
@@ -132,9 +143,10 @@ class Harness_Initializer {
             $base_dir . '.agent/skills',
             $base_dir . '.agent/harness',
             $base_dir . '.skaaa-ai',
-            $base_dir . '.skaaa-ai/1-company-profile',
-            $base_dir . '.skaaa-ai/2-company-memory',
-            $base_dir . '.skaaa-ai/3-project-dossier',
+            $base_dir . '.skaaa-ai/1-overview',
+            $base_dir . '.skaaa-ai/2-memory',
+            $base_dir . '.skaaa-ai/3-ecosystem',
+            $base_dir . '.skaaa-ai/4-rules',
         ];
 
         foreach ( $dirs_to_ensure as $dir ) {
@@ -146,7 +158,7 @@ class Harness_Initializer {
             }
         }
 
-        // 5. Sao chép đệ quy toàn bộ template từ plugin scaffold sang ABSPATH
+        // 6. Sao chép đệ quy toàn bộ template từ plugin scaffold sang ABSPATH
         $copy_stats = self::copy_recursive( $source_dir, $base_dir, $overwrite_existing, $wp_filesystem );
 
         $status = self::check_status();
@@ -154,7 +166,9 @@ class Harness_Initializer {
         return [
             'success' => true,
             'message' => sprintf(
-                __( 'Local Agent Cockpit initialized successfully! Created %1$d directories, deployed %2$d template files.', 'skaaai' ),
+                $overwrite_existing
+                    ? __( 'Local Agent Cockpit re-initialized successfully! Cleaned previous files, created %1$d directories, deployed %2$d template files.', 'skaaai' )
+                    : __( 'Local Agent Cockpit initialized successfully! Created %1$d directories, deployed %2$d template files.', 'skaaai' ),
                 $copy_stats['dirs'],
                 $copy_stats['files']
             ),
@@ -277,12 +291,12 @@ class Harness_Initializer {
                         <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Contains rules, workflows, and local execution tools for AI.', 'skaaai' ); ?></p>
                         <ul class="skaaai-path-list" style="margin:0;padding-left:18px;font-size:13px;line-height:1.8;">
                             <li><code>.agent/rules/company-rules.md</code> (Giám Đốc: Quy chế & Thiết quân luật)</li>
-                            <li><code>.agent/workflows/start_session.md</code> (Bắt đầu ca làm việc: Nạp bộ nhớ)</li>
-                            <li><code>.agent/workflows/end_session.md</code> (Kết thúc ca làm việc: Bàn giao ca)</li>
-                            <li><code>.agent/workflows/1-client-intake.md</code> (Account: Kịch bản khảo sát sếp)</li>
-                            <li><code>.agent/workflows/2-assembly-delivery.md</code> (Dev & QC: Ráp 1 nhịp & Bàn giao)</li>
-                            <li><code>.agent/skills/designer-patterns.md</code> (Designer: Mẫu Logo, Ảnh, Footer)</li>
-                            <li><code>.agent/skills/developer-blocks.md</code> (Developer: 6 Atomic Blocks & Flat DB)</li>
+                            <li><code>.agent/skills/start_session/SKILL.md</code> (Lệnh /start_session: Nạp bộ nhớ)</li>
+                            <li><code>.agent/skills/end_session/SKILL.md</code> (Lệnh /end_session: Bàn giao ca)</li>
+                            <li><code>.agent/skills/client-intake/SKILL.md</code> (Lệnh /client-intake: Kịch bản khảo sát sếp)</li>
+                            <li><code>.agent/skills/assembly-delivery/SKILL.md</code> (Lệnh /assembly-delivery: Ráp 1 nhịp & Bàn giao)</li>
+                            <li><code>.agent/skills/designer-patterns/SKILL.md</code> (Lệnh /designer-patterns: Mẫu Logo, Ảnh, JIT)</li>
+                            <li><code>.agent/skills/developer-blocks/SKILL.md</code> (Lệnh /developer-blocks: 6 Atomic Blocks & Flat DB)</li>
                             <li><code>.agent/harness/db-tool.php</code> (CLI: Tra cứu & Query CSDL an toàn)</li>
                             <li><code>.agent/harness/block-tool.php</code> (CLI: Validate Block & Test Page 1-nhịp)</li>
                             <li><code>.agent/harness/jit-tool.php</code> (CLI: Tiền kiểm cú pháp Tailwind CSS JIT)</li>
@@ -290,15 +304,16 @@ class Harness_Initializer {
                     </div>
                     <div class="skaaai-harness-box" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
                         <h4 style="margin:0 0 10px 0;display:flex;align-items:center;gap:6px;">
-                            <span class="dashicons dashicons-book" style="color:#059669;"></span> <?php esc_html_e( 'Corporate Docs & Project Dossier (.skaaa-ai/)', 'skaaai' ); ?>
+                            <span class="dashicons dashicons-book" style="color:#059669;"></span> <?php esc_html_e( 'System Architecture & Memory (.skaaa-ai/)', 'skaaai' ); ?>
                         </h4>
-                        <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Stores company profile, brand guidelines, memory log, and project dossier.', 'skaaai' ); ?></p>
+                        <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Stores system map, brand guidelines, memory log, and project brief in 4 drawers.', 'skaaai' ); ?></p>
                         <ul class="skaaai-path-list" style="margin:0;padding-left:18px;font-size:13px;line-height:1.8;">
-                            <li><code>.skaaa-ai/1-company-profile/system-map.md</code> (Hồ sơ năng lực công ty)</li>
-                            <li><code>.skaaa-ai/1-company-profile/brand-guidelines.md</code> (Quy chuẩn thương hiệu & Token)</li>
-                            <li><code>.skaaa-ai/2-company-memory/decision-log.md</code> (Sổ tay quyết định kiến trúc)</li>
-                            <li><code>.skaaa-ai/2-company-memory/checkpoint.md</code> (Sổ bàn giao ca kíp)</li>
-                            <li><code>.skaaa-ai/3-project-dossier/client-brief.md</code> (Hồ sơ dự án: URL Logo, Ảnh & Brief)</li>
+                            <li><code>.skaaa-ai/1-overview/system_map.md</code> (Bản đồ kiến trúc tổng thể)</li>
+                            <li><code>.skaaa-ai/1-overview/brand-guidelines.md</code> (Quy chuẩn thương hiệu & Token)</li>
+                            <li><code>.skaaa-ai/1-overview/client-brief.md</code> (Hồ sơ dự án: Định vị, USP & Brief)</li>
+                            <li><code>.skaaa-ai/2-memory/decision-log.md</code> (Sổ tay quyết định kiến trúc)</li>
+                            <li><code>.skaaa-ai/2-memory/checkpoint.md</code> (Sổ bàn giao tiến độ ca trước)</li>
+                            <li><code>.skaaa-ai/2-memory/self-improve.md</code> (Sổ tay tự sửa lỗi hành vi của Agent)</li>
                         </ul>
                     </div>
                 </div>
@@ -306,8 +321,8 @@ class Harness_Initializer {
                 <div class="skaaai-harness-actions" style="border-top:1px solid #e2e8f0;padding-top:20px;">
                     <div class="skaaai-checkbox-wrap" style="margin-bottom: 14px;">
                         <label class="skaaai-checkbox-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                            <input type="checkbox" id="skaaai-harness-overwrite" value="1">
-                            <span><?php esc_html_e( 'Overwrite existing template files if already present', 'skaaai' ); ?></span>
+                            <input type="checkbox" id="skaaai-harness-overwrite" value="1" checked>
+                            <span><?php esc_html_e( 'Clean and overwrite existing template files & folders', 'skaaai' ); ?></span>
                         </label>
                     </div>
 

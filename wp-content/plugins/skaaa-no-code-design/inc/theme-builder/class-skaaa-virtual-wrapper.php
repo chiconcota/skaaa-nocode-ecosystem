@@ -413,7 +413,7 @@ $wrapper = \Skaaa_No_Code_Design\Theme_Builder\Skaaa_Virtual_Wrapper::get_instan
 			$wrapper->render_template_by_id( $skaaa_current_template_id );
 		} else {
 			// Fallback: Render default content if no main template is defined
-			echo \'<div class="skaaa-container mx-auto p-4">\';
+			echo \'<div class="skaaa-default-content w-full">\';
 			if ( have_posts() ) {
 				while ( have_posts() ) {
 					the_post();

@@ -62,15 +62,16 @@
   - Tích hợp cờ `--compile` hỗ trợ biên dịch và xem trước khối mã CSS chuẩn theo quy chuẩn Skaaa JIT Engine.
   - Chạy độc lập hoàn toàn (Standalone CLI), không phụ thuộc vào kết nối MySQL database của WordPress.
 
-### ⚪ Phase 3: Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Post List)
-- [ ] **Gutenberg Editor Toolbar Button ("🚀 Push to Live"):**
-  - Tích hợp nút bấm trực tiếp trên thanh công cụ của Gutenberg Editor (`assets/js/skaaai-editor-toolbar.js`).
-  - Tự động lưu bài, gán `_skaaa_uuid`, kích hoạt REST API đẩy bài viết, media và JIT CSS sang Live Webhost.
-  - Hiển thị Toast thông báo trạng thái đồng bộ và link bài viết trên Live.
-- [ ] **Quản lý Đồng bộ Danh sách Bài viết (`edit.php`):**
+### 🟢 Phase 3: Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Post List - Hoàn thành v1.3.0)
+- [x] **Gutenberg Editor Toolbar Button ("🚀 Push to Live"):**
+  - Tích hợp nút bấm trực tiếp trên thanh công cụ của Gutenberg Editor (`assets/js/skaaai-editor-toolbar.js`) và panel Status & Visibility trong Document Sidebar.
+  - Tự động lưu bài trước khi push, đảm bảo `_skaaa_uuid`, kích hoạt REST API đẩy bài viết, hoán đổi domain và tải media về Live Webhost.
+  - Hiển thị Toast thông báo trạng thái đồng bộ và link bài viết xem trực tiếp trên Live host, xử lý xung đột 409 Conflict (Force Overwrite).
+- [x] **Quản lý Đồng bộ Danh sách Bài viết (`edit.php`):**
   - Thêm cột trạng thái **"Skaaa Sync"** trên danh sách All Posts / All Pages (hiển thị badge: `🟢 Synced`, `⬆️ Local Ahead`, `⚪ Not Synced`).
-  - Hỗ trợ nút Push nhanh từng bài và tính năng chọn nhiều bài để Push hàng loạt (Bulk Push to Live).
-- [ ] Tự động gán `_skaaa_uuid` khi tạo bài viết mới ở Localhost thông qua hook `wp_insert_post`.
+  - Hỗ trợ nút Push nhanh từng bài qua AJAX với spinner và cập nhật trực quan tức thì (`assets/js/skaaai-post-list.js`).
+  - Hỗ trợ chọn nhiều bài để Push hàng loạt (Bulk Push to Live `skaaai_bulk_push`) kèm báo cáo tổng kết.
+- [x] **Tự động gán `_skaaa_uuid` khi tạo bài viết mới ở Localhost thông qua hook `wp_insert_post`.**
 
 ### ⚪ Phase 4: Tích hợp AI Logic Nodes (Milestone 2 DAG Automation)
 - [ ] Class `Skaaai_Node_Prompt`: Node gọi Gemini / OpenAI API hỗ trợ nội suy biến `{{ ... }}` trong đồ thị Logic Engine.

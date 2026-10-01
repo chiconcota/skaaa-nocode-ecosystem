@@ -46,6 +46,7 @@ plugins.forEach(pluginFolder => {
 
     archive.glob('**/*', {
         cwd: path.join(__dirname, pluginFolder),
+        dot: true,
         ignore: [
             '**/node_modules/**', 
             '**/src/**', 
@@ -55,7 +56,9 @@ plugins.forEach(pluginFolder => {
             '**/vite.config.js', 
             '**/build-zip.js', 
             '**/.gitignore', 
-            '**/.git/**'
+            '**/.git/**',
+            '**/.DS_Store',
+            '**/Thumbs.db'
         ]
     }, { prefix: pluginFolder });
 

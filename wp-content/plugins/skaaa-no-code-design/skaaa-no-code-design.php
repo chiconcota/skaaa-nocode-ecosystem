@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Skaaa No-Code Design
  * Description: The UI design engine and blocks framework for Skaaa No-Code Builder.
- * Version: 2.4.4
+ * Version: 2.4.5
  * Author: Skaaa Team
  * Text Domain: skaaa-no-code-design
  *

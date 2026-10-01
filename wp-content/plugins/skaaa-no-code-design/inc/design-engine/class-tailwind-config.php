@@ -157,13 +157,15 @@ class Tailwind_Config {
 		$css .= ".editor-styles-wrapper .skaaapine-wrapper { display: contents; }\n";
 
 		$css .= "html body.skaaaaa-builder .skaaa-container, .editor-styles-wrapper .skaaa-container { width: 100%; max-width: var(--skaaa-container-width); margin-left: auto; margin-right: auto; padding: var(--skaaa-content-padding); }\n";
+		$css .= "html body.skaaaaa-builder .skaaa-default-content { width: 100%; }\n";
+		$css .= "html body.skaaaaa-builder .skaaa-default-content > :not([class*=\"wp-block-skaaaaa-builder\"]):not([class*=\"skaaa-\"]) { max-width: var(--skaaa-container-width); margin-left: auto; margin-right: auto; padding-left: var(--skaaa-content-padding); padding-right: var(--skaaa-content-padding); }\n";
 		$css .= "html body.skaaaaa-builder .skaaa-container-block:not([class*=\"grid\"]):not([class*=\"flex\"]) > * + *, .editor-styles-wrapper .skaaa-container-block:not([class*=\"grid\"]):not([class*=\"flex\"]) > * + * { margin-top: var(--skaaa-block-gap); }\n";
 		if ( is_admin() ) {
-			$css .= ".editor-styles-wrapper { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; }\n";
+			$css .= ".editor-styles-wrapper { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; background-color: var(--skaaa-color-background, #ffffff); color: var(--skaaa-color-text, #111827); }\n";
 			$css .= ".editor-styles-wrapper h1, .editor-styles-wrapper h2, .editor-styles-wrapper h3, .editor-styles-wrapper h4, .editor-styles-wrapper h5, .editor-styles-wrapper h6 { font-family: var(--font-secondary), ui-sans-serif, system-ui, sans-serif; }\n";
 			$css .= ".editor-styles-wrapper code, .editor-styles-wrapper kbd, .editor-styles-wrapper samp, .editor-styles-wrapper pre { font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }\n";
 		} else {
-			$css .= "html body.skaaaaa-builder { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; }\n";
+			$css .= "html body.skaaaaa-builder { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; background-color: var(--skaaa-color-background, #ffffff); color: var(--skaaa-color-text, #111827); transition: background-color 0.3s ease, color 0.3s ease; min-height: 100vh; }\n";
 			$css .= "html body.skaaaaa-builder h1, html body.skaaaaa-builder h2, html body.skaaaaa-builder h3, html body.skaaaaa-builder h4, html body.skaaaaa-builder h5, html body.skaaaaa-builder h6 { font-family: var(--font-secondary), ui-sans-serif, system-ui, sans-serif; }\n";
 			$css .= "html body.skaaaaa-builder code, html body.skaaaaa-builder kbd, html body.skaaaaa-builder samp, html body.skaaaaa-builder pre { font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }\n";
 		}

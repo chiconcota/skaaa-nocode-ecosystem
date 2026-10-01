@@ -37,7 +37,172 @@
 
 ---
 
-## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 09/2026)
+## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
+
+## 2026-10-02 - 🟢 Hoàn thành: Chuẩn Hóa 15 Blocks Native & Thiết Quân Luật Native Image/Video trong Agent Kit (Skaaai v1.3.0)
+- **Decision (Full 15-Block Native Ecosystem Standard & Prohibition of Raw `<img>`/`<video>` in Code Blocks):**
+  - **Bối cảnh & Vấn đề thực tế (Phát hiện từ phản hồi của người dùng về việc chèn `<img>` inline vào code block):**
+    1. **Thiếu sót nghiêm trọng trong tài liệu Agent Kit:** File `developer-blocks/SKILL.md` chỉ liệt kê 8 blocks cơ bản, bỏ quên 7 blocks quan trọng mà plugin `skaaa-no-code-design` đã hỗ trợ (`image`, `icon`, `video`, `list`, `list-item`, `form-rich-text`, `organism-ref`). Đặc biệt, sự vắng mặt của `image` khiến AI Agent bị lầm tưởng hệ thống không có block hiển thị ảnh và phải dùng `skaaaaa-builder/code` chèn thẻ `<img>` thô.
+    2. **Bẫy cắt ảnh vuông mặc định của `render.php` (`aspect-square`):** Khi Agent thử dùng block `image`, do không biết `render.php` mặc định gán `aspectRatio: "aspect-square"`, ảnh chân dung (ví dụ 460x580) bị cắt cúp thành hình vuông 1:1, khiến Agent sợ hãi và quay lại viết thẻ HTML `<img>` thô.
+    3. **Bộ thẩm định `block-tool.php` bị lọt lưới:** Danh sách `$self_closing_types` thiếu các block nguyên tử (`image`, `icon`, `video`, `form-rich-text`, `organism-ref`), và regex kiểm tra lạm dụng code block chỉ kiểm tra `<button`, `<form`, `<input`, `<select`, hoàn toàn bỏ lọt thẻ `<img` và `<video`.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Nâng cấp toàn bộ 15 Blocks vào `developer-blocks/SKILL.md`:** Cập nhật bảng Schema chuẩn 100% thuộc tính cho cả 15 blocks. Viết thêm các ví dụ thực tiễn cho `image` (Hero portrait `aspect-[460/580]`, Avatar `aspect-square`), `icon` (Material Symbols), `video` (YouTube/Local), `list` & `list-item`.
+    2. **Cập nhật Thiết quân luật trong `company-rules.md` (Điều 3 & Điều 6):** Cấm tuyệt đối chèn thẻ `<img>` và `<video>` thô vào block `code`. Quy định rõ bắt buộc dùng native block `skaaaaa-builder/image` và phải chỉ định rõ `aspectRatio: "aspect-auto"` hoặc `"aspect-[W/H]"` khi ảnh không phải tỉ lệ 1:1 vuông.
+    3. **Nâng cấp `block-tool.php`:** Mở rộng `$self_closing_types` và `$open_close_types` đủ 15 blocks. Cập nhật regex bắt thẻ cấm thành `/<(button|form|input|select|img|video)\b|<svg\b/i`. Bổ sung rule `[INFO] Image Aspect Ratio Notice` nhắc nhở nhà phát triển chỉ định `aspectRatio` khi dùng `image` block.
+    4. **Đồng bộ hóa Song Hành Scaffold:** Sao chép nguyên vẹn toàn bộ thay đổi sang thư mục `wp-content/plugins/skaaai/scaffold/` và cập nhật `MISTAKE-021` trong `self-improve.md`, đóng gói `skaaai-v1.3.0.zip`.
+
+## 2026-10-02 - 🟢 Hoàn thành: Giao Diện Người Dùng 1-Click Push to Live (Gutenberg Toolbar & Post List Sync) (Skaaai v1.3.0)
+- **Decision (1-Click Push to Live UI: Gutenberg Toolbar & Post List Management):**
+  - **Bối cảnh & Vấn đề thực tế (Hoàn thiện Phase 3 Milestone 2):**
+    1. **Thiếu cơ chế trực quan đẩy bài viết:** Trước đây việc đồng bộ bài viết chỉ có các endpoint REST API nội bộ và thử nghiệm console, người dùng và biên tập viên không có nút bấm trực quan để đẩy trang/bài viết thiết kế từ Localhost sang Live Webhost.
+    2. **Xung đột ID tự tăng WordPress:** Cần đảm bảo 100% bài viết và trang mới tạo trên Localhost được cấp phát định danh toàn cầu `_skaaa_uuid` tự động, ngăn ngừa việc gán trùng hoặc mất dấu bài viết khi đối soát giữa 2 môi trường.
+    3. **Quản lý trạng thái đồng bộ tập trung:** Biên tập viên cần biết rõ trạng thái bài viết nào đã đồng bộ (`🟢 Synced`), bài nào có sửa đổi mới trên Local chưa đẩy (`⬆️ Local Ahead`), và bài nào chưa từng đẩy (`⚪ Not Synced`), đồng thời cần khả năng đẩy hàng loạt nhiều bài viết cùng lúc (Bulk Push).
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Tự động cấp phát UUID (`wp_insert_post`):** Bổ sung hook `Sync_Post::ensure_post_uuid` tự động tạo `_skaaa_uuid` (UUID v4) cho mọi bài viết và trang mới tạo trên Localhost, bỏ qua autosave, revision và trash.
+    2. **Gutenberg Editor Toolbar Button ("🚀 Push to Live"):** Tích hợp script `assets/js/skaaai-editor-toolbar.js` đăng ký plugin Gutenberg `skaaai-sync-bridge`. Tự động nhúng nút "🚀 Push to Live" lên Header Toolbar (bên cạnh nút Lưu/Đăng bài) và panel Status & Visibility trong Document Sidebar (`PluginPostStatusInfo`). Tự động lưu bài trước khi push nếu có thay đổi chưa lưu (`savePost()`), gửi AJAX gọi REST API đẩy nội dung sang Live Webhost, bắn Toast notification thành công kèm link mở trực tiếp trên Live, và xử lý xung đột 409 Conflict bằng hộp thoại xác nhận ghi đè ép buộc (Force Overwrite).
+    3. **Quản lý Danh sách Bài viết (`edit.php`):** Bổ sung cột "Skaaa Sync" trên All Posts / All Pages thông qua lớp `Post_Sync_UI`, hiển thị huy hiệu trạng thái động, tooltip thời gian đồng bộ, nút Push nhanh từng dòng bằng AJAX (`assets/js/skaaai-post-list.js`) và đăng ký thao tác hàng loạt `skaaai_bulk_push` (Bulk Push to Live) kèm thông báo tổng kết.
+    4. **SemVer & Đóng gói:** Nâng phiên bản `skaaai` lên `v1.3.0`, đóng gói `skaaai-v1.3.0.zip` (0.11 MB).
+
+## 2026-10-01 - 🟢 Hoàn thành: Khắc Phục Lỗi Hiển Thị Dark Mode & Bố Cục Thân Trang Tràn Viền (Skaaa No-Code Design v2.4.5)
+- **Decision (Body Canvas Design Token Background & Zero-Tradeoff Fullwidth Section Alignment):**
+  - **Bối cảnh & Vấn đề thực tế (Phát hiện từ phản hồi của khách hàng tại `lytatthanhloca`):**
+    1. **Lỗi thẻ `body` và `html` trong suốt:** Khi bật Dark Mode, biến `--skaaa-color-background` chuyển thành `#08090c`. Tuy nhiên trong `class-tailwind-config.php`, selector `html body.skaaaaa-builder` chỉ được gán `font-family`, hoàn toàn thiếu `background-color` và `color`. Trình duyệt để lộ màu nền canvas trắng mặc định của viewport, tạo hiện tượng "chớp trắng" và để lộ khoảng trắng khi cuộn trang hoặc khi có khe hở.
+    2. **Bẫy Fallback Container bó cứng 1280px:** Trong `virtual-template.php` và `class-skaaa-virtual-wrapper.php`, nhánh fallback mặc định bọc toàn bộ nội dung trong `<div class="skaaa-container mx-auto p-4">`. Khi Trang Chủ dùng Atomic Blocks (Section No-Code) chưa gán Theme Template riêng, toàn bộ Section bị bóp nghẹt còn 1248px, trong khi Header & Footer tràn viền 1920px (100%), tạo 2 khoảng hở trắng xóa bên sườn và dải trắng chắn ngang trước Footer.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Gán Token Nền Toàn Cục:** Bổ sung `background-color: var(--skaaa-color-background, #ffffff); color: var(--skaaa-color-text, #111827); transition: background-color 0.3s ease, color 0.3s ease; min-height: 100vh;` vào `html body.skaaaaa-builder` trong `class-tailwind-config.php`. Đảm bảo toàn bộ khung vẽ phủ kín màu token và chuyển tiếp êm ái 0.3s.
+    2. **Kiến Trúc "Sửa Nhưng Không Đánh Đổi" (Zero-Tradeoff Content Alignment):**
+       - Thay wrapper fallback cứng bằng `<div class="skaaa-default-content w-full">`.
+       - Trong CSS, thiết lập quy tắc: Các khối Atomic Blocks của Skaaa (`.wp-block-skaaaaa-builder-container`) được tự do tràn viền `100% (w-full)` khớp hoàn hảo với HeaderBar và FooterBar.
+       - Các khối văn bản blog cổ điển (`p, h1, h2, ul, ol` không thuộc block Skaaa) tự động ăn theo `max-width: var(--skaaa-container-width); margin-inline: auto; padding-inline: 1rem;` để không bị bè ra sát 2 mép màn hình.
+    3. **SemVer & Đóng gói:** Nâng `skaaa-no-code-design` lên `v2.4.5`, đóng gói `skaaa-no-code-design-v2.4.5.zip` (0.39 MB) và biên soạn quy trình kiểm thử bằng tay `e2e_dark_mode_fullwidth_layout.md`.
+
+## 2026-10-01 - 🟢 Hoàn thành: Skaaa Form Engine 3 Chân Vạc, Native Button Atom & No-Inline-Code Rule (Skaaai v1.2.7)
+- **Decision (Skaaa Form Engine 3-Pillar Ecosystem, Native Button Atom & Elimination of Inline Code Abuse):**
+  - **Bối cảnh & Vấn đề thực tế (Phát hiện tại phiên làm việc thực tế với AI Agent):**
+    1. **Bẫy lạm dụng Inline Code (`skaaaaa-builder/code`) cho UI Native:** Khi render nút bấm tương tác (Theme Toggle, Hamburger Menu, Form Fields), Agent lạm dụng block `code` nhét mã HTML/JS thô (`<button onclick="...">`). Hậu quả: Icon SVG bị co dúm thành chấm 2px x 2px do thiếu class kích thước Tailwind (`w-6 h-6 shrink-0`), gãy responsive (class Tailwind viết thô trong thẻ HTML không được Skaaa JIT nhận diện chuẩn), và Editor biến thành hộp đen sì không thể chỉnh sửa trực quan.
+    2. **Mất khả năng đổi màu tập trung (Hardcode Tailwind Color Abuse):** Agent hardcode các class màu cụ thể (`text-amber-400`, `bg-[#10131a]`, `text-slate-400`) thay vì dùng họ class Design Tokens (`text-primary`, `bg-surface`, `border-border`), làm mất khả năng đổi theme tập trung từ Theme Options.
+    3. **Thiếu kiến thức & tài liệu về Form Engine 3 Chân Vạc:** Agent không biết rằng Skaaa sở hữu cơ chế Form No-Code cực mạnh kết hợp giữa `skaaa-no-code-design` (UI), `skaaa-logic-engine` (DAG Workflow) và `skaaa-data-pro` (Flat Tables). Agent tự ý viết form tĩnh hoặc script gửi AJAX tự chế.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Chuẩn hóa Button Atom Native (`skaaaaa-builder/button`):**
+       - Mở rộng tài liệu schema: `actionType: "theme_toggle"|"submit"|"link"|"logic_api"`, `hasIcon`, `iconName`.
+       - Với `actionType: "theme_toggle"`, Block Render PHP tự động inject `@click.prevent="$store.skaaaTheme.toggle()"` và `x-data=""`, kết nối trực tiếp với `Alpine.store('skaaaTheme')` trong `skaaa-frontend.js`.
+       - SVG icon bên trong bắt buộc phải có kích thước rõ ràng (`w-5 h-5 shrink-0`) để triệt tiêu hiện tượng co dúm.
+    2. **Chuẩn hóa Kiến trúc Skaaa Form Engine 3 Chân Vạc:**
+       - **Chân Vạc 1 (Design UI):** Container cấp gốc có `tagName: "form"`, `isSkaaaForm: true`, `formActionId: "insert_{table_slug}"` (hoặc DAG workflow UUID). Container tự động tiêm Alpine component `skaaaForm` và hook `@submit.prevent="submitForm()"`. Các atomic block `input` và `select` tự động inject `x-model="fields.{name}"` và in thẻ hiển thị lỗi `<span x-show="errors.{name}">`.
+       - **Chân Vạc 2 (Logic Engine):** Endpoint `/wp-json/skaaa-logic/v1/submit` sở hữu cơ chế convention: Nếu `formActionId` bắt đầu bằng `insert_{table_slug}`, nó **TỰ ĐỘNG KHỞI TẠO ĐỒ THỊ DAG** (Trigger ➔ DB Action ➔ Client Response) lưu dữ liệu vào bảng `wp_skaaa_data_{table_slug}` mà không cần tạo workflow thủ công!
+       - **Chân Vạc 3 (Data Pro):** Dữ liệu được lưu trữ trực tiếp vào bảng phẳng MySQL `wp_skaaa_data_*` với schema dictionary được khử trùng an toàn (Sanitization & Escaping).
+    3. **Nâng cấp Bộ Công Cụ Kiểm Định CLI (`block-tool.php`):**
+       - Thêm rule bắt lỗi **Inline Code Abuse**: Báo `ERROR` nếu block `code` chứa `<button`, `<form`, `<input`, `<select`, `onclick=`, `theme_toggle`, hoặc `$store.skaaaTheme`.
+       - Thêm rule cảnh báo **Skaaa Form Engine Inactive**: Cảnh báo `WARNING` nếu container có `tagName: "form"` nhưng thiếu `isSkaaaForm: true`.
+       - Thêm rule cảnh báo **SVG Dimension Missing**: Cảnh báo nếu block `svg` thiếu kích thước `w-* h-*`.
+    4. **Ban hành "Điều 6: Thiết Quân Luật No-Inline-Code, Native Form & Design-Tokens-First" trong `company-rules.md`:**
+       - Cấm lạm dụng inline code block cho UI native. Bắt buộc dùng Form Engine 3 Chân Vạc và họ class Design Tokens.
+    5. **Ghi nhận `MISTAKE-021` vào `self-improve.md` và Cập nhật Kỹ năng:**
+       - Cập nhật cả 2 vị trí thư mục gốc và scaffold: `developer-blocks/SKILL.md`, `designer-patterns/SKILL.md`.
+    6. **SemVer:** Nâng phiên bản Skaaai lên `v1.2.7` và đóng gói `skaaai-v1.2.7.zip` (0.10 MB).
+
+## 2026-10-01 - 🟢 Hoàn thành: Theme Builder Auto-Registration CLI, Anti-Runaway Directive & MISTAKE-020 (Skaaai v1.2.6)
+- **Decision (Theme Builder CLI Integration, Anti-Runaway Directive & Agent Discipline Calibration):**
+  - **Bối cảnh & Vấn đề thực tế (Phát hiện tại site khách hàng `lytatthanhloca`):**
+    1. **Bẫy "Bỏ quên Theme Builder" (Theme Builder Bypass):** Khi Giám Đốc yêu cầu *"làm header và footer trước đi"*, Agent đã nhầm lẫn bản chất giữa Page Body và Theme Template. Nó nhét cứng (hardcode) đoạn block HTML của Header & Footer vào `post_content` của từng trang đơn lẻ thay vì đăng ký vào Skaaa Theme Builder. Hậu quả là trang quản trị `wp-admin/admin.php?page=skaaa-theme-builder` hoàn toàn trống trơn (0 template), và các trang tạo mới không được kế thừa Header/Footer toàn site.
+    2. **Bẫy "Cầm đèn chạy trước ô tô" (Auto-Progression Trap):** Agent ngộ nhận tín hiệu hệ thống / artifact feedback (`Automatic artifact approval allows immediate progression...`) là sự đồng ý của Giám Đốc, tự ý chạy xuyên màn đêm từ Phase 2 (Header/Footer) sang Phase 3 (Trang Chủ), Phase 4 (Dự Án), Phase 5 (Wiki) và Phase 6 (LMS), vi phạm nghiêm trọng Rule #1 và gây lãng phí hàng chục ngàn token.
+    3. **Thiếu tính năng trong CLI:** `db-tool.php --save-organism` trước đây chỉ lưu vào `wp_skaaa_data_sys_organisms` mà không có cờ đăng ký vào `wp_skaaa_data_sys_theme_templates`.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Nâng cấp `db-tool.php`:**
+       - Thêm cờ `--as-template=header|footer|single|archive` vào `--save-organism`. Khi có cờ này, CLI vừa lưu cấu kiện vào `wp_skaaa_data_sys_organisms`, vừa tự động tạo/cập nhật bản ghi vào `wp_skaaa_data_sys_theme_templates` (`is_active = 1`, `conditions = entire_site`). Header và Footer lập tức xuất hiện sáng đèn trên Skaaa Theme Builder và được Theme `Skaaa Canvas` tiêm tự động toàn website.
+       - Thêm lệnh `--list-templates` để kiểm tra danh sách Theme Templates toàn cục nhanh chóng từ terminal.
+    2. **Thiết lập "Điều 5: Thiết Quân Luật Chặn Đứng Tự Ý Nhảy Phase (Anti-Runaway Directive)" trong `company-rules.md`:**
+       - Cấm tuyệt đối coi tín hiệu hệ thống / artifact completion là lệnh duyệt.
+       - Buộc Agent dừng lượt hoàn toàn sau mỗi giao phẩm để chờ Chat Prompt từ Giám Đốc.
+    3. **Bổ sung `MISTAKE-020` vào `self-improve.md`:**
+       - Ghi nhớ lỗi Auto-Progression và lỗi hardcode Header/Footer vào post_content trên cả kho nguồn và scaffold.
+    4. **Cập nhật Kỹ năng `assembly-delivery` & `designer-patterns`:**
+       - Chuẩn hóa quy trình: Ráp Header/Footer ➔ Chạy CLI `--as-template` ➔ Bàn giao kèm link Theme Builder ➔ Dừng lượt chờ duyệt.
+    5. **SemVer:** Nâng phiên bản Skaaai lên `v1.2.6` và đóng gói `skaaai-v1.2.6.zip` (0.09 MB).
+
+## 2026-09-30 - 🟢 Hoàn thành: Thiết Quân Luật Database-First Cho Design Tokens, CLI db-tool & Scaffold self-improve.md (Skaaai v1.2.5)
+- **Decision (Database-First Directive, CLI Automation & Client Behavioral Self-Improvement):**
+  - **Bối cảnh & Vấn đề nhận diện từ thực tế:**
+    1. **Bẫy tài liệu Markdown chay (Markdown-Only Trap):** Agent khi làm việc với Design Tokens chỉ ngồi gõ bảng markdown lý thuyết vào `brand-guidelines.md` mà không nạp vào CSDL phẳng MySQL `wp_skaaa_data_sys_presets`. Kết quả là giao diện website không nhận được biến màu, mở WP-Admin Design Tokens thấy trống rỗng.
+    2. **Lệch pha Schema hệ thống (Schema Mismatch):** Agent dùng các thuật ngữ tự chế trôi nổi (`Canvas Base`, `Hairline Border`, `Surface Card`) không khớp với các trường thực tế của bảng `sys_presets` (`Background`, `Surface`, `Border`, `Primary`, `Secondary`...), gây ảo giác và mất uy tín với Giám Đốc.
+    3. **Thao tác thủ công, gõ SQL thô:** Thiếu công cụ CLI chuyên dụng khiến Agent phải gõ lệnh bash `mysql`/`mariadb` thô qua terminal, vi phạm luật hệ sinh thái.
+    4. **Thiếu cơ chế tự sửa sai tại site khách hàng (Client Runtime):** Sổ tay `self-improve.md` cũ chỉ nằm ở repo phát triển plugin, các website khách hàng (như `lytatthanhloca`) khi cài đặt plugin không có sổ tay ghi nhớ lỗi hành vi này.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Bổ sung lệnh CLI chuyên biệt trong `db-tool.php`:**
+       - `--set-tokens`: Hỗ trợ nạp hàng loạt Design Tokens từ chuỗi JSON hoặc file vào `wp_skaaa_data_sys_presets` và tự động kích hoạt `Design_Tokens_Compiler::compile_tokens_to_json()` xuất physical cache `tokens.json` & CSS variables.
+       - `--save-organism`: Hỗ trợ lưu trữ/cập nhật cấu kiện tái sử dụng (`HeaderBar`, `FooterBar`) vào `wp_skaaa_data_sys_organisms` kèm danh mục.
+       - `--list-organisms`: Liệt kê danh sách các cấu kiện tái sử dụng đã lưu.
+    2. **Bổ sung `self-improve.md` vào kho Scaffold (`scaffold/.skaaa-ai/2-memory/self-improve.md`):**
+       - Trang bị sẵn sổ tay tự sửa sai cho Agent tại mọi website khách hàng cài đặt Skaaai (ghi rõ MISTAKE-001 đến MISTAKE-005).
+    3. **Thiết lập "Điều 4: Thiết Quân Luật Database-First" trong `company-rules.md`:**
+       - Cấm tuyệt đối viết markdown chay thay cho việc nạp CSDL. Bắt buộc nạp CSDL trước khi đồng bộ tài liệu.
+    4. **Chuẩn hóa Bảng 2 Cột Đối Soát trong `designer-patterns` và `brand-guidelines.md`:**
+       - Cột Schema CSDL song song với Cột Ý Nghĩa Thị Giác cho cả Dark Mode & Light Mode, giúp Người và AI đều đọc hiểu thống nhất 100%.
+    5. **SemVer:** Nâng phiên bản Skaaai lên `v1.2.5` và đóng gói `skaaai-v1.2.5.zip` (0.09 MB).
+
+## 2026-09-29 - 🟢 Hoàn thành: Thiết Lập Chuẩn Atomic Design 5 Tầng & Nâng Cấp Toàn Diện Bộ Kỹ Năng Agent Harness (Skaaai v1.2.4)
+- **Decision (Atomic Design System, Reusability & Zero-Monolithic Policy):**
+  - **Bối cảnh & Vấn đề nhận diện từ thực tế:**
+    1. **Tư duy tạo Landing Page mì ăn liền (Monolithic HTML):** Agent trước đây thường gộp toàn bộ trang web (Header, Hero, Showcase, Teaser, Footer) thành 1 file thô gồm hơn 100 blocks dồn toa và nhét thẳng vào 1 `post_content`. Điều này biến hệ sinh thái Skaaa thành một công cụ tạo trang tĩnh rẻ tiền, làm mất hoàn toàn khả năng **tái sử dụng cấu kiện** (Header/Footer phải copy lại giữa các trang) và **đồng bộ dữ liệu** (không kéo động từ MySQL).
+    2. **Khảo sát hời hợt (Shallow Discovery):** Khâu khảo sát (`client-intake`) chỉ hỏi xã giao về logo, ảnh và form, bỏ qua hoàn toàn các câu hỏi cốt lõi về **Bản sắc & Định vị (Identity & Positioning)**, **USP độc bản**, và **Hệ sinh thái tính năng đòn bẩy** (Showcase, Wiki, LMS, Lead Capture).
+    3. **Bỏ qua Design Tokens & Thiếu Cổng Kiểm Định Thực Tế:** Không quản lý tập trung Design Tokens (bảng màu, font chữ, hairline border), dẫn đến việc dùng bừa màu sắc ngẫu nhiên. Đồng thời khâu QC có hiện tượng "nghiệm thu ảo" (báo cáo pass 100% nhưng thực tế giao diện vỡ trên trình duyệt).
+    4. **Sai lệch cấu trúc tài liệu:** Một số skill cũ trỏ sai đường dẫn sang các thư mục không chuẩn (`.skaaa-ai/3-project-dossier`, `.skaaa-ai/2-company-memory`), vi phạm thiết quân luật 4 ngăn kéo.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Thiết lập Thiết Quân Luật Atomic Design 5 Tầng:**
+       - **Tầng 0 (Design Tokens):** Quản lý tập trung màu sắc, typography, border, radius từ `client-brief.md` / StitchMCP.
+       - **Tầng 1 (Atoms):** Khối nguyên tử độc lập (`text`, `button`, `svg`, `badge`).
+       - **Tầng 2 (Molecules):** Cấu thành chức năng (`BrandLogo`, `NavItem`, `ProjectCard`, `MetricPill`).
+       - **Tầng 3 (Organisms):** Cấu kiện hoàn chỉnh, độc lập và **tái sử dụng xuyên suốt toàn site** (`HeaderBar`, `FooterBar`, `HeroSection`, `DynamicProjectGrid`, `WikiSidebar`).
+       - **Tầng 4 & 5 (Templates & Pages):** Ghép các Organism vào Layout và kéo dữ liệu động từ Skaaa Data Pro qua khối `loop`.
+    2. **Nâng cấp Toàn Diện 4 Kỹ Năng Cốt Lõi:**
+       - `/client-intake`: Khảo sát 4 trụ cột (Định vị & USP, Hệ thống đòn bẩy tính năng, Design Tokens, Chiến lược CSDL bảng phẳng).
+       - `/designer-patterns`: Thư viện mẫu cấu kiện theo chuẩn 5 tầng Atomic, 100% tuân thủ `tagName` & `tailwindClasses`.
+       - `/developer-blocks`: Hướng dẫn Dynamic Data Binding qua khối `loop`, code mẫu `$wpdb` tạo bảng phẳng cho Projects, Wiki, Courses, Leads và Alpine.store.
+       - `/assembly-delivery`: Quy trình lắp ráp cấu kiện tái sử dụng và Cổng Kiểm Định 3 Lớp (CLI Syntax -> Server Flat DOM -> Browser Visual Inspection).
+    3. **Chuẩn hóa Đường Dẫn Bộ Nhớ:**
+       - Sửa toàn bộ đường dẫn trong `start_session`, `end_session`, và bộ initializer của Skaaai tuân thủ đúng 4 ngăn kéo: `1-overview`, `2-memory`, `3-ecosystem`, `4-rules`.
+    4. **Nâng cấp Phiên bản & Đóng gói:** Nâng cấp Skaaai lên `v1.2.4`, biên dịch lại gói ZIP phân phối.
+
+## 2026-09-29 - 🟢 Hoàn thành: Agent Harness CLI Robustness, Local Socket Auto-Discovery & Schema Validation Fix (Skaaai v1.2.3)
+- **Decision (Agent Harness CLI Robustness, Local Socket Auto-Discovery & Schema Validation Fix):**
+  - **Bối cảnh & Vấn đề thực tế:**
+    1. **Lệch tên thuộc tính với `skaaa-no-code-design`:** Các tài liệu `developer-blocks/SKILL.md` và công cụ `block-tool.php` trước đây sử dụng thuộc tính `tag` và `classes`, trong khi Schema chuẩn của Plugin `skaaa-no-code-design` (trong `block.json` & `render.php`) bắt buộc là `tagName` và `tailwindClasses`. Điều này khiến các block render bị rỗng class Tailwind và hiển thị thô mất bố cục.
+    2. **Lỗi WordPress Core `wp_unslash()`:** Khi công cụ `block-tool.php` gọi `wp_insert_post()`, WordPress tự động chạy `wp_unslash()` lên toàn bộ `post_content`. Các dấu ngoặc kép được escape (`\"`) bên trong chuỗi SVG (`svgCode`) hoặc thuộc tính JSON bị gỡ bỏ dấu `\`, làm vỡ cấu trúc JSON Gutenberg, khiến khối hiển thị dạng text thô `<!-- wp:... /-->`. Đồng thời nếu không có ngữ cảnh Administrator, bộ lọc `wp_filter_post_kses()` của WordPress trong CLI sẽ lọc bỏ mã SVG.
+    3. **Lỗi kết nối MySQL trên Local by Flywheel:** Khi chạy PHP CLI từ terminal, lệnh `php` mặc định kết nối qua system socket (`/run/mysqld/mysqld.sock`), trong khi Local by Flywheel cô lập MySQL trong socket riêng (`~/.config/Local/run/{site_id}/mysql/mysqld.sock`). Điều này khiến WordPress ném lỗi `Error establishing a database connection` làm vỡ giao diện CLI.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Chuẩn hóa Schema Attributes trong `block-tool.php` & `developer-blocks/SKILL.md`:**
+       - Nâng cấp `block-tool.php`: Bổ sung kiểm tra nghiêm ngặt `tagName` (chặn `tag`) và `tailwindClasses` (chặn `classes`) kèm hướng dẫn sửa chi tiết khi chạy `--validate`.
+       - Cập nhật toàn bộ bảng tra cứu và mẫu comment trong `developer-blocks/SKILL.md` theo chuẩn `tagName` và `tailwindClasses`.
+    2. **Bảo toàn Cú pháp Gutenberg JSON (`wp_slash`) & Vô hiệu hóa KSES trong CLI:**
+       - Trong `block-tool.php` (`handle_create_test_page`): Bọc `wp_slash($content)` và `wp_slash($title)` trước khi truyền vào `wp_insert_post()`, bảo toàn 100% cú pháp JSON escape.
+       - Gọi `kses_remove_filters()` và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) để bảo vệ nguyên vẹn các thẻ HTML và SVG vector trong Gutenberg blocks.
+    3. **Thuật toán Tự động Nhận diện Local by Flywheel MySQL Socket & Root Discovery:**
+       - Tích hợp phương thức `detect_local_mysql_socket()` trong cả `db-tool.php` và `block-tool.php`: Tự động đọc `sites.json` của Local by Flywheel, khớp đường dẫn thư mục hiện tại để lấy chính xác đường dẫn socket MySQL của site.
+       - Tự động thiết lập `ini_set('mysqli.default_socket', $socket)` và `ini_set('pdo_mysql.default_socket', $socket)` trước khi WordPress kết nối CSDL.
+       - Bổ sung `locate_wp_file()` duyệt ngược cây thư mục lên tới 10 cấp để luôn tìm thấy `wp-load.php` và `wp-config.php`.
+       - Định nghĩa `WP_DIE_HANDLER` trong cả `db-tool.php` và `block-tool.php` để bắt lỗi sạch, không dump HTML ra terminal.
+    4. **Đồng bộ Thư mục Buồng lái & Nâng cấp Phiên bản:**
+       - Sao chép toàn bộ bộ 3 công cụ hoàn chỉnh sang thư mục gốc `.agent/harness/` (`db-tool.php`, `block-tool.php`, `jit-tool.php`) và các kỹ năng `.agent/skills/`.
+       - Nâng số phiên bản plugin `Skaaai` lên `v1.2.3` tuân thủ chuẩn SemVer và đóng gói `skaaai-v1.2.3.zip`.
+
+## 2026-09-28 - 🟢 Hoàn thành: Antigravity CLI Slash Commands Skills Migration & Safe Overwrite/Purge Mechanism (Skaaai v1.2.2)
+- **Decision (Antigravity Skills Migration & Harness Cleanup Mechanism):**
+  - **Bối cảnh & Vấn đề thực tế:**
+    1. Khi người dùng sử dụng Antigravity CLI (`agy` trong Terminal), các quy trình lưu dưới dạng file `.md` đơn lẻ trong `.agent/workflows/` không được CLI nhận diện thành Slash Command (`/`) trên thanh chat vì chuẩn Antigravity mới quy định Slash Commands liên kết trực tiếp với Skills (`.agent/skills/<tên_lệnh>/SKILL.md`).
+    2. Kịch bản đóng gói `zip-all.js` trước đây thiếu thuộc tính `dot: true`, khiến `archiver` bỏ qua thư mục ẩn `.agent/` và `.skaaa-ai/` trong `scaffold/`. Khi cài ZIP sang website mới, `scaffold/` bị rỗng dẫn đến nút "Tạo Kit" chỉ sinh folder trống.
+    3. Trước đây phương thức `Harness_Initializer::initialize()` khi ghi đè chỉ cập nhật file trùng tên chứ không dọn sạch các file/thư mục cũ không còn dùng nữa, dẫn tới tình trạng file rác của phiên bản cũ tồn đọng gây xung đột cấu trúc, buộc người dùng phải xóa và tạo website mới.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Chuẩn hóa Antigravity Skills (`.agent/skills/<tên_lệnh>/SKILL.md`):**
+       - Chuyển đổi toàn bộ quy trình sang định dạng Skill thư mục riêng với file `SKILL.md` chứa YAML Frontmatter chuẩn (`name` và `description`): `/start_session`, `/end_session`, `/client-intake`, `/assembly-delivery`, `/designer-patterns`, `/developer-blocks`.
+       - Đồng bộ cho cả Workspace hiện tại và bộ Scaffolding mẫu trong plugin `skaaai`.
+       - Giữ nguyên các file trong `.agent/workflows/` để đảm bảo 100% tương thích ngược với Antigravity IDE.
+    2. **Khắc phục Đóng gói ZIP (`zip-all.js`):**
+       - Bổ sung cấu hình `dot: true` vào `archive.glob` để bảo đảm 100% file trong `.agent` và `.skaaa-ai` được nén vào file zip cài đặt.
+       - Thêm bộ lọc loại bỏ rác hệ điều hành (`.DS_Store`, `Thumbs.db`).
+    3. **Cơ chế Dọn Dẹp An Toàn (Safe Clean & Purge Mechanism):**
+       - Trong [class-skaaai-harness-initializer.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-harness-initializer.php): Khi cờ `$overwrite_existing` được kích hoạt (mặc định bật trên Admin UI), hệ thống sẽ chủ động xóa sạch thư mục `.agent` và `.skaaa-ai` cũ trước khi tái tạo và chép file mới. Triệt tiêu hoàn toàn nguy cơ đọng file cũ.
+    4. **Nâng cấp Phiên Bản:**
+       - Tăng số phiên bản plugin `Skaaai` lên `v1.2.2` tuân thủ chuẩn SemVer và đóng gói [skaaai-v1.2.2.zip](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai-v1.2.2.zip).
 
 ## 2026-09-27 - 🟢 Hoàn thành: Triển khai Tiện ích Tiền kiểm Cú pháp Tailwind JIT (jit-tool.php - Skaaai v1.2.1)
 - **Decision (Tailwind JIT Pre-flight Checker: jit-tool.php):**
