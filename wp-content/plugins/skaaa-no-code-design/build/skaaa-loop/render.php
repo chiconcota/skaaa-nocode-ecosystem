@@ -134,8 +134,18 @@ if ( ! class_exists( '\Skaaa\Data\Core\Data_Fetcher' ) ) {
 
 global $wpdb;
 $actual_table_name = $source_table;
-if ( strpos( $actual_table_name, $wpdb->prefix ) !== 0 ) {
-    $actual_table_name = $wpdb->prefix . ltrim( $actual_table_name, '_' );
+$table_suffix      = '';
+
+if ( preg_match( '/(?:^|_)skaaa_data_(.+)$/', $source_table, $matches ) ) {
+    $table_suffix      = $matches[1];
+    $actual_table_name = $wpdb->prefix . 'skaaa_data_' . $table_suffix;
+} elseif ( strpos( $actual_table_name, $wpdb->prefix . 'skaaa_data_' ) !== 0 ) {
+    $clean_suffix      = preg_replace( '/^[a-zA-Z0-9]+_skaaa_data_/', '', $actual_table_name );
+    $clean_suffix      = preg_replace( '/^skaaa_data_/', '', $clean_suffix );
+    $table_suffix      = ltrim( $clean_suffix, '_' );
+    $actual_table_name = $wpdb->prefix . 'skaaa_data_' . $table_suffix;
+} else {
+    $table_suffix      = str_replace( $wpdb->prefix . 'skaaa_data_', '', $actual_table_name );
 }
 
 $args = [];
@@ -184,11 +194,17 @@ foreach ( $rows as $index => $row ) {
         '$last'  => $index === ( $total_rows - 1 ),
         '$even'  => ( $index % 2 ) === 0,
         '$odd'   => ( $index % 2 ) !== 0,
-        // Hỗ trợ cả prefix của bảng: [doctors.name]
-        $source_table => $row,
+        // Hỗ trợ cả prefix của bảng: [doctors.name], [skaaa_data_projects.name]
+        $source_table      => $row,
+        $actual_table_name => $row,
         // Cung cấp biến $item chuẩn để dùng trong SkaaaFX Condition
-        '$item'  => $row
+        '$item'            => $row,
     ] );
+
+    if ( ! empty( $table_suffix ) ) {
+        $context[ $table_suffix ] = $row;
+        $context[ 'skaaa_data_' . $table_suffix ] = $row;
+    }
 
     // Duyệt qua các slot để Match điều kiện
     $matched_template_html = '';

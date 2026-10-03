@@ -1,7 +1,7 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.3.0)  
+**Status:** 🟢 Stable (v1.4.3)  
 **Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push to Live UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
@@ -30,11 +30,21 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - Khóa quyền xóa file trực tiếp trên Live Webhost (`role === 'receiver'`), thay nút Delete bằng huy hiệu `🔒 Live Protected`.
   - Xóa file trên Localhost (Sender) tự động kích hoạt cuộc gọi REST API `POST /wp-json/skaaai/v1/delete-file` dọn sạch file và bản sao lưu trên Live.
 
-### Trụ cột 2: Bidirectional Content Sync Engine & 1-Click Push to Live UI (v1.3.0)
+### Trụ cột 2: Bidirectional Content Sync Engine & 1-Click Push to Live UI (v1.4.3)
 - **Mục tiêu:** Đồng bộ bài viết, landing page thiết kế bằng Skaaa giữa máy tính cá nhân (Local) và Webhost (Production/Staging) 2 chiều an toàn, không sợ lệch ID tự tăng (Auto Increment ID) của WordPress.
-- **Định danh toàn cục (`skaaa_uuid`):**
+- **Định danh toàn cục (`skaaa_uuid`) & Thuật toán Slug Fallback (v1.3.1):**
   - Mỗi bài viết được cấp 1 mã định danh duy nhất (UUID v4) tự động qua hook `wp_insert_post`, lưu tại metadata `_skaaa_uuid`.
-  - Khi đồng bộ, hệ thống đối soát dựa trên `skaaa_uuid` thay vì `ID` số của WordPress.
+  - Khi đồng bộ, hệ thống đối soát dựa trên `skaaa_uuid`. Nếu bài trên Live chưa có UUID (bài cũ hoặc nhập thủ công), thuật toán tự động tra cứu theo `post_name` (slug URL) và `post_type` qua `get_post_id_by_slug()`. Khi tìm thấy, tự động gán `_skaaa_uuid` và cập nhật đè trực tiếp (In-place update), triệt tiêu 100% tình trạng sinh bài trùng lặp `-2`.
+- **Bảo Vệ Ký Tự Khối Gutenberg (`wp_slash` Protection & KSES Bypass - v1.4.3):**
+  - Bọc hàm `wp_slash()` cho toàn bộ nội dung `$processed_content` và `$title` trước khi gọi `wp_update_post()` / `wp_insert_post()`.
+  - Khắc phục triệt để lỗi WordPress Core `stripslashes()` nuốt mất dấu gạch chéo ngược `\` trong JSON attributes của Gutenberg block (loại bỏ dứt điểm lỗi biến `\u0026` thành `u0026amp;`, vỡ SVG quotes `\"` và gãy xuống dòng `\n`).
+  - **KSES Bypass & Administrator Context (v1.4.3):** Tạm thời gọi `kses_remove_filters()` và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) khi xử lý ghi bài qua REST API để ngăn WordPress Core xóa sạch thẻ `<svg>` trong thuộc tính JSON comment Gutenberg (`svgCode`), khôi phục bộ lọc qua `kses_init_filters()` ngay sau khi hoàn tất.
+- **Chuẩn Hóa Database Table Prefix Cho Khối Động (v1.4.2):**
+  - Tự động quét và hoán đổi prefix bảng phẳng `skaaa_data_*` từ sender sang receiver (`Sync_Post::rewrite_table_prefixes()`) cho toàn bộ nội dung bài viết và các trang đồng bộ, đảm bảo các khối `loop` trỏ chính xác vào CSDL Live (ví dụ: `wpxi_skaaa_data_*`).
+- **Cơ chế nạp Media 2 Đầu (Base64 Sideload Media over NAT - v1.3.1):**
+  - Mở rộng endpoint tiếp nhận Media `POST /wp-json/skaaai/v1/upload-media` nhận file base64 trực tiếp từ Sender.
+  - Quét regex thông minh hỗ trợ cả URL tuyệt đối (`http...`) và URL tương đối (`/wp-content/uploads/...`) cùng escape gạch chéo `\/`.
+  - Sender tự động đọc file ảnh từ ổ cứng Localhost, đẩy trực tiếp lên Media Library của Live host, sau đó hoán đổi URL mới trước khi ghi nội dung bài viết.
 - **Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Document Panel):**
   - Tích hợp nút bấm trực tiếp "🚀 Push to Live" trên thanh Header Toolbar (bên cạnh nút Lưu/Đăng bài) và panel Status & Visibility trong Document Sidebar (`assets/js/skaaai-editor-toolbar.js`).
   - Tự động lưu bài trước khi push (`savePost()`), gửi payload bài viết qua REST API, tự động hoán đổi URL domain và tải ảnh về media library của Live host.
@@ -42,10 +52,10 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
 - **Quản lý Đồng bộ Danh sách Bài viết (`edit.php`):**
   - Bổ sung cột **"Skaaa Sync"** trên danh sách All Posts / All Pages (`class-skaaai-post-sync-ui.php`), hiển thị huy hiệu động (`🟢 Synced`, `⬆️ Local Ahead`, `⚪ Not Synced`).
   - Hỗ trợ nút Push nhanh từng bài qua AJAX với spinner (`assets/js/skaaai-post-list.js`) và thao tác đẩy hàng loạt (Bulk Push to Live `skaaai_bulk_push`) kèm thông báo tổng kết.
-- **Cơ chế an toàn (Data Safety):**
-  - **Hoán đổi tên miền (Domain Rewriter):** Tự động hoán đổi URL giữa local và live domain.
-  - **Sideload Media:** Tự động tải hình ảnh từ máy local về Media Library trên hosting.
-  - **Tự động tạo Revision:** Trước khi ghi đè trên Receiver, luôn gọi `wp_save_post_revision()` để có thể Undo phục hồi 1-click trong WordPress History.
+- **Động cơ Đồng Bộ Toàn Bộ Hệ Sinh Thái (1-Click Full Ecosystem Sync - v1.4.3):**
+  - Đồng bộ trọn gói: `sys_presets` (Design Tokens), `sys_organisms` (HeaderBar/FooterBar), `sys_theme_templates` (Theme Locations), `sys_workflows` (Skaaa Logic Engine DAG Graphs) và All Pages kèm Media.
+  - Thiết quân luật bảo vệ Live: Blacklist tên miền (`siteurl`, `home`), tài khoản (`admin_email`), plugin (`active_plugins`) và dữ liệu thực của khách (`*_submissions`).
+  - Tự động Purge LiteSpeed Cache & WordPress Object Cache ngay sau khi hoàn tất.
 
 ### Trụ cột 3: Kiến Trúc Atomic Design 5 Tầng, Theme Builder Integration & Anti-Runaway Harness (v1.2.6)
 - **Mục tiêu:** Thiết lập chuẩn mực kiến trúc Atomic Design 5 tầng (Design Tokens ➔ Atoms ➔ Molecules ➔ Organisms ➔ Templates ➔ Pages). Triệt tiêu hoàn toàn lối làm việc tạo trang tĩnh mì ăn liền (Monolithic HTML 100+ blocks), phân rã cấu kiện độc lập tái sử dụng (`HeaderBar`, `FooterBar`), tự động kích hoạt Theme Template toàn site trên Skaaa Theme Builder qua CSDL phẳng MySQL `skaaa_data_sys_theme_templates`, và kết nối dữ liệu động qua khối `loop` với bảng phẳng `skaaa_data_*` (Skaaa Data Pro).

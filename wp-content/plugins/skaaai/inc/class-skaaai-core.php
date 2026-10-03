@@ -49,6 +49,10 @@ class Core {
         require_once SKAAAI_DIR . 'inc/class-skaaai-harness-initializer.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-post.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-post-sync-ui.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem-sender.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem-diff.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-ecosystem-sync-ui.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-rest-api.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-admin.php';
     }
@@ -91,6 +95,9 @@ class Core {
 
         // Tự động gán skaaa_uuid cho bài viết mới
         add_action( 'wp_insert_post', [ Sync_Post::class, 'ensure_post_uuid' ], 10, 3 );
+
+        // Khởi tạo giao diện đồng bộ toàn hệ sinh thái (Admin Bar & Modal)
+        Ecosystem_Sync_UI::init();
 
         // Đăng ký Admin Menu & Enqueue Assets
         if ( is_admin() ) {

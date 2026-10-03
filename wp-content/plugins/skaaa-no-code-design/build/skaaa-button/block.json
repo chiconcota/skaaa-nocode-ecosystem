@@ -9,7 +9,7 @@
     "attributes": {
         "text": {
             "type": "string",
-            "default": "Click Here"
+            "default": "[Skaaa Button]"
         },
         "url": {
             "type": "string",

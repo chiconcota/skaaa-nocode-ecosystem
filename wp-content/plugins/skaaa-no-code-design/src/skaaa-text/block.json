@@ -10,7 +10,7 @@
     "attributes": {
         "content": {
             "type": "string",
-            "default": "Hello World"
+            "default": "[Skaaa Text]"
         },
         "tagName": {
             "type": "string",

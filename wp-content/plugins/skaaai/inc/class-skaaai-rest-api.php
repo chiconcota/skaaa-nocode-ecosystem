@@ -55,6 +55,20 @@ class Rest_Api {
             'callback'            => [ self::class, 'handle_list_nodes' ],
             'permission_callback' => [ self::class, 'verify_token_permission' ],
         ] );
+
+        // 6. Endpoint tiếp nhận upload file media từ Sender
+        register_rest_route( self::NAMESPACE, '/upload-media', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [ self::class, 'handle_upload_media' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
+
+        // 7. Endpoint tiếp nhận đồng bộ toàn bộ Hệ Sinh Thái (Full Ecosystem Sync)
+        register_rest_route( self::NAMESPACE, '/sync-ecosystem', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [ self::class, 'handle_sync_ecosystem' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
     }
 
     /**
@@ -151,5 +165,34 @@ class Rest_Api {
             'success' => true,
             'files'   => $files,
         ], 200 );
+    }
+
+    /**
+     * Xử lý request upload media từ Sender
+     */
+    public static function handle_upload_media( \WP_REST_Request $request ): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $result = Sync_Post::handle_incoming_media( $params );
+        $status = ! empty( $result['success'] ) ? 200 : 400;
+
+        return new \WP_REST_Response( $result, $status );
+    }
+
+    /**
+     * Xử lý request đồng bộ toàn bộ Hệ Sinh Thái
+     */
+    public static function handle_sync_ecosystem( \WP_REST_Request $request ): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        if ( empty( $params ) || ! is_array( $params ) ) {
+            return new \WP_REST_Response( [
+                'success' => false,
+                'message' => __( 'Invalid or empty ecosystem payload.', 'skaaai' ),
+            ], 400 );
+        }
+
+        $result = Sync_Ecosystem::process_incoming_ecosystem( $params );
+        $status = ! empty( $result['success'] ) ? 200 : 400;
+
+        return new \WP_REST_Response( $result, $status );
     }
 }

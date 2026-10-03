@@ -422,8 +422,10 @@ class Skaaa_DB_Tool {
         global $wpdb;
 
         $table = sanitize_key( $table );
-        if ( ! str_starts_with( $table, $wpdb->prefix ) && ! str_starts_with( $table, 'skaaa_data_' ) ) {
-            $table = $wpdb->prefix . $table;
+        if ( preg_match( '/(?:^|_)skaaa_data_(.+)$/', $table, $matches ) ) {
+            $table = $wpdb->prefix . 'skaaa_data_' . $matches[1];
+        } elseif ( ! str_starts_with( $table, $wpdb->prefix ) ) {
+            $table = $wpdb->prefix . ( str_starts_with( $table, 'skaaa_data_' ) ? $table : 'skaaa_data_' . $table );
         }
 
         $columns = $wpdb->get_results( "DESCRIBE `{$table}`", ARRAY_A );
@@ -458,8 +460,10 @@ class Skaaa_DB_Tool {
         global $wpdb;
 
         $table = sanitize_key( $table );
-        if ( ! str_starts_with( $table, $wpdb->prefix ) && ! str_starts_with( $table, 'skaaa_data_' ) ) {
-            $table = $wpdb->prefix . $table;
+        if ( preg_match( '/(?:^|_)skaaa_data_(.+)$/', $table, $matches ) ) {
+            $table = $wpdb->prefix . 'skaaa_data_' . $matches[1];
+        } elseif ( ! str_starts_with( $table, $wpdb->prefix ) ) {
+            $table = $wpdb->prefix . ( str_starts_with( $table, 'skaaa_data_' ) ? $table : 'skaaa_data_' . $table );
         }
 
         $rows = $wpdb->get_results( "SELECT * FROM `{$table}` LIMIT {$limit}", ARRAY_A );

@@ -1,0 +1,483 @@
+/**
+ * Skaaai 1-Click Full Ecosystem Sync Stylesheet
+ * Version: 1.4.0
+ */
+
+/* ==========================================================================
+   1. Admin Bar Quick Action
+   ========================================================================== */
+#wpadminbar #wp-admin-bar-skaaai-ecosystem-sync-bar > .ab-item {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(168, 85, 247, 0.9) 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+#wpadminbar #wp-admin-bar-skaaai-ecosystem-sync-bar:hover > .ab-item {
+    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+}
+
+#wpadminbar #wp-admin-bar-skaaai-ecosystem-sync-bar .dashicons {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   2. Admin Cockpit Ecosystem Card
+   ========================================================================== */
+.skaaai-ecosystem-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.skaaai-ecosystem-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.skaaai-badge-purple {
+    background: #f3e8ff;
+    color: #7e22ce;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.skaaai-ecosystem-card-target {
+    text-align: right;
+    font-size: 13px;
+    background: #f8fafc;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.skaaai-target-label {
+    display: block;
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.skaaai-target-url code {
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.skaaai-target-warning {
+    color: #eab308;
+    font-weight: 600;
+}
+
+/* Scope Selector */
+.skaaai-scope-selector {
+    margin: 20px 0;
+}
+
+.skaaai-scope-selector h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #334155;
+}
+
+.skaaai-scope-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.skaaai-scope-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.skaaai-scope-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.skaaai-scope-item input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+.skaaai-scope-item strong {
+    display: block;
+    font-size: 13px;
+    color: #1e293b;
+    margin-bottom: 2px;
+}
+
+.skaaai-scope-item span {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Safeguards Notice */
+.skaaai-safeguards-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.skaaai-safeguards-notice .dashicons {
+    color: #059669;
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.skaaai-safeguards-notice p {
+    margin: 0;
+    font-size: 12px;
+    color: #065f46;
+    line-height: 1.5;
+}
+
+/* Gradient Buttons */
+.skaaai-btn-gradient {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    padding: 10px 24px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer;
+}
+
+.skaaai-btn-gradient:hover:not(:disabled) {
+    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #db2777 100%) !important;
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5) !important;
+    transform: translateY(-1px);
+}
+
+.skaaai-btn-gradient:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3) !important;
+}
+
+.skaaai-btn-gradient:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+/* ==========================================================================
+   3. Modal Dialog & Backdrop
+   ========================================================================== */
+.skaaai-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.skaaai-modal-backdrop.hidden {
+    display: none !important;
+}
+
+.skaaai-modal-dialog {
+    width: 100%;
+    max-width: 600px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: skaaaiModalFadeIn 0.2s ease-out;
+}
+
+@keyframes skaaaiModalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.skaaai-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.skaaai-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.skaaai-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+
+.skaaai-modal-close:hover {
+    color: #0f172a;
+}
+
+.skaaai-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.skaaai-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+}
+
+/* Spinner Stage */
+.skaaai-spinner-container {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.skaaai-pulse-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    animation: skaaaiPulse 1.4s infinite ease-in-out;
+}
+
+@keyframes skaaaiPulse {
+    0% { transform: scale(0.85); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+    100% { transform: scale(0.85); opacity: 0.7; }
+}
+
+.skaaai-step-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+}
+
+.skaaai-step-subtext {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Pre-flight Review Stage */
+.skaaai-review-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.skaaai-review-banner .dashicons {
+    color: #16a34a;
+    font-size: 24px;
+    margin-top: 2px;
+}
+
+.skaaai-review-banner strong {
+    display: block;
+    color: #15803d;
+    font-size: 14px;
+}
+
+.skaaai-review-banner p {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: #166534;
+}
+
+.skaaai-diff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.skaaai-diff-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.skaaai-diff-card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.skaaai-diff-card-count {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.skaaai-diff-card-desc {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
+.skaaai-safeguard-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #475569;
+}
+
+.skaaai-safeguard-pill .dashicons {
+    font-size: 14px;
+    color: #64748b;
+}
+
+/* Progress Stage */
+.skaaai-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 10px 0;
+}
+
+.skaaai-progress-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+}
+
+.skaaai-progress-item.running {
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+.skaaai-progress-item.done {
+    color: #16a34a;
+}
+
+.skaaai-progress-item .skaaai-progress-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f1f5f9;
+    font-size: 12px;
+}
+
+.skaaai-progress-item.running .skaaai-progress-icon {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.skaaai-progress-item.done .skaaai-progress-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* Completed Stage */
+.skaaai-completed-box {
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.skaaai-completed-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.skaaai-completed-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #0f172a;
+}
+
+.skaaai-completed-actions {
+    margin-top: 24px;
+}
+
+/* Error Stage */
+.skaaai-error-box {
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.skaaai-error-box .dashicons {
+    font-size: 40px;
+    color: #ef4444;
+    margin-bottom: 10px;
+}
+
+.skaaai-error-box h4 {
+    margin: 0 0 8px 0;
+    color: #b91c1c;
+}
+
+.skaaai-error-box p {
+    color: #7f1d1d;
+    font-size: 13px;
+    line-height: 1.5;
+}

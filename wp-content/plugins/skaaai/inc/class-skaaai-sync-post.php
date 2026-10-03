@@ -44,6 +44,14 @@ class Sync_Post {
         // 1. Tìm kiếm bài viết đã tồn tại trên hosting theo skaaa_uuid
         $existing_post_id = self::get_post_id_by_uuid( $uuid );
 
+        // 1.1. Fallback: Nếu chưa có UUID, tìm kiếm theo slug và post_type để ghép đôi (chống sinh bài -2)
+        if ( ! $existing_post_id && ! empty( $payload['slug'] ) ) {
+            $existing_post_id = self::get_post_id_by_slug( sanitize_title( $payload['slug'] ), $post_type );
+            if ( $existing_post_id ) {
+                update_post_meta( $existing_post_id, '_skaaa_uuid', $uuid );
+            }
+        }
+
         // 2. Kiểm tra xung đột thời gian sửa đổi (Conflict Detection) nếu bài đã tồn tại
         if ( $existing_post_id && ! $force_sync && ! empty( $payload['last_modified'] ) ) {
             $remote_modified = get_post_modified_time( 'U', true, $existing_post_id );
@@ -60,22 +68,37 @@ class Sync_Post {
             }
         }
 
-        // 3. Hoán đổi tên miền (Domain Replacement)
-        $processed_content = self::rewrite_domain_urls( $raw_content, $origin_url );
+        // 3. Tải và nội địa hóa ảnh (Asset Sideloading) TRƯỚC khi hoán đổi tên miền
+        $processed_content = self::sideload_remote_images( $raw_content, $origin_url );
 
-        // 4. Tải và nội địa hóa ảnh (Asset Sideloading)
-        $processed_content = self::sideload_remote_images( $processed_content, $origin_url );
+        // 4. Hoán đổi tên miền còn lại (Domain Replacement)
+        $processed_content = self::rewrite_domain_urls( $processed_content, $origin_url );
 
-        // 5. Chuẩn bị dữ liệu bài viết
+        // 4.1. Chuẩn hóa Table Prefix cho các block (ví dụ skaaaaa-builder/loop sourceTable)
+        $processed_content = self::rewrite_table_prefixes( $processed_content );
+
+        // 5. Chuẩn bị dữ liệu bài viết (bọc wp_slash chống lỗi stripslashes của WP Core nuốt mất dấu \)
         $post_args = [
-            'post_title'   => $title,
-            'post_content' => $processed_content,
+            'post_title'   => wp_slash( $title ),
+            'post_content' => wp_slash( $processed_content ),
             'post_status'  => $post_status,
             'post_type'    => $post_type,
         ];
 
         if ( ! empty( $payload['slug'] ) ) {
             $post_args['post_name'] = sanitize_title( $payload['slug'] );
+        }
+
+        // Tạm thời vô hiệu hóa KSES và thiết lập ngữ cảnh Administrator để bảo tồn 100% mã SVG và HTML nâng cao
+        if ( function_exists( 'kses_remove_filters' ) ) {
+            kses_remove_filters();
+        }
+        $prev_user_id = get_current_user_id();
+        if ( function_exists( 'get_users' ) ) {
+            $admins = get_users( [ 'role' => 'administrator', 'number' => 1 ] );
+            if ( ! empty( $admins[0] ) ) {
+                wp_set_current_user( $admins[0]->ID );
+            }
         }
 
         if ( $existing_post_id ) {
@@ -89,6 +112,14 @@ class Sync_Post {
             if ( ! is_wp_error( $post_id ) ) {
                 update_post_meta( $post_id, '_skaaa_uuid', $uuid );
             }
+        }
+
+        // Khôi phục lại bộ lọc KSES và ngữ cảnh người dùng
+        if ( $prev_user_id !== get_current_user_id() ) {
+            wp_set_current_user( $prev_user_id );
+        }
+        if ( function_exists( 'kses_init_filters' ) ) {
+            kses_init_filters();
         }
 
         if ( is_wp_error( $post_id ) ) {
@@ -131,6 +162,24 @@ class Sync_Post {
     }
 
     /**
+     * Tìm bài viết dựa vào post_name (slug) và post_type để ghép đôi bài cũ
+     *
+     * @param string $slug
+     * @param string $post_type
+     * @return int|null
+     */
+    public static function get_post_id_by_slug( string $slug, string $post_type = 'post' ): ?int {
+        global $wpdb;
+        $post_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type = %s AND post_status != 'trash' LIMIT 1",
+            $slug,
+            $post_type
+        ) );
+
+        return $post_id ? (int) $post_id : null;
+    }
+
+    /**
      * Hoán đổi Domain của Localhost thành Domain của Web Live
      *
      * @param string $content Nội dung bài viết
@@ -161,6 +210,27 @@ class Sync_Post {
     }
 
     /**
+     * Chuẩn hóa tiền tố bảng database (sourceTable) trong nội dung và thuộc tính Gutenberg
+     * Đảm bảo tương thích khi di chuyển dữ liệu giữa các máy có $table_prefix khác nhau (vd: wp_ vs wpxi_)
+     *
+     * @param string $content
+     * @return string
+     */
+    public static function rewrite_table_prefixes( string $content ): string {
+        global $wpdb;
+        if ( empty( $content ) ) {
+            return $content;
+        }
+
+        // Thay thế các mẫu "sourceTable":"...skaaa_data_abc" thành "sourceTable":"{wpdb->prefix}skaaa_data_abc"
+        return preg_replace(
+            '/(\\\\?"sourceTable\\\\?"\s*:\s*\\\\?")(?:[a-zA-Z0-9]+_)?skaaa_data_([a-zA-Z0-9_]+)(\\\\?")/',
+            '${1}' . $wpdb->prefix . 'skaaa_data_${2}${3}',
+            $content
+        );
+    }
+
+    /**
      * Tự động tải hình ảnh từ URL nguồn và lưu vào Media Library của Live host
      *
      * @param string $content
@@ -172,33 +242,41 @@ class Sync_Post {
             return $content;
         }
 
-        // Tìm tất cả các link ảnh có đuôi jpg, jpeg, png, gif, webp, svg
-        $pattern = '/(https?:\/\/[^\s"\']+\.(?:jpg|jpeg|png|gif|webp|svg))/i';
+        $origin_clean = rtrim( $origin_url, '/' );
+
+        // Tìm tất cả các link ảnh (cả tuyệt đối lẫn tương đối và có escape gạch chéo)
+        $pattern = '/(?:https?:\/\/[^\s"\'\\\]+|(?:\\?\/)wp-content(?:\\?\/)uploads[^\s"\'\\\]+)\.(?:jpg|jpeg|png|gif|webp|svg)/i';
         if ( ! preg_match_all( $pattern, $content, $matches ) ) {
             return $content;
         }
 
-        $urls = array_unique( $matches[1] );
-        $origin_clean = rtrim( $origin_url, '/' );
+        $urls = array_unique( $matches[0] );
 
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
-        foreach ( $urls as $image_url ) {
+        foreach ( $urls as $raw_url ) {
+            $clean_url = str_replace( '\\/', '/', $raw_url );
+            if ( str_starts_with( $clean_url, '/' ) ) {
+                $full_download_url = $origin_clean . $clean_url;
+            } else {
+                $full_download_url = $clean_url;
+            }
+
             // Chỉ tải các ảnh xuất phát từ domain origin của máy local
-            if ( ! str_starts_with( $image_url, $origin_clean ) ) {
+            if ( ! str_starts_with( $full_download_url, $origin_clean ) ) {
                 continue;
             }
 
             // Tải file tạm về server
-            $tmp_file = download_url( $image_url );
+            $tmp_file = download_url( $full_download_url );
             if ( is_wp_error( $tmp_file ) ) {
                 continue;
             }
 
             $file_array = [
-                'name'     => basename( parse_url( $image_url, PHP_URL_PATH ) ),
+                'name'     => basename( parse_url( $full_download_url, PHP_URL_PATH ) ),
                 'tmp_name' => $tmp_file,
             ];
 
@@ -212,8 +290,184 @@ class Sync_Post {
             // Lấy URL mới trên hosting và hoán đổi trong nội dung
             $new_url = wp_get_attachment_url( $attachment_id );
             if ( $new_url ) {
-                $content = str_replace( $image_url, $new_url, $content );
+                $content = str_replace( $raw_url, $new_url, $content );
+                $content = str_replace( $clean_url, $new_url, $content );
+                $content = str_replace( str_replace( '/', '\\/', $clean_url ), str_replace( '/', '\\/', $new_url ), $content );
             }
+        }
+
+        return $content;
+    }
+
+    /**
+     * Tiếp nhận và lưu trữ file media gửi trực tiếp từ máy Sender
+     *
+     * @param array $params Tham số gửi từ Sender
+     * @return array
+     */
+    public static function handle_incoming_media( array $params ): array {
+        $filename  = sanitize_file_name( $params['filename'] ?? '' );
+        $file_data = $params['file_data'] ?? '';
+        $post_id   = absint( $params['post_id'] ?? 0 );
+
+        if ( empty( $filename ) || empty( $file_data ) ) {
+            return [
+                'success' => false,
+                'message' => __( 'Missing filename or file data.', 'skaaai' ),
+            ];
+        }
+
+        $decoded_data = base64_decode( $file_data );
+        if ( false === $decoded_data ) {
+            return [
+                'success' => false,
+                'message' => __( 'Failed to decode base64 file data.', 'skaaai' ),
+            ];
+        }
+
+        // Tải file vào thư mục uploads của WordPress
+        $upload = wp_upload_bits( $filename, null, $decoded_data );
+        if ( ! empty( $upload['error'] ) ) {
+            return [
+                'success' => false,
+                'message' => $upload['error'],
+            ];
+        }
+
+        $file_path = $upload['file'];
+        $file_url  = $upload['url'];
+        $file_type = wp_check_filetype( $filename, null );
+
+        // Tạo attachment post trong Media Library
+        $attachment = [
+            'post_mime_type' => $file_type['type'] ?: 'image/png',
+            'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
+            'post_content'   => '',
+            'post_status'    => 'inherit',
+            'guid'           => $file_url,
+        ];
+
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+
+        $attach_id = wp_insert_attachment( $attachment, $file_path, $post_id );
+        if ( ! is_wp_error( $attach_id ) ) {
+            $attach_data = wp_generate_attachment_metadata( $attach_id, $file_path );
+            wp_update_attachment_metadata( $attach_id, $attach_data );
+        } else {
+            $attach_id = 0;
+        }
+
+        return [
+            'success'   => true,
+            'url'       => $file_url,
+            'id'        => $attach_id,
+            'file_path' => $file_path,
+        ];
+    }
+
+    /**
+     * Quét nội dung bài viết ở Local, đọc file ảnh trên ổ đĩa và đẩy thẳng lên Live qua REST API
+     *
+     * @param string $content Nội dung bài viết
+     * @param string $remote_url URL Live Webhost
+     * @param string $remote_token Secret token
+     * @return string Nội dung bài viết đã hoán đổi link ảnh Live
+     */
+    public static function prepare_and_sync_local_media( string $content, string $remote_url, string $remote_token ): string {
+        if ( empty( $content ) || empty( $remote_url ) || empty( $remote_token ) ) {
+            return $content;
+        }
+
+        // Tìm tất cả các link ảnh uploads trong content (cả dạng URL đầy đủ hoặc dạng tương đối /wp-content/uploads/...)
+        $pattern = '~(?:https?://[^"\'\s]+?)?(?:/|\\\\/)+wp-content(?:/|\\\\/)+uploads(?:/|\\\\/)+([^"\'\s]+?\.(?:jpg|jpeg|png|gif|webp|svg))~i';
+        if ( ! preg_match_all( $pattern, $content, $matches, PREG_SET_ORDER ) ) {
+            return $content;
+        }
+
+        $upload_dir = wp_upload_dir();
+        $basedir    = $upload_dir['basedir'];
+
+        $processed_files = [];
+
+        foreach ( $matches as $match ) {
+            $raw_match = $match[0];
+            $rel_path  = $match[1];
+            $clean_rel = str_replace( [ '\/', '\\' ], '/', $rel_path );
+            $local_path = $basedir . '/' . ltrim( $clean_rel, '/' );
+
+            // Nếu không tìm thấy trong uploads hiện tại, tìm trong wp-content/uploads
+            if ( ! file_exists( $local_path ) ) {
+                $alt_path = ABSPATH . 'wp-content/uploads/' . ltrim( $clean_rel, '/' );
+                if ( file_exists( $alt_path ) ) {
+                    $local_path = $alt_path;
+                }
+            }
+
+            // Nếu vẫn không thấy, quét các site Local lân cận (hỗ trợ trường hợp làm việc đa site local)
+            if ( ! file_exists( $local_path ) && defined( 'ABSPATH' ) ) {
+                $sibling_matches = glob( dirname( ABSPATH, 2 ) . '/*/app/public/wp-content/uploads/' . ltrim( $clean_rel, '/' ) );
+                if ( ! empty( $sibling_matches[0] ) && file_exists( $sibling_matches[0] ) ) {
+                    $local_path = $sibling_matches[0];
+                }
+            }
+
+            if ( ! file_exists( $local_path ) || ! is_readable( $local_path ) ) {
+                continue;
+            }
+
+            if ( isset( $processed_files[ $clean_rel ] ) ) {
+                $remote_info = $processed_files[ $clean_rel ];
+            } else {
+                $file_contents = file_get_contents( $local_path );
+                if ( empty( $file_contents ) ) {
+                    continue;
+                }
+
+                $filename = basename( $clean_rel );
+                $upload_endpoint = rtrim( $remote_url, '/' ) . '/wp-json/skaaai/v1/upload-media';
+
+                $response = wp_remote_post( $upload_endpoint, [
+                    'timeout'   => 45,
+                    'headers'   => [
+                        'X-Skaaai-Token' => $remote_token,
+                        'Content-Type'   => 'application/json',
+                        'Accept'         => 'application/json',
+                    ],
+                    'body'      => wp_json_encode( [
+                        'filename'  => $filename,
+                        'file_data' => base64_encode( $file_contents ),
+                    ] ),
+                    'sslverify' => false,
+                ] );
+
+                if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+                    continue;
+                }
+
+                $res_body = json_decode( wp_remote_retrieve_body( $response ), true );
+                if ( empty( $res_body['success'] ) || empty( $res_body['url'] ) ) {
+                    continue;
+                }
+
+                $remote_info = [
+                    'url' => $res_body['url'],
+                    'id'  => $res_body['id'] ?? 0,
+                ];
+                $processed_files[ $clean_rel ] = $remote_info;
+            }
+
+            // Hoán đổi URL mới vào nội dung
+            $new_remote_url = $remote_info['url'];
+            $new_remote_escaped = str_replace( '/', '\\/', $new_remote_url );
+
+            $content = str_replace( $raw_match, $new_remote_url, $content );
+            $raw_escaped = str_replace( '/', '\\/', $raw_match );
+            $content = str_replace( $raw_escaped, $new_remote_escaped, $content );
+
+            // Thay thế cả dạng JSON attribute
+            $content = str_replace( '"/wp-content/uploads/' . $clean_rel . '"', '"' . $new_remote_url . '"', $content );
+            $content = str_replace( '"\\/wp-content\\/uploads\\/' . str_replace( '/', '\\/', $clean_rel ) . '"', '"' . $new_remote_escaped . '"', $content );
         }
 
         return $content;
@@ -333,10 +587,13 @@ class Sync_Post {
             update_post_meta( $post_id, '_skaaa_uuid', $uuid );
         }
 
+        // 1. Quét và đồng bộ media cục bộ nhúng trong bài viết sang Live host trực tiếp
+        $synced_content = self::prepare_and_sync_local_media( $post->post_content, $remote_url, $remote_token );
+
         $payload = [
             'uuid'          => $uuid,
             'title'         => $post->post_title,
-            'content'       => $post->post_content,
+            'content'       => $synced_content,
             'post_type'     => $post->post_type,
             'post_status'   => $post->post_status,
             'slug'          => $post->post_name,

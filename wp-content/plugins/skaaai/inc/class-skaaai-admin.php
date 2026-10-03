@@ -554,6 +554,8 @@ class Admin {
                                 <span id="handshake-result-status" class="skaaai-inline-result"></span>
                             </div>
                         </div>
+
+                        <?php Ecosystem_Sync_UI::render_sender_card(); ?>
                     </div>
 
                     <div class="skaaai-submit-row">

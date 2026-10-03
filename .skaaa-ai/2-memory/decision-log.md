@@ -39,6 +39,86 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-03 - 🟢 Hoàn thành: Khắc Phục Lỗi Mất Icon SVG Do Bộ Lọc KSES (Skaaai v1.4.3 & Cập Nhật db-tool.php)
+- **Decision (Bypass KSES & Administrator Context in Skaaai Sync + Smart Table Resolution in db-tool):**
+  - **Bối cảnh & Triệu chứng:** Sau khi đồng bộ sang website Live, các khung icon bo góc tại mục "Bắt Đầu Dự Án Của Bạn" và "Mô Hình Solopreneur & Năng Lực Đa Nhiệm" bị trống trơn, hoàn toàn không hiển thị icon SVG.
+  - **Nguyên nhân gốc rễ (Root Cause):**
+    - Các yêu cầu REST API đồng bộ chạy dưới dạng unauthenticated (`get_current_user_id() === 0`), không sở hữu quyền `unfiltered_html`.
+    - Khi `wp_insert_post()` hoặc `wp_update_post()` được gọi trong `class-skaaai-sync-ecosystem.php` (`apply_pages`) và `class-skaaai-sync-post.php`, WordPress Core tự động áp dụng bộ lọc `wp_filter_post_kses()`.
+    - Bộ lọc KSES phát hiện thẻ `<svg>` bên trong thuộc tính JSON comment Gutenberg và tự động xóa trắng giá trị `svgCode` (`"svgCode":""`). Khi render trên web, khối SVG thấy `svgCode` rỗng nên không hiển thị gì.
+  - **Giải pháp xử lý:**
+    1. **Skaaai v1.4.3:**
+       - Tạm thời vô hiệu hóa bộ lọc KSES (`kses_remove_filters()`) và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) bao bọc toàn bộ khối `wp_insert_post` / `wp_update_post` trong cả `apply_pages()` và `process_incoming_post()`. Khôi phục trạng thái và bộ lọc (`kses_init_filters()`) ngay sau khi hoàn tất.
+       - Tích hợp `Sync_Post::rewrite_table_prefixes()` vào `apply_pages()`.
+    2. **Agent Kit CLI (`db-tool.php`):**
+       - Cập nhật hàm `handle_schema()` và `handle_sample()` tự động chuẩn hóa tên bảng phẳng bằng regex, hỗ trợ AI gõ cả cú pháp ngắn gọn (`projects`, `skaaa_data_projects`) lẫn cú pháp đầy đủ (`wp_skaaa_data_projects`).
+  - **Đóng gói phát hành:** Đóng gói `skaaai-v1.4.3.zip` (0.13 MB), đồng bộ 100% sang `lytatthanhloca`.
+
+## 2026-10-03 - 🟢 Hoàn thành: Khắc Phục Lệch Prefix Database Cho Khối Skaaa Loop (Skaaa No-Code Design v2.4.7 & Skaaai v1.4.2)
+- **Decision (Defensive Table Prefix Resolution & Skaaai Table Prefix Rewriter):**
+  - **Bối cảnh & Triệu chứng:** Khối `Skaaa Loop` (hiển thị 3 project cards "Sản Phẩm & Hệ Thống Tiêu Biểu") hoạt động hoàn hảo trên Localhost (`wp_`), nhưng khi đồng bộ sang website Live (`lytatthanh.com`), vùng này bị rỗng với comment ẩn `<!-- Skaaa Loop: No data found -->`.
+  - **Nguyên nhân gốc rễ (Root Cause):**
+    - Môi trường Localhost sử dụng prefix CSDL mặc định là `wp_`, khối Gutenberg lưu cứng thuộc tính `"sourceTable":"wp_skaaa_data_projects"`.
+    - Môi trường Live sử dụng prefix bảo mật là `wpxi_`. Tại `skaaa-loop/render.php`:
+      `if ( strpos( $actual_table_name, $wpdb->prefix ) !== 0 ) { $actual_table_name = $wpdb->prefix . ltrim( $actual_table_name, '_' ); }`
+      Khi `$source_table` là `'wp_skaaa_data_projects'`, điều kiện trên nối tiếp prefix thành `'wpxi_wp_skaaa_data_projects'`.
+    - Lớp bảo vệ của `Data_Fetcher::get_table_rows()` yêu cầu tên bảng phải bắt đầu bằng `{$wpdb->prefix}skaaa_data_*`, do đó từ chối truy vấn và trả về mảng rỗng.
+  - **Giải pháp xử lý (Two-Pronged Defense):**
+    1. **Skaaa No-Code Design v2.4.7:**
+       - Tái cấu trúc logic resolve tên bảng trong `src/` và `build/` của `skaaa-loop/render.php`: Tự động trích xuất suffix sau `skaaa_data_` (qua `preg_match( '/(?:^|_)skaaa_data_(.+)$/', ... )`) và luôn luôn ghép với `$wpdb->prefix . 'skaaa_data_'`.
+       - Đồng thời nạp alias của suffix (`projects`, `skaaa_data_projects`, `wp_skaaa_data_projects`) vào biến ngữ cảnh `$context` để các biểu thức SkaaaFX và template Mustache khớp 100%.
+    2. **Skaaai v1.4.2:**
+       - Bổ sung phương thức `Sync_Post::rewrite_table_prefixes()`: Tự động phát hiện và chuyển đổi chuỗi `"sourceTable":"...skaaa_data_xyz"` trong nội dung bài viết và Organism sang prefix của host tiếp nhận (`$wpdb->prefix`).
+  - **Đóng gói phát hành:** Đóng gói `skaaa-no-code-design-v2.4.7.zip` (0.39 MB) và `skaaai-v1.4.2.zip` (0.13 MB), đồng bộ sang môi trường `lytatthanhloca`.
+
+## 2026-10-03 - 🟢 Hoàn thành: Bản Vá Skaaai v1.4.1 (Loại Bỏ wp_slash Trên $wpdb) & Skaaa No-Code Design v2.4.6 (Debug Defaults)
+- **Decision (Root Cause Fix for Organisms Slashed JSON & Clear Debug Placeholders):**
+  - **Bối cảnh & Triệu chứng:** Sau khi thực hiện 1-Click Sync sang `lytatthanh.com`, phần thân trang hiển thị chuẩn 100% nhưng HeaderBar và FooterBar bị vỡ thành cụm chữ thô `Hello World` và `Click Here` do mất toàn bộ attributes và class Tailwind.
+  - **Nguyên nhân gốc rễ:**
+    - Hàm `apply_organisms()` trong `class-skaaai-sync-ecosystem.php` bọc `wp_slash( $html_content )` khi gọi `$wpdb->update()` và `$wpdb->insert()`. Khác với `wp_update_post()` (tự động gọi `wp_unslash()`), `$wpdb` không hề unslash, dẫn đến việc các dấu ngoặc kép trong comment Gutenberg bị chèn thêm dấu `\` (`{\"text\":\"...\"}`).
+    - Khi `class-skaaa-virtual-wrapper.php` gọi `do_blocks()`, bộ parser `parse_blocks()` của WordPress Core gặp lỗi cú pháp JSON (`json_decode` trả về `null`), khiến block rơi về giá trị mặc định trong `block.json`: `Hello World` (Text) và `Click Here` (Button) với class rỗng.
+  - **Giải pháp xử lý:**
+    - **Skaaai v1.4.1 (Hotfix):** Loại bỏ triệt để `wp_slash()` cho `html_content` và `json_content` trong `class-skaaai-sync-ecosystem.php`, đảm bảo CSDL MySQL trên Live luôn tiếp nhận chuỗi JSON nguyên tử chuẩn xác.
+    - **Skaaa No-Code Design v2.4.6 (Debug Enhancements):** Đổi chuỗi mặc định trong `src/` và `build/` của `skaaa-text/block.json` thành `"[Skaaa Text]"` và `skaaa-button/block.json` thành `"[Skaaa Button]"`. Nếu sau này có bất kỳ block nào bị thiếu cấu hình hoặc lỗi parse, hệ thống sẽ hiển thị nhãn kỹ thuật rõ ràng thay vì chữ "Hello World" mơ hồ.
+  - **Đóng gói phát hành:** Build thành công `skaaai-v1.4.1.zip` (0.13 MB) và `skaaa-no-code-design-v2.4.6.zip` (0.39 MB), đồng bộ 100% sang `lytatthanhloca`.
+
+## 2026-10-03 - 🟢 Hoàn thành: Động Cơ & Giao Diện 1-Click Full Ecosystem Sync (Skaaai v1.4.0)
+- **Decision (1-Click Full Ecosystem Sync Engine, Modular Architecture & Admin Bar UI):**
+  - **Bối cảnh & Nhu cầu nâng cấp:** Sau khi hoàn thành bản sửa lỗi lõi v1.3.1, hệ thống cần năng lực đồng bộ toàn diện để đưa toàn bộ hệ sinh thái (Design Tokens, Organisms, Theme Templates, Skaaa Logic DAG Graphs, CSDL phẳng ứng dụng, All Pages & Full Site Setup) từ Localhost lên Live Webhost chỉ với 1 click duy nhất mà không cần thao tác lặp đi lặp lại.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Nâng cấp phiên bản SemVer lên v1.4.0 (Major Feature Milestone):** Nhận diện đây là mốc tính năng mở rộng lớn cho toàn bộ hệ sinh thái, đóng gói `skaaai-v1.4.0.zip` giúp WordPress nhận diện đúng luồng nâng cấp từ `1.3.1` lên `1.4.0`.
+    2. **Kiến trúc Modular tuân thủ giới hạn 700 dòng:** Tách rời 3 lớp chuyên trách:
+       - `class-skaaai-sync-ecosystem.php` (Receiver & Orchestrator, 652 dòng).
+       - `class-skaaai-sync-ecosystem-sender.php` (Localhost Payload Exporter & Push, 310 dòng).
+       - `class-skaaai-sync-ecosystem-diff.php` (Pre-flight Review Generator, 129 dòng).
+       - `class-skaaai-ecosystem-sync-ui.php` (Giao diện Admin & Admin Bar, 399 dòng).
+    3. **REST API Endpoint `/sync-ecosystem`:** Hỗ trợ 2 chế độ: `dry_run = true` (chỉ trả về Diff Summary đối soát) và `dry_run = false` (thực thi ghi đè CSDL nguyên tử).
+    4. **Bảo Mật 4 Lớp Thép (Safeguards):** Blacklist tên miền (`siteurl`, `home`), quản trị (`admin_email`), plugin (`active_plugins`), người dùng & form submissions (`wp_users`, `*_submissions`). Tự động purge LiteSpeed Cache, WP Object Cache và flush rewrite rules.
+    5. **Giao Diện 1 Chạm Đa Điểm:** Card 7 scopes trong Admin Cockpit, nút tắt nhanh trên WordPress Admin Bar (`🚀 Push to Live ➔ ⚡ 1-Click Full Ecosystem Sync`) và Modal tiến độ thời gian thực.
+    6. **Kiểm thử & Đóng gói:** Đóng gói `skaaai-v1.4.0.zip` (0.13 MB), đồng bộ toàn bộ sang website thử nghiệm `lytatthanhloca`.
+
+## 2026-10-02 - 🟢 Hoàn thành: Sửa Lỗi Lõi Đơn Bài & Thiết Kế Động Cơ Đồng Bộ Toàn Bộ Hệ Sinh Thái (Skaaai v1.3.1)
+- **Decision (Core Sync Hotfix & 1-Click Full Ecosystem Sync Architecture):**
+  - **Bối cảnh & Vấn đề thực tế (Phát hiện từ kiểm thử đẩy thực tế sang Live `lytatthanh.com`):**
+    1. **Lỗi `u0026amp;` và vỡ format JSON:** Khi đẩy bài viết chứa Gutenberg blocks lên Live, hàm `wp_update_post` gọi `stripslashes()`, nuốt mất các dấu gạch chéo ngược `\` trong JSON attributes của comment blocks. Hệ quả: ký tự `&` bị biến thành `\u0026amp;` rồi thành `u0026amp;` trên giao diện, dấu ngoặc kép SVG `\"` bị vỡ, và dấu xuống dòng `\n` bị lỗi hiển thị.
+    2. **Lỗi gãy ảnh chân dung và Sideload Media thất bại qua NAT:** Live Webhost không thể tự `download_url()` từ tên miền ảo nội bộ Localhost (`.local`). Ngoài ra, regex quét ảnh cũ không bắt được đường dẫn tương đối `/wp-content/uploads/` hoặc URL bị escape gạch chéo `\/`.
+    3. **Nguy cơ sinh bài trùng lặp (`-2`):** Nếu bài viết trên Live chưa có thẻ `_skaaa_uuid`, việc push bài từ Local sẽ sinh ra bài viết mới mang slug `-2` thay vì cập nhật đè bài cũ.
+    4. **Thiếu năng lực đồng bộ toàn diện Hệ Sinh Thái:** Người dùng chỉ có thể push từng bài riêng lẻ, không thể đồng bộ Design Tokens, Header/Footer Organisms, Theme Templates, Skaaa Logic Workflows và Cấu hình trang chủ/Permalinks chỉ với 1 thao tác.
+  - **Quyết định Kiến trúc & Triển khai:**
+    1. **Bảo vệ `wp_slash()` cấp độ Core:** Bọc hàm `wp_slash()` cho toàn bộ nội dung `$processed_content` và `$title` trước khi gọi `wp_update_post` / `wp_insert_post` trong `class-skaaai-sync-post.php`. Bảo vệ nguyên vẹn 100% các ký tự unicode và format JSON Gutenberg.
+    2. **Tái cấu trúc luồng Media Sideloading 2 đầu:**
+       - Bổ sung endpoint `POST /wp-json/skaaai/v1/upload-media` nhận file base64 trực tiếp từ Sender.
+       - Sender tự động quét file ảnh trên ổ cứng Localhost (kể cả liên kết giữa các site local), tải lên Media Library của Live host, sau đó hoán đổi URL mới trước khi ghi đè nội dung bài viết.
+       - Chuẩn hóa regex quét ảnh: `~(?:https?://[^"\'\s]+?)?(?:/|\\\\/)+wp-content(?:/|\\\\/)+uploads(?:/|\\\\/)+([^"\'\s]+?\.(?:jpg|jpeg|png|gif|webp|svg))~i`.
+    3. **Thuật toán Slug Fallback Chống Trùng Lặp (`get_post_id_by_slug`):** Nếu không tìm thấy bài qua `_skaaa_uuid`, hệ thống tự động tìm kiếm theo `post_name` (slug) và `post_type`. Nếu tìm thấy, tự động gán `_skaaa_uuid` và cập nhật đè trực tiếp (In-place update), ngăn chặn triệt để việc sinh slug `-2`.
+    4. **Kiểm thử E2E Thực Tế Trực Tiếp Trên `lytatthanh.com`:** Đẩy bài "Trang Chủ — Lý Tất Thành" (Local ID 36 ➔ Live ID 111). Xác nhận: Ảnh chân dung hiển thị sắc nét (HTTP 200 OK), chữ `&` hiển thị sạch sẽ, không còn `u0026amp;`.
+    5. **Quy Hoạch Kế Hoạch 4 Phases cho Động Cơ "1-Click Full Ecosystem Sync" (`pm_full_ecosystem_sync.md`):**
+       - Phase 1: Core Hotfix (Đã hoàn thành 100%).
+       - Phase 2: Backend REST API Full Ecosystem Engine (Bảng phẳng Tokens `sys_presets`, Organisms `sys_organisms`, Templates `sys_theme_templates`, Skaaa Logic Workflows `sys_workflows`, Schemas CSDL, All Pages, Full Site Settings & Safeguards 4 lớp).
+       - Phase 3: Giao diện Người Dùng 1-Click Sync (Admin Cockpit & Admin Bar).
+       - Phase 4: Kiểm thử E2E, Đóng gói v1.3.1.
+    6. **Đóng gói & Phân phối:** Đóng gói bản cài đặt `skaaai-v1.3.1.zip` (0.11 MB). Đồng bộ mã nguồn sang website thử nghiệm `lytatthanhloca`.
+
 ## 2026-10-02 - 🟢 Hoàn thành: Chuẩn Hóa 15 Blocks Native & Thiết Quân Luật Native Image/Video trong Agent Kit (Skaaai v1.3.0)
 - **Decision (Full 15-Block Native Ecosystem Standard & Prohibition of Raw `<img>`/`<video>` in Code Blocks):**
   - **Bối cảnh & Vấn đề thực tế (Phát hiện từ phản hồi của người dùng về việc chèn `<img>` inline vào code block):**
