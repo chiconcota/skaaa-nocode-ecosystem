@@ -4,7 +4,7 @@
 ---
 
 ## 1. Thông Tin Môi Trường & Nhánh Git
-- **Git Branch:** `feature/skaaai-core`
+- **Git Branch:** `main`
 - **Thư mục làm việc (Active Workspace):** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/lytatthanhloca/app/public/`
 - **Máy Chủ Live Đích (Production):** `https://lytatthanh.com` (Database prefix: `wpxi_`)
