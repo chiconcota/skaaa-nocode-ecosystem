@@ -68,6 +68,13 @@ class Framework_UI
                 'icon' => 'account_tree',
                 'path' => 'skaaa-logic-engine/skaaa-logic-engine.php',
                 'url' => 'https://skaaa.vn/logic-engine'
+            ],
+            'skaaai' => [
+                'name' => 'Skaaai (Bridge & Sync)',
+                'desc' => __( 'Bidirectional Sync Bridge, Remote Code Deployer and Local Agent Harness.', 'skaaa-no-code-design' ),
+                'icon' => 'sync_alt',
+                'path' => 'skaaai/skaaai.php',
+                'url' => 'https://skaaa.vn/skaaai'
             ]
         ];
 
@@ -112,31 +119,7 @@ class Framework_UI
                 <?php
             }
         }
-
         ?>
-        <!-- Module: Bridge -->
-        <div class="module-card rounded-2xl p-6 flex flex-col sm:flex-row gap-6 relative overflow-hidden mt-4 group opacity-75 grayscale-[40%] hover:grayscale-0 transition-all duration-500">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-slate-300 group-hover:bg-slate-400 transition-colors"></div>
-            <div class="w-16 h-16 bg-slate-100 text-slate-500 rounded-2xl flex items-center justify-center flex-shrink-0 border border-slate-200 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                <span class="material-symbols-outlined text-[32px]">api</span>
-            </div>
-            <div class="flex-1">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="m-0 pt-0 pb-0 border-0 font-bold text-slate-800 text-lg"><?php esc_html_e( 'Skaaa Bridge (In development)', 'skaaa-no-code-design' ); ?></h3>
-                        <p class="text-sm text-slate-500 mt-2 leading-relaxed"><?php esc_html_e( 'Headless architecture bridge (wordpress2nextjs) & JSON Schema API Export. ', 'skaaa-no-code-design' ); ?></p>
-                    </div>
-                    <span class="h-[24px] inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
-                        <?php esc_html_e( 'Frozen', 'skaaa-no-code-design' ); ?>
-                    </span>
-                </div>
-                <div class="mt-5 flex gap-3 text-sm">
-                    <button class="border-0 bg-slate-50 text-slate-400 px-4 py-2 rounded-lg font-medium cursor-not-allowed flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">lock_clock</span> <?php esc_html_e( 'Feature coming soon', 'skaaa-no-code-design' ); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <!-- Theme: Skaaa Canvas -->
         <?php

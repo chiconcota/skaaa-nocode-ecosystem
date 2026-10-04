@@ -9,9 +9,9 @@
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/lytatthanhloca/app/public/`
 - **Máy Chủ Live Đích (Production):** `https://lytatthanh.com` (Database prefix: `wpxi_`)
 - **Phiên bản Hệ Sinh Thái Hiện Tại:**
-  - `Skaaai: v1.5.2` (🟢 Hoàn thiện True Mirror Parity: Smart Object Tables Row-level Parity, Workflows/Organisms Pruning, Complete Publish/Draft Trashing, Deep Diff 4-State Engine)
+  - `Skaaai: v1.5.3` (🟢 Tích hợp card module Skaaai Bridge & Sync vào Skaaa System Dashboard)
   - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
-  - `Skaaa No-Code Design: v2.4.7` (🟢 Tự động trích xuất suffix và chuẩn hóa prefix CSDL cho khối Loop)
+  - `Skaaa No-Code Design: v2.4.8` (🟢 Xóa thẻ Bridge tĩnh, bổ sung Skaaai vào fallback và liên kết thẻ AI Architect sang Skaaai settings)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
   - `Skaaa Logic Engine: v1.3.0` (🟢 Stable)
 

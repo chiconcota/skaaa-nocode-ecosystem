@@ -24,11 +24,11 @@ class AI_Proxy {
             <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mb-4 border border-purple-100">
                 <span class="material-symbols-outlined text-[22px]">auto_awesome</span>
             </div>
-            <h3 class="m-0 border-0 pt-0 pb-0 text-base font-bold text-slate-800 mb-2"><?php esc_html_e( 'Skaaa AI Architect', 'skaaa-no-code-design' ); ?></h3>
-            <p class="text-sm text-slate-500 mb-5 flex-1"><?php esc_html_e( 'Configure Gemini API Key and tune System Prompts to help AI understand your unique data architecture better.', 'skaaa-no-code-design' ); ?></p>
-            <button onclick="alert('<?php echo esc_js( __( 'AI installation module is being developed for the next phase.', 'skaaa-no-code-design' ) ); ?>')" class="border-0 bg-transparent cursor-pointer p-0 text-purple-600 font-medium text-sm hover:text-purple-800 transition-colors mt-auto flex items-center gap-1">
-                <?php esc_html_e( 'Customize AI', 'skaaa-no-code-design' ); ?> <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
+            <h3 class="m-0 border-0 pt-0 pb-0 text-base font-bold text-slate-800 mb-2"><?php esc_html_e( 'Skaaai AI Copilot & Automation', 'skaaa-no-code-design' ); ?></h3>
+            <p class="text-sm text-slate-500 mb-5 flex-1"><?php esc_html_e( 'Configure Gemini & OpenAI API Keys, AI Automation Nodes, and Agent Harness context for your ecosystem.', 'skaaa-no-code-design' ); ?></p>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=skaaai-settings#tab-general' ) ); ?>" class="border-0 bg-transparent cursor-pointer p-0 text-purple-600 font-medium text-sm hover:text-purple-800 transition-colors mt-auto flex items-center gap-1 no-underline">
+                <?php esc_html_e( 'Configure AI & Settings', 'skaaa-no-code-design' ); ?> <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
         </div>
         <?php
     }

@@ -38,6 +38,9 @@ class Ecosystem_Sync_UI {
         add_action( 'wp_ajax_skaaai_ecosystem_execute', [ self::class, 'ajax_ecosystem_execute' ] );
         add_action( 'wp_ajax_skaaai_ecosystem_pull_diff', [ self::class, 'ajax_ecosystem_pull_diff' ] );
         add_action( 'wp_ajax_skaaai_ecosystem_pull_execute', [ self::class, 'ajax_ecosystem_pull_execute' ] );
+
+        // Hook thẻ module Skaaai vào Skaaa System Dashboard
+        add_action( 'skaaa_system_dashboard_modules', [ self::class, 'render_dashboard_card' ] );
     }
 
     /**
@@ -467,4 +470,44 @@ class Ecosystem_Sync_UI {
             wp_send_json_error( $result );
         }
     }
+
+    /**
+     * Render card thông tin module Skaaai trong Skaaa System Dashboard
+     */
+    public static function render_dashboard_card(): void {
+        $role       = Core::get_setting( 'skaaai_role', 'receiver' );
+        $role_label = 'sender' === $role ? __( 'Sender (Localhost)', 'skaaai' ) : __( 'Receiver (Host)', 'skaaai' );
+        $role_badge = 'sender' === $role ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
+        ?>
+        <!-- Module: Skaaai (Bridge & Sync) -->
+        <div class="module-card rounded-2xl p-6 flex flex-col sm:flex-row gap-6 relative overflow-hidden mt-4 group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 to-indigo-600 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-16 h-16 bg-gradient-to-br from-purple-50 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-100 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <span class="material-symbols-outlined text-[32px]">sync_alt</span>
+            </div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg m-0 p-0"><?php esc_html_e( 'Skaaai (Bridge & Sync)', 'skaaai' ); ?></h3>
+                        <p class="text-sm text-slate-600 mt-2 leading-relaxed"><?php esc_html_e( '1-Click Bidirectional Ecosystem Sync (Push to Live & Safe Pull from Live with True Mirror Parity), Remote Code Deployer & Local Agent Harness.', 'skaaai' ); ?></p>
+                    </div>
+                    <span class="h-[24px] inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold border shadow-sm <?php echo esc_attr( $role_badge ); ?>">
+                        <?php echo esc_html( $role_label ); ?>
+                    </span>
+                </div>
+                <div class="mt-5 flex gap-4 text-sm">
+                    <a href="?page=skaaai-settings" class="inline-flex items-center gap-1 text-indigo-600 font-semibold hover:text-indigo-800 transition-colors bg-indigo-50 px-3 py-1.5 rounded-lg no-underline">
+                        <span class="material-symbols-outlined text-[18px]">open_in_new</span> <?php esc_html_e( 'Open Bridge & Sync', 'skaaai' ); ?>
+                    </a>
+                    <?php if ( 'sender' === $role ) : ?>
+                        <a href="?page=skaaai-settings#tab-sync" class="inline-flex items-center gap-1 text-slate-600 font-medium hover:text-slate-900 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg no-underline">
+                            <span class="material-symbols-outlined text-[18px]">cloud_sync</span> <?php esc_html_e( 'Ecosystem Sync', 'skaaai' ); ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
 }
+
