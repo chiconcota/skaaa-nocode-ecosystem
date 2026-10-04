@@ -180,6 +180,8 @@ try {
         'wp-content/plugins/skaaa-no-code-design',
         'wp-content/plugins/skaaa-data-pro',
         'wp-content/plugins/skaaa-logic-engine',
+        'wp-content/plugins/skaaai',
+        'wp-content/themes/skaaa-canvas',
         'docs',
         'README.md',
         'LICENSE'

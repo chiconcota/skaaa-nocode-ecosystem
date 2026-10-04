@@ -52,6 +52,7 @@ wp-content/
 
 ---
 
+## 6. RECENT LOGS
 - **2026-10-04 - 🟢 Done (Skaaai v1.5.2 - True Mirror Synchronization: Complete Parity for Smart Object Tables, Workflows, Organisms, Templates & Content Trashing):**
   - **Skaaai v1.5.2:** Nâng cấp cơ chế đồng bộ toàn diện từ chế độ Merge an toàn sang **Đồng Bộ Gương 100% (True Mirror Parity)** cho cả 2 chiều Pull và Push:
     1. **Bảng phẳng Smart Object (`skaaa_data_*`):** Tự động đồng bộ chính xác từng dòng dữ liệu (Rows), xóa bỏ các dòng đã bị xóa trên nguồn (`DELETE FROM ... WHERE id NOT IN (...)` hoặc `TRUNCATE TABLE` nếu nguồn rỗng), loại bỏ hoàn toàn hiện tượng dữ liệu rác tồn đọng.
