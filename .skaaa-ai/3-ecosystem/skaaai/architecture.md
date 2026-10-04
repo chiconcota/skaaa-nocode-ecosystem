@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.5.2)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity).  
+**Status:** 🟢 Stable (v1.5.3)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration.  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -12,6 +12,7 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
 - **Zero-Postmeta & Flat Tables:** Cấu hình hệ thống (Pairing Key, Remote URL, Secret Token, LLM API Keys) được lưu trữ tại bảng phẳng MySQL `wp_skaaa_data_sys_settings` của `skaaa-data-pro` (nếu có) hoặc fallback an toàn vào bảng phẳng cục bộ.
 - **Pluggable Nodes Framework:** Đăng ký các Node AI (`AIPromptNode`, `AIParserNode`) và Custom Nodes vào đồ thị Logic Engine thông qua hook `apply_filters( 'skaaa_logic_registered_nodes', ... )`.
 - **Gutenberg Editor Integration:** Nạp nút bấm 1-Click "🚀 Push to Live" và "📥 Pull from Live" trực tiếp trên Header Toolbar và Sidebar Document mà không can thiệp sâu vào code lõi của Design Engine.
+- **System Dashboard Module Integration:** Tích hợp trực tiếp thẻ module Skaaai (Bridge & Sync) vào Skaaa System Dashboard thông qua hook `skaaa_system_dashboard_modules` (`Ecosystem_Sync_UI::render_dashboard_card`).
 
 ---
 

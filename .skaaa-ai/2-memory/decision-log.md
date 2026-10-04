@@ -39,6 +39,14 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-05 - 🟢 Hoàn thành: Hiện Đại Hóa Skaaa System Dashboard (Skaaai v1.5.3 & Skaaa No-Code Design v2.4.8)
+- **Decision (Dashboard Decoupled Integration & Legacy Cleanup):**
+  - **Bối cảnh:** Trang Skaaa System Dashboard còn tồn tại thẻ HTML tĩnh `Skaaa Bridge (In development) [Frozen]` từ thời sơ khởi và thẻ `Skaaa AI Architect` cũ có nút bấm alert thô sơ.
+  - **Giải pháp:**
+    1. **Skaaa No-Code Design v2.4.8:** Loại bỏ hoàn toàn khối HTML tĩnh `<!-- Module: Bridge -->` trong `class-framework-ui.php`. Đưa `skaaai` vào danh sách `$ecosystem_modules` fallback khi chưa kích hoạt. Nâng cấp thẻ `Skaaa AI Architect` trong `class-ai-proxy.php` thành `Skaaai AI Copilot & Automation` liên kết trực tiếp sang `admin.php?page=skaaai-settings#tab-general`.
+    2. **Skaaai v1.5.3:** Đăng ký phương thức `Ecosystem_Sync_UI::render_dashboard_card()` hook vào `skaaa_system_dashboard_modules` hiển thị card `Skaaai (Bridge & Sync)` sáng đèn với đầy đủ vai trò, nút mở trang cấu hình và đồng bộ.
+  - **Đóng gói phát hành:** Đóng gói `skaaai-v1.5.3.zip`, `skaaa-no-code-design-v2.4.8.zip`, cập nhật `README.md` v2.4.7 và đồng bộ 100% sang paired site `lytatthanhloca`.
+
 ## 2026-10-04 - 🟢 Hoàn thành: Cơ Chế Đồng Bộ Gương 100% Hệ Sinh Thái (True Mirror Synchronization) Cho CSDL, Logic & Nội Dung (Skaaai v1.5.2)
 - **Decision (True Mirror Ecosystem Replication: Row-level DB Cleanup, Workflow/Organism Pruning & Complete Draft/Publish Deletion Trashing):**
   - **Bối cảnh & Yêu cầu:** Người dùng yêu cầu cơ chế đồng bộ không chỉ dừng lại ở việc thêm/sửa một chiều (Merge), mà phải là **Đồng Bộ Gương 100% (True Mirror Synchronization)** cho toàn bộ hệ sinh thái (Logic Engine Workflows, Skaaa Data Pro Flat Tables, Organisms, Theme Templates và Nội dung). Khi Live xóa trang/bài/dòng dữ liệu thì Localhost cũng phải được dọn dẹp sạch sẽ tương ứng, không để lại rác hay bản ghi mồ côi.
