@@ -39,6 +39,43 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-04 - 🟢 Hoàn thành: Cơ Chế Đồng Bộ Gương 100% Hệ Sinh Thái (True Mirror Synchronization) Cho CSDL, Logic & Nội Dung (Skaaai v1.5.2)
+- **Decision (True Mirror Ecosystem Replication: Row-level DB Cleanup, Workflow/Organism Pruning & Complete Draft/Publish Deletion Trashing):**
+  - **Bối cảnh & Yêu cầu:** Người dùng yêu cầu cơ chế đồng bộ không chỉ dừng lại ở việc thêm/sửa một chiều (Merge), mà phải là **Đồng Bộ Gương 100% (True Mirror Synchronization)** cho toàn bộ hệ sinh thái (Logic Engine Workflows, Skaaa Data Pro Flat Tables, Organisms, Theme Templates và Nội dung). Khi Live xóa trang/bài/dòng dữ liệu thì Localhost cũng phải được dọn dẹp sạch sẽ tương ứng, không để lại rác hay bản ghi mồ côi.
+  - **Giải pháp kiến trúc 4 điểm:**
+    1. **Bảng phẳng CSDL Smart Object (`skaaa_data_*`):** Nâng cấp `apply_custom_tables()` kiểm tra danh sách IDs gửi sang. Tự động xóa các bản ghi thừa không còn trên nguồn (`DELETE FROM ... WHERE id NOT IN (...)` hoặc `TRUNCATE TABLE` nếu nguồn rỗng), đảm bảo số dòng của bảng phẳng ở 2 môi trường luôn đồng nhất tuyệt đối.
+    2. **Logic Engine Workflows & Organisms:** Nâng cấp `apply_workflows()` và `apply_organisms()` tự động dọn dẹp các workflow (`sys_workflows`) và component (`sys_organisms`) thừa không còn tồn tại trên nguồn.
+    3. **Quét Xóa Đa Trạng Thái (`publish` & `draft`):** Mở rộng bộ quét đối chiếu ngược trong `Sync_Ecosystem_Diff::analyze_content_items()` để kiểm tra toàn bộ các bài viết/trang ở trạng thái `publish`, `draft`, `pending`, `private`. Tự động nhận diện chính xác tất cả các trang bị xóa trên Live (ví dụ: phát hiện 8 trang Draft và 1 post bị xóa).
+    4. **Dọn dẹp chuyển Thùng rác An Toàn (`wp_trash_post`):** Khi duyệt Approve & Pull, toàn bộ các trang/bài không còn trên nguồn sẽ tự động được chuyển vào Thùng rác (Trash) trên môi trường đích thay vì xóa vĩnh viễn, vừa đảm bảo môi trường đích sạch bóng như nguồn, vừa bảo vệ dữ liệu chống thao tác nhầm.
+  - **Đóng gói phát hành:** Đóng gói `skaaai-v1.5.2.zip` (0.16 MB) và đồng bộ 100% sang paired live site `lytatthanhloca`.
+
+## 2026-10-04 - 🟢 Hoàn thành: Động Cơ Đối Soát Sâu Đa Chiều (Modified, New, Deleted on Live) & Mở Rộng Blog Posts (Skaaai v1.5.1)
+- **Decision (Deep Pre-flight Diff Engine: Multidimensional State Classification, Reverse Check for Deleted Remote Items & Blog Posts Integration):**
+  - **Bối cảnh & Triệu chứng:** Khi người dùng mở modal `1-Click Full Ecosystem Pull from Live`, thẻ `Pages & Media` chỉ hiển thị con số `6 - 6 pages with media from Live` mà không liệt kê danh sách tên bài cụ thể. Đồng thời, khi sửa đổi nội dung bài viết hoặc xóa một bài trên Live, hệ thống không nhận diện được do chỉ kiểm tra `tồn tại -> update` mà không so sánh ngày sửa đổi hay mã băm nội dung, bỏ sót hoàn toàn chiều đối chiếu ngược cho các bài bị xóa trên Live và chưa quét bài viết Blog (`post_type => 'post'`).
+  - **Giải pháp kiến trúc 4 điểm:**
+    1. **Thuật toán Đối Soát Đa Chiều (`Sync_Ecosystem_Diff::analyze_content_items`):** So sánh `content_hash` (md5 `title + content`) và `post_modified_gmt` giữa Live và Localhost. Phân loại chuẩn 4 trạng thái:
+       - `🟡 Modified:` Nội dung Live khác Localhost, ghi nhận độ chênh lệch thời gian (`Remote is newer (+X time)`).
+       - `🔵 New:` Bài/trang mới trên Live chưa có tại Localhost (sẽ được tạo mới).
+       - `🗑️ Deleted on Live:` Reverse check quét toàn bộ bài publish trên Localhost mà Live không còn gửi về (cảnh báo bài đã bị xóa trên Live).
+       - `⚪ Synced:` Hai bên đồng nhất 100%.
+    2. **Mở Rộng Blog Posts (`post_type => 'post'`):** Cập nhật `Sync_Ecosystem_Sender::export_published_posts()` và `Sync_Ecosystem::apply_pages()` hỗ trợ `post_type` động, tự động xuất và nhập cả Posts lẫn Pages trong Full Ecosystem Sync.
+    3. **Giao Diện Modal Diff Trực Quan (Interactive Accordion List):** Thẻ `Pages & Blog Posts` chiếm toàn bộ 2 cột (`skaaai-diff-card-wide`), tích hợp thanh huy hiệu thống kê trạng thái (`🟡 X Modified`, `🔵 Y New`, `🗑️ Z Deleted on Live`, `⚪ W Synced`) và danh sách tương tác cuộn (`max-height: 220px`) hiển thị tên bài, slug, badge loại (`Page`/`Post`), ngày giờ sửa Live vs Local và badge trạng thái màu sắc nổi bật.
+    4. **Reverse Transformers:** Áp dụng đầy đủ cho cả Posts và Pages (sideload ảnh về `uploads/` local, hoán đổi domain và rewrite database table prefix).
+  - **Đóng gói phát hành:** Đóng gói `skaaai-v1.5.1.zip` (0.16 MB) và đồng bộ sang paired site `lytatthanhloca`.
+
+## 2026-10-04 - 🟢 Hoàn thành: Động Cơ Kéo Dữ Liệu An Toàn 2 Chiều & Cổng Đối Soát 2 Tầng (Skaaai v1.5.0)
+- **Decision (Bidirectional Full Ecosystem Sync: Safe Pull from Live Engine, Reverse Transformers & Two-Tier Pre-flight Diff Gate):**
+  - **Bối cảnh & Yêu cầu:** Trước đây Skaaai mới chỉ có chiều Push từ Localhost sang Live Webhost. Khi nội dung trên Live hoặc các bảng CSDL Smart Objects/Workflows được cập nhật trên Live, hệ thống thiếu cơ chế kéo toàn diện về Localhost và người dùng không có bảng đối soát (Diff) để xem trước thay đổi trước khi phê duyệt ghi đè.
+  - **Giải pháp kiến trúc toàn diện 5 lớp:**
+    1. **Receiver Export Service & Endpoints:** Xây dựng lớp độc lập `Skaaai\Export_Service` trong `class-skaaai-export-service.php` (< 700 lines) cung cấp 3 endpoint REST API bảo mật qua token: `GET /export-post` (xuất dữ liệu bài viết kèm UUID, block attributes, metadata), `POST /check-posts-status` (đối soát chênh lệch thời gian `remote_modified` vs `local_modified`) và `GET /export-ecosystem` (xuất trọn vẹn 7 scopes: presets, organisms, theme_templates, workflows, custom_tables, pages, settings). Bổ sung `table_prefix` vào gói payload để bảo đảm chuẩn hóa prefix CSDL ngược.
+    2. **Sender Safe Pull Engine (Revision-First):** Xây dựng lớp chuyên trách `Skaaai\Sync_Pull` trong `class-skaaai-sync-pull.php` tuân thủ nguyên tắc Revision-First (luôn gọi `wp_save_post_revision()` trước khi ghi đè để bảo vệ 100% dữ liệu cũ), kết hợp `wp_slash()`, KSES bypass (`kses_remove_filters()`) và ngữ cảnh Administrator để bảo toàn icon SVG.
+    3. **Full Ecosystem Pull Engine (`Sync_Ecosystem_Pull`):** Xây dựng lớp độc lập `class-skaaai-sync-ecosystem-pull.php` chịu trách nhiệm kéo trọn gói hệ sinh thái từ Live về Localhost, chạy qua các Reverse Transformers (hoán đổi Live domain về local, chuẩn hóa prefix CSDL phẳng về `wp_skaaa_data_*`, Reverse Sideload Media tải ảnh từ Live về `uploads/` local) và ủy quyền ghi đè an toàn qua `Sync_Ecosystem::process_incoming_ecosystem()`.
+    4. **Cổng Đối Soát Pre-flight Diff Gate 2 Tầng (Two-Tier Diff):**
+       - **Tầng 1 (Full Ecosystem Diff Modal):** Nút `📥 1-Click Full Pull from Live` trên Admin Cockpit và Admin Bar cho phép chạy dry-run xem trước thẻ phân tích (Design Tokens, Organisms, Workflows, Smart Object Tables, Pages & Settings) kèm nút duyệt `[Approve & Pull to Localhost]`.
+       - **Tầng 2 (Single Post Diff Preview Modal):** Nút "Pull" trên danh sách bài viết (`edit.php`) và Gutenberg Toolbar gọi `skaaai_get_post_diff` mở modal so sánh trực quan song song (Tiêu đề, Ngày giờ sửa đổi, Ảnh đại diện, và Số lượng Blocks) giữa Localhost và Live trước khi cho phép ghi đè.
+    5. **Bảo Mật 4 Lớp & Auto Invalidate Cache:** Giữ nguyên các chốt chặn an toàn không bao giờ ghi đè `siteurl`, `home`, `admin_email`, `active_plugins`, `wp_users` và dữ liệu form submissions của khách.
+  - **Đóng gói phát hành:** Đóng gói `skaaai-v1.5.0.zip` (0.15 MB), đồng bộ 100% sang paired site `lytatthanhloca`.
+
 ## 2026-10-03 - 🟢 Hoàn thành: Khắc Phục Lỗi Mất Icon SVG Do Bộ Lọc KSES (Skaaai v1.4.3 & Cập Nhật db-tool.php)
 - **Decision (Bypass KSES & Administrator Context in Skaaai Sync + Smart Table Resolution in db-tool):**
   - **Bối cảnh & Triệu chứng:** Sau khi đồng bộ sang website Live, các khung icon bo góc tại mục "Bắt Đầu Dự Án Của Bạn" và "Mô Hình Solopreneur & Năng Lực Đa Nhiệm" bị trống trơn, hoàn toàn không hiển thị icon SVG.

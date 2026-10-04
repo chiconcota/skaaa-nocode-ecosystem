@@ -69,6 +69,27 @@ class Rest_Api {
             'callback'            => [ self::class, 'handle_sync_ecosystem' ],
             'permission_callback' => [ self::class, 'verify_token_permission' ],
         ] );
+
+        // 8. Endpoint xuất dữ liệu bài viết (phục vụ Pull from Live)
+        register_rest_route( self::NAMESPACE, '/export-post', [
+            'methods'             => \WP_REST_Server::READABLE,
+            'callback'            => [ self::class, 'handle_export_post' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
+
+        // 9. Endpoint đối soát trạng thái bài viết hàng loạt (phục vụ Remote Ahead check)
+        register_rest_route( self::NAMESPACE, '/check-posts-status', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [ self::class, 'handle_check_posts_status' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
+
+        // 10. Endpoint xuất gói cấu hình Hệ sinh thái tổng thể
+        register_rest_route( self::NAMESPACE, '/export-ecosystem', [
+            'methods'             => \WP_REST_Server::READABLE,
+            'callback'            => [ self::class, 'handle_export_ecosystem' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
     }
 
     /**
@@ -191,6 +212,36 @@ class Rest_Api {
         }
 
         $result = Sync_Ecosystem::process_incoming_ecosystem( $params );
+        $status = ! empty( $result['success'] ) ? 200 : 400;
+
+        return new \WP_REST_Response( $result, $status );
+    }
+
+    /**
+     * Xử lý request xuất bài viết đơn lẻ
+     */
+    public static function handle_export_post( \WP_REST_Request $request ): \WP_REST_Response {
+        $result = Export_Service::export_post( $request );
+        $status = ! empty( $result['success'] ) ? 200 : 404;
+
+        return new \WP_REST_Response( $result, $status );
+    }
+
+    /**
+     * Xử lý request đối soát trạng thái bài viết hàng loạt
+     */
+    public static function handle_check_posts_status( \WP_REST_Request $request ): \WP_REST_Response {
+        $result = Export_Service::check_posts_status( $request );
+        $status = ! empty( $result['success'] ) ? 200 : 400;
+
+        return new \WP_REST_Response( $result, $status );
+    }
+
+    /**
+     * Xử lý request xuất Hệ sinh thái
+     */
+    public static function handle_export_ecosystem( \WP_REST_Request $request ): \WP_REST_Response {
+        $result = Export_Service::export_ecosystem( $request );
         $status = ! empty( $result['success'] ) ? 200 : 400;
 
         return new \WP_REST_Response( $result, $status );

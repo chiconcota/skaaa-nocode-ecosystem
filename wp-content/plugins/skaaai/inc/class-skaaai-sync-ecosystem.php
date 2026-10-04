@@ -1,41 +1,14 @@
 <?php
 /**
  * Lớp Động Cơ Tiếp Nhận & Đồng Bộ Toàn Bộ Hệ Sinh Thái (Skaaai_Sync_Ecosystem)
- *
- * Chịu trách nhiệm tiếp nhận, đối soát (Dry-run), và ghi nhận nguyên tử
- * toàn bộ Hệ Sinh Thái Skaaa (Design Tokens, Organisms, Theme Templates,
- * Logic Workflows, CSDL Bảng Phẳng Ứng Dụng, All Pages & Full Site Setup).
- *
- * Tích hợp Thiết Quân Luật Bảo Mật 4 Lớp:
- * - Lớp 1: Blacklist Tên Miền (Không ghi đè siteurl, home).
- * - Lớp 2: Blacklist Quản Trị & Plugin (Không ghi đè admin_email, active_plugins).
- * - Lớp 3: Cách Ly Người Dùng & Dữ Liệu Form (Không chạm wp_users và các bảng *_submissions).
- * - Lớp 4: Auto Invalidate Cache (Tự động xóa LiteSpeed Cache & Object Cache).
- *
- * @package Skaaai
- * @version 1.4.0
+ * @package Skaaai | @version 1.5.2
  */
-
 namespace Skaaai;
 
 defined( 'ABSPATH' ) || exit;
 
 class Sync_Ecosystem {
-
-    /**
-     * Danh sách tùy chọn WordPress cốt lõi bị cấm ghi đè (Blacklist Options)
-     */
-    const BLACKLISTED_OPTIONS = [
-        'siteurl',
-        'home',
-        'admin_email',
-        'new_admin_email',
-        'active_plugins',
-        'users_can_register',
-        'mailserver_url',
-        'mailserver_login',
-        'mailserver_pass',
-    ];
+    const BLACKLISTED_OPTIONS = [ 'siteurl', 'home', 'admin_email', 'new_admin_email', 'active_plugins', 'users_can_register', 'mailserver_url', 'mailserver_login', 'mailserver_pass' ];
 
     /**
      * Ủy quyền trích xuất payload sang Sync_Ecosystem_Sender
@@ -56,6 +29,17 @@ class Sync_Ecosystem {
      */
     public static function push_ecosystem_to_remote( bool $dry_run = false, array $scopes = [] ): array {
         return Sync_Ecosystem_Sender::push_to_remote( $dry_run, $scopes );
+    }
+
+    /**
+     * Ủy quyền kéo payload từ Live Webhost về Localhost
+     *
+     * @param bool  $dry_run
+     * @param array $scopes
+     * @return array
+     */
+    public static function pull_ecosystem_from_remote( bool $dry_run = false, array $scopes = [] ): array {
+        return Sync_Ecosystem_Pull::pull_from_remote( $dry_run, $scopes );
     }
 
     /**
@@ -119,12 +103,17 @@ class Sync_Ecosystem {
             $results['details']['custom_tables'] = self::apply_custom_tables( $payload['custom_tables'], $origin_url );
         }
 
-        // 6. Đồng bộ Toàn Bộ Các Trang (Pages & Media)
+        // 6. Đồng bộ Toàn Bộ Các Trang & Bài Viết (Pages, Posts & Media)
         $page_map = [];
         if ( isset( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
             $page_result = self::apply_pages( $payload['pages'], $origin_url );
             $results['details']['pages'] = $page_result['summary'];
-            $page_map = $page_result['map'];
+            $page_map = array_merge( $page_map, $page_result['map'] );
+        }
+        if ( isset( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
+            $post_result = self::apply_pages( $payload['posts'], $origin_url );
+            $results['details']['posts'] = $post_result['summary'];
+            $page_map = array_merge( $page_map, $post_result['map'] );
         }
 
         // 7. Đồng bộ Cấu Hình & Thiết Lập Hệ Thống (Site Setup)
@@ -268,6 +257,13 @@ class Sync_Ecosystem {
             $count++;
         }
 
+        // True Mirror: Dọn dẹp organisms không còn trên nguồn
+        if ( ! empty( $map ) ) {
+            $valid_names  = array_keys( $map );
+            $placeholders = implode( ',', array_fill( 0, count( $valid_names ), '%s' ) );
+            $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE `type` = 'organism' AND `name` NOT IN ($placeholders)", ...$valid_names ) );
+        }
+
         return [
             'summary' => [ 'count' => $count ],
             'map'     => $map,
@@ -406,11 +402,17 @@ class Sync_Ecosystem {
             $count++;
         }
 
+        // True Mirror: Dọn dẹp workflows không còn trên nguồn
+        $incoming_ids = array_filter( array_column( $workflows, 'workflow_id' ) );
+        if ( ! empty( $incoming_ids ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $incoming_ids ), '%s' ) );
+            $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE `workflow_id` NOT IN ($placeholders)", ...$incoming_ids ) );
+        }
+
         if ( is_callable( [ '\Skaaa_Logic_Core', 'sync_workflow_ids_cache' ] ) ) {
             call_user_func( [ '\Skaaa_Logic_Core', 'sync_workflow_ids_cache' ] );
         }
         do_action( 'skaaa_workflows_updated' );
-
         return [ 'count' => $count ];
     }
 
@@ -443,33 +445,43 @@ class Sync_Ecosystem {
             }
 
             $rows_count = 0;
-            if ( ! empty( $tbl_data['rows'] ) && is_array( $tbl_data['rows'] ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
-                foreach ( $tbl_data['rows'] as $row ) {
-                    if ( ! is_array( $row ) ) {
-                        continue;
-                    }
-
-                    if ( ! empty( $origin_url ) ) {
-                        foreach ( $row as $k => &$v ) {
-                            if ( is_string( $v ) ) {
-                                $v = Sync_Post::rewrite_domain_urls( $v, $origin_url );
-                            }
+            if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
+                $incoming_ids = [];
+                if ( ! empty( $tbl_data['rows'] ) && is_array( $tbl_data['rows'] ) ) {
+                    foreach ( $tbl_data['rows'] as $row ) {
+                        if ( ! is_array( $row ) ) {
+                            continue;
                         }
-                        unset( $v );
-                    }
-
-                    $row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
-                    if ( $row_id > 0 ) {
-                        $exists = $wpdb->get_var( $wpdb->prepare( "SELECT `id` FROM `{$table_name}` WHERE `id` = %d", $row_id ) );
-                        if ( $exists ) {
-                            $wpdb->update( $table_name, $row, [ 'id' => $row_id ] );
+                        if ( ! empty( $origin_url ) ) {
+                            foreach ( $row as $k => &$v ) {
+                                if ( is_string( $v ) ) {
+                                    $v = Sync_Post::rewrite_domain_urls( $v, $origin_url );
+                                }
+                            }
+                            unset( $v );
+                        }
+                        $row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
+                        if ( $row_id > 0 ) {
+                            $incoming_ids[] = $row_id;
+                            $exists = $wpdb->get_var( $wpdb->prepare( "SELECT `id` FROM `{$table_name}` WHERE `id` = %d", $row_id ) );
+                            if ( $exists ) {
+                                $wpdb->update( $table_name, $row, [ 'id' => $row_id ] );
+                            } else {
+                                $wpdb->insert( $table_name, $row );
+                            }
                         } else {
                             $wpdb->insert( $table_name, $row );
+                            $incoming_ids[] = (int) $wpdb->insert_id;
                         }
-                    } else {
-                        $wpdb->insert( $table_name, $row );
+                        $rows_count++;
                     }
-                    $rows_count++;
+                }
+                // True Mirror: Xóa các dòng đã bị xóa trên nguồn
+                if ( ! empty( $incoming_ids ) ) {
+                    $id_list = implode( ',', array_map( 'intval', $incoming_ids ) );
+                    $wpdb->query( "DELETE FROM `{$table_name}` WHERE `id` NOT IN ({$id_list})" );
+                } else {
+                    $wpdb->query( "TRUNCATE TABLE `{$table_name}`" );
                 }
             }
 
@@ -518,9 +530,11 @@ class Sync_Ecosystem {
                 continue;
             }
 
+            $post_type = ! empty( $page['post_type'] ) ? sanitize_key( $page['post_type'] ) : 'page';
+
             $existing_id = Sync_Post::get_post_id_by_uuid( $uuid );
             if ( ! $existing_id && ! empty( $slug ) ) {
-                $existing_id = Sync_Post::get_post_id_by_slug( $slug, 'page' );
+                $existing_id = Sync_Post::get_post_id_by_slug( $slug, $post_type );
                 if ( $existing_id ) {
                     update_post_meta( $existing_id, '_skaaa_uuid', $uuid );
                 }
@@ -534,7 +548,7 @@ class Sync_Ecosystem {
                 'post_title'   => wp_slash( $title ),
                 'post_content' => wp_slash( $processed_content ),
                 'post_status'  => $status,
-                'post_type'    => 'page',
+                'post_type'    => $post_type,
                 'menu_order'   => $order,
             ];
 
@@ -572,6 +586,26 @@ class Sync_Ecosystem {
             }
         }
 
+        // True Mirror: Chuyển các bài/trang không còn trên nguồn vào Thùng rác (Trash)
+        $processed_ids = array_values( array_filter( $map, 'is_int' ) );
+        $target_type   = ! empty( $pages[0]['post_type'] ) ? sanitize_key( $pages[0]['post_type'] ) : 'page';
+        $candidates    = get_posts( [
+            'post_type'      => $target_type,
+            'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ] );
+
+        $trashed = [];
+        foreach ( $candidates as $cid ) {
+            $cid = (int) $cid;
+            if ( ! in_array( $cid, $processed_ids, true ) ) {
+                $cpost = get_post( $cid );
+                wp_trash_post( $cid );
+                $trashed[] = [ 'id' => $cid, 'title' => $cpost ? $cpost->post_title : '' ];
+            }
+        }
+
         // Khôi phục lại bộ lọc KSES và ngữ cảnh người dùng
         if ( $prev_user_id !== get_current_user_id() ) {
             wp_set_current_user( $prev_user_id );
@@ -581,7 +615,7 @@ class Sync_Ecosystem {
         }
 
         return [
-            'summary' => [ 'count' => $count, 'pages' => $summary ],
+            'summary' => [ 'count' => $count, 'pages' => $summary, 'trashed' => $trashed ],
             'map'     => $map,
         ];
     }
@@ -598,16 +632,7 @@ class Sync_Ecosystem {
 
         // 1. General Settings
         if ( ! empty( $settings['general'] ) && is_array( $settings['general'] ) ) {
-            $allowed_general = [
-                'blogname'        => 'sanitize_text_field',
-                'blogdescription' => 'sanitize_text_field',
-                'timezone_string' => 'sanitize_text_field',
-                'gmt_offset'      => 'sanitize_text_field',
-                'date_format'     => 'sanitize_text_field',
-                'time_format'     => 'sanitize_text_field',
-                'start_of_week'   => 'absint',
-            ];
-
+            $allowed_general = [ 'blogname' => 'sanitize_text_field', 'blogdescription' => 'sanitize_text_field', 'timezone_string' => 'sanitize_text_field', 'gmt_offset' => 'sanitize_text_field', 'date_format' => 'sanitize_text_field', 'time_format' => 'sanitize_text_field', 'start_of_week' => 'absint' ];
             foreach ( $allowed_general as $opt_key => $sanitizer ) {
                 if ( isset( $settings['general'][ $opt_key ] ) && ! in_array( $opt_key, self::BLACKLISTED_OPTIONS, true ) ) {
                     $sanitized_val = call_user_func( $sanitizer, $settings['general'][ $opt_key ] );
@@ -664,15 +689,8 @@ class Sync_Ecosystem {
     public static function invalidate_caches(): void {
         do_action( 'litespeed_purge_all' );
         wp_cache_flush();
-
-        if ( function_exists( 'rocket_clean_domain' ) ) {
-            rocket_clean_domain();
-        }
-
-        if ( function_exists( 'w3tc_flush_all' ) ) {
-            w3tc_flush_all();
-        }
-
+        if ( function_exists( 'rocket_clean_domain' ) ) { rocket_clean_domain(); }
+        if ( function_exists( 'w3tc_flush_all' ) ) { w3tc_flush_all(); }
         flush_rewrite_rules( false );
     }
 }

@@ -189,6 +189,35 @@
     cursor: not-allowed !important;
 }
 
+.skaaai-btn-pull-gradient {
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    padding: 10px 24px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer;
+}
+
+.skaaai-btn-pull-gradient:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 50%, #4338ca 100%) !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+    transform: translateY(-1px);
+}
+
+.skaaai-btn-pull-gradient:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+.skaaai-btn-pull-gradient:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
 /* ==========================================================================
    3. Modal Dialog & Backdrop
    ========================================================================== */
@@ -212,7 +241,7 @@
 
 .skaaai-modal-dialog {
     width: 100%;
-    max-width: 600px;
+    max-width: 680px;
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -480,4 +509,221 @@
     color: #7f1d1d;
     font-size: 13px;
     line-height: 1.5;
+}
+
+/* ==========================================================================
+   4. Detailed Pages & Posts Diff Cards & Accordion
+   ========================================================================== */
+.skaaai-diff-card-wide {
+    grid-column: 1 / -1 !important;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skaaai-diff-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.skaaai-diff-badges-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.skaaai-badge-stat {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.skaaai-badge-stat-mod {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.skaaai-badge-stat-new {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.skaaai-badge-stat-del {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.skaaai-badge-stat-sync {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.skaaai-diff-list-toggle {
+    background: none;
+    border: 1px solid #cbd5e1;
+    color: #4f46e5;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+}
+
+.skaaai-diff-list-toggle:hover {
+    background: #eef2ff;
+    border-color: #818cf8;
+}
+
+.skaaai-diff-items-container {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 6px;
+    margin-top: 10px;
+}
+
+.skaaai-diff-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    border: 1px solid #e2e8f0;
+    transition: background 0.15s ease;
+}
+
+.skaaai-diff-item-row:last-child {
+    margin-bottom: 0;
+}
+
+.skaaai-diff-item-row:hover {
+    background: #f1f5f9;
+}
+
+.skaaai-diff-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.skaaai-diff-item-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.skaaai-badge-type {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #334155;
+    flex-shrink: 0;
+}
+
+.skaaai-badge-type-post {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.skaaai-diff-item-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.skaaai-diff-item-meta {
+    font-size: 11px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.skaaai-diff-item-meta code {
+    font-size: 10px;
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #475569;
+}
+
+.skaaai-diff-item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.skaaai-badge-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.skaaai-badge-status.modified {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.skaaai-badge-status.new {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.skaaai-badge-status.deleted_on_remote {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.skaaai-badge-status.unchanged {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+}
+
+.skaaai-diff-action-desc {
+    font-size: 10px;
+    color: #64748b;
+    white-space: nowrap;
 }

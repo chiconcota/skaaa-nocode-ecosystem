@@ -661,5 +661,16 @@ class Sync_Post {
             'message' => $err_msg,
         ];
     }
+
+    /**
+     * Kéo một bài viết từ Live về ghi đè an toàn lên bài viết Localhost
+     * (Ủy quyền xử lý cho lớp Skaaai\Sync_Pull)
+     *
+     * @param int $post_id ID bài viết trên Localhost
+     * @return array
+     */
+    public static function pull_post_from_remote( int $post_id ): array {
+        return Sync_Pull::pull_post_from_remote( $post_id );
+    }
 }
 

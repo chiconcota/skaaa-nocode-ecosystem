@@ -37,9 +37,43 @@
     transform: none !important;
 }
 
-.skaaai-header-push-btn .skaaai-spinner-icon {
+.skaaai-header-push-btn .skaaai-spinner-icon,
+.skaaai-header-pull-btn .skaaai-spinner-icon {
     animation: skaaai-spin 1s linear infinite;
     display: inline-block;
+}
+
+.skaaai-header-pull-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 12px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-right: 8px !important;
+    text-decoration: none !important;
+}
+
+.skaaai-header-pull-btn:hover:not(:disabled) {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-1px);
+}
+
+.skaaai-header-pull-btn:disabled {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
 }
 
 @keyframes skaaai-spin {
@@ -107,6 +141,12 @@
     border: 1px solid #fde68a;
 }
 
+.skaaai-badge-remote_ahead {
+    background-color: #faf5ff;
+    color: #7e22ce;
+    border: 1px solid #e9d5ff;
+}
+
 .skaaai-badge-not_synced {
     background-color: #f3f4f6;
     color: #4b5563;
@@ -117,7 +157,7 @@
    4. Post List Column (edit.php)
    ========================================================================== */
 .manage-column.column-skaaa_sync {
-    width: 140px;
+    width: 170px;
 }
 
 .skaaai-sync-cell {
@@ -143,15 +183,36 @@
     padding: 0 8px !important;
 }
 
-.skaaai-push-row-btn .dashicons {
+.skaaai-pull-row-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    font-size: 11px !important;
+    height: 24px !important;
+    line-height: 22px !important;
+    padding: 0 8px !important;
+    color: #6b21a8 !important;
+}
+
+.skaaai-push-row-btn .dashicons,
+.skaaai-pull-row-btn .dashicons {
     font-size: 14px;
     width: 14px;
     height: 14px;
     line-height: 14px;
 }
 
-.skaaai-push-row-btn.is-loading .dashicons {
+.skaaai-push-row-btn.is-loading .dashicons,
+.skaaai-pull-row-btn.is-loading .dashicons {
     animation: skaaai-spin 1s linear infinite;
+}
+
+.skaaai-check-status-btn {
+    margin-left: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 12px !important;
 }
 
 .skaaai-view-live-link {

@@ -27,11 +27,12 @@ class Sync_Ecosystem_Sender {
         $scopes = $options['scopes'] ?? [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings' ];
 
         $payload = [
-            'origin_url' => site_url(),
-            'timestamp'  => time(),
-            'version'    => defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.4.0',
-            'dry_run'    => ! empty( $options['dry_run'] ),
-            'scopes'     => $scopes,
+            'origin_url'   => site_url(),
+            'table_prefix' => $wpdb->prefix,
+            'timestamp'    => time(),
+            'version'      => defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.5.0',
+            'dry_run'      => ! empty( $options['dry_run'] ),
+            'scopes'       => $scopes,
         ];
 
         // 1. Design Tokens (wp_skaaa_data_sys_presets)
@@ -114,6 +115,11 @@ class Sync_Ecosystem_Sender {
         // 6. Toàn Bộ Các Trang Đang Publish (Pages)
         if ( in_array( 'pages', $scopes, true ) ) {
             $payload['pages'] = self::export_published_pages();
+        }
+
+        // 7. Toàn Bộ Các Bài Viết Đang Publish (Blog Posts)
+        if ( in_array( 'posts', $scopes, true ) || in_array( 'pages', $scopes, true ) ) {
+            $payload['posts'] = self::export_published_posts();
         }
 
         // 7. Cấu Hình & Thiết Lập Hệ Thống (Site Setup)
@@ -225,10 +231,53 @@ class Sync_Ecosystem_Sender {
                 'menu_order'    => $post->menu_order,
                 'is_front_page' => ( $post->ID === $front_page_id ),
                 'last_modified' => get_post_modified_time( 'U', true, $post->ID ),
+                'modified_gmt'  => $post->post_modified_gmt,
+                'content_hash'  => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
             ];
         }
 
         return $pages;
+    }
+
+    /**
+     * Trích xuất danh sách tất cả các bài viết blog (Posts) đang xuất bản
+     *
+     * @return array
+     */
+    private static function export_published_posts(): array {
+        $posts = get_posts( [
+            'post_type'      => 'post',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ] );
+
+        $items = [];
+        foreach ( $posts as $post ) {
+            $uuid = get_post_meta( $post->ID, '_skaaa_uuid', true );
+            if ( empty( $uuid ) ) {
+                $uuid = wp_generate_uuid4();
+                update_post_meta( $post->ID, '_skaaa_uuid', $uuid );
+            }
+
+            $items[] = [
+                'id'            => $post->ID,
+                'uuid'          => $uuid,
+                'title'         => $post->post_title,
+                'slug'          => $post->post_name,
+                'content'       => $post->post_content,
+                'post_type'     => $post->post_type,
+                'post_status'   => $post->post_status,
+                'menu_order'    => $post->menu_order,
+                'is_front_page' => false,
+                'last_modified' => get_post_modified_time( 'U', true, $post->ID ),
+                'modified_gmt'  => $post->post_modified_gmt,
+                'content_hash'  => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
+            ];
+        }
+
+        return $items;
     }
 
     /**

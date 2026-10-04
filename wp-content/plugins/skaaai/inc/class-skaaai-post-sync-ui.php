@@ -57,6 +57,18 @@ class Post_Sync_UI {
 
         // AJAX handler đẩy bài viết
         add_action( 'wp_ajax_skaaai_push_post', [ self::class, 'ajax_push_post' ] );
+
+        // AJAX handler kéo bài viết từ Live
+        add_action( 'wp_ajax_skaaai_pull_post', [ self::class, 'ajax_pull_post' ] );
+
+        // AJAX handler đối soát trạng thái bài viết hàng loạt
+        add_action( 'wp_ajax_skaaai_check_remote_status', [ self::class, 'ajax_check_remote_status' ] );
+
+        // AJAX handler lấy báo cáo Diff đơn bài trước khi kéo
+        add_action( 'wp_ajax_skaaai_get_post_diff', [ self::class, 'ajax_get_post_diff' ] );
+
+        // Hộp thoại đối soát Diff đơn bài trên trang danh sách edit.php
+        add_action( 'admin_footer-edit.php', [ self::class, 'render_post_diff_modal' ] );
     }
 
     /**
@@ -114,6 +126,10 @@ class Post_Sync_UI {
                     <span class="dashicons dashicons-cloud-upload"></span>
                     <span class="skaaai-btn-text"><?php esc_html_e( 'Push', 'skaaai' ); ?></span>
                 </button>
+                <button type="button" class="button button-small skaaai-pull-row-btn" data-post-id="<?php echo esc_attr( $post_id ); ?>" title="<?php esc_attr_e( 'Pull from Live Webhost', 'skaaai' ); ?>">
+                    <span class="dashicons dashicons-cloud-download"></span>
+                    <span class="skaaai-btn-text"><?php esc_html_e( 'Pull', 'skaaai' ); ?></span>
+                </button>
                 <?php if ( ! empty( $permalink ) ) : ?>
                     <a href="<?php echo esc_url( $permalink ); ?>" target="_blank" rel="noopener noreferrer" class="skaaai-view-live-link" title="<?php esc_attr_e( 'View published page on Live host', 'skaaai' ); ?>">
                         <span class="dashicons dashicons-external"></span>
@@ -132,6 +148,7 @@ class Post_Sync_UI {
      */
     public static function register_bulk_actions( array $bulk_actions ): array {
         $bulk_actions['skaaai_bulk_push'] = __( '🚀 Push to Live (Skaaa)', 'skaaai' );
+        $bulk_actions['skaaai_bulk_pull'] = __( '📥 Pull from Live (Skaaa)', 'skaaai' );
         return $bulk_actions;
     }
 
@@ -144,31 +161,55 @@ class Post_Sync_UI {
      * @return string
      */
     public static function handle_bulk_actions( string $redirect_to, string $action, array $post_ids ): string {
-        if ( 'skaaai_bulk_push' !== $action ) {
-            return $redirect_to;
-        }
+        if ( 'skaaai_bulk_push' === $action ) {
+            $success_count = 0;
+            $fail_count    = 0;
 
-        $success_count = 0;
-        $fail_count    = 0;
+            foreach ( $post_ids as $post_id ) {
+                if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                    $fail_count++;
+                    continue;
+                }
 
-        foreach ( $post_ids as $post_id ) {
-            if ( ! current_user_can( 'edit_post', $post_id ) ) {
-                $fail_count++;
-                continue;
+                $res = Sync_Post::push_post_to_remote( (int) $post_id );
+                if ( ! empty( $res['success'] ) ) {
+                    $success_count++;
+                } else {
+                    $fail_count++;
+                }
             }
 
-            $res = Sync_Post::push_post_to_remote( (int) $post_id );
-            if ( ! empty( $res['success'] ) ) {
-                $success_count++;
-            } else {
-                $fail_count++;
-            }
+            return add_query_arg( [
+                'skaaai_bulk_pushed' => $success_count,
+                'skaaai_bulk_failed' => $fail_count,
+            ], $redirect_to );
         }
 
-        return add_query_arg( [
-            'skaaai_bulk_pushed' => $success_count,
-            'skaaai_bulk_failed' => $fail_count,
-        ], $redirect_to );
+        if ( 'skaaai_bulk_pull' === $action ) {
+            $success_count = 0;
+            $fail_count    = 0;
+
+            foreach ( $post_ids as $post_id ) {
+                if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                    $fail_count++;
+                    continue;
+                }
+
+                $res = Sync_Pull::pull_post_from_remote( (int) $post_id );
+                if ( ! empty( $res['success'] ) ) {
+                    $success_count++;
+                } else {
+                    $fail_count++;
+                }
+            }
+
+            return add_query_arg( [
+                'skaaai_bulk_pulled' => $success_count,
+                'skaaai_bulk_failed' => $fail_count,
+            ], $redirect_to );
+        }
+
+        return $redirect_to;
     }
 
     /**
@@ -195,6 +236,24 @@ class Post_Sync_UI {
             echo '<div class="notice notice-error is-dismissible"><p>';
             echo esc_html( sprintf( _n( '%d post failed to push to Live webhost.', '%d posts failed to push to Live webhost.', $failed, 'skaaai' ), $failed ) );
             echo '</p></div>';
+        }
+
+        if ( isset( $_GET['skaaai_bulk_pulled'] ) ) {
+            $pulled        = (int) $_GET['skaaai_bulk_pulled'];
+            $pull_failed   = (int) ( $_GET['skaaai_bulk_failed'] ?? 0 );
+
+            if ( $pulled > 0 ) {
+                echo '<div class="notice notice-success is-dismissible"><p>';
+                echo esc_html( sprintf( _n( '%d post pulled from Live webhost successfully.', '%d posts pulled from Live webhost successfully.', $pulled, 'skaaai' ), $pulled ) );
+                if ( $pull_failed > 0 ) {
+                    echo ' ' . esc_html( sprintf( _n( '(%d post failed)', '(%d posts failed)', $pull_failed, 'skaaai' ), $pull_failed ) );
+                }
+                echo '</p></div>';
+            } elseif ( $pull_failed > 0 ) {
+                echo '<div class="notice notice-error is-dismissible"><p>';
+                echo esc_html( sprintf( _n( '%d post failed to pull from Live webhost.', '%d posts failed to pull from Live webhost.', $pull_failed, 'skaaai' ), $pull_failed ) );
+                echo '</p></div>';
+            }
         }
     }
 
@@ -230,8 +289,18 @@ class Post_Sync_UI {
             'i18n'     => [
                 'pushing'       => __( 'Pushing...', 'skaaai' ),
                 'pushed'        => __( 'Synced', 'skaaai' ),
-                'push_failed'   => __( 'Failed', 'skaaai' ),
+                'push_failed'   => __( 'Push Failed', 'skaaai' ),
+                'pulling'       => __( 'Pulling...', 'skaaai' ),
+                'pulled'        => __( 'Synced', 'skaaai' ),
+                'pull_failed'   => __( 'Pull Failed', 'skaaai' ),
                 'confirm_force' => __( 'A newer revision exists on the Live webhost. Do you want to force overwrite?', 'skaaai' ),
+                'confirm_pull'  => __( 'Pulling will overwrite local content with the latest version from Live. A revision backup will be created. Continue?', 'skaaai' ),
+                'remote_ahead'  => __( 'Remote Ahead', 'skaaai' ),
+                'check_remote'  => __( 'Check Remote', 'skaaai' ),
+                'diff_loading'  => __( 'Fetching comparison data from Live webhost...', 'skaaai' ),
+                'diff_error'    => __( 'Failed to fetch post comparison details from Live.', 'skaaai' ),
+                'approve_pull'  => __( 'Approve & Pull', 'skaaai' ),
+                'cancel'        => __( 'Cancel', 'skaaai' ),
             ],
         ] );
     }
@@ -281,19 +350,23 @@ class Post_Sync_UI {
             'last_synced'      => $sync_data['last_synced'],
             'remote_permalink' => $sync_data['remote_permalink'],
             'i18n'             => [
-                'push_to_live'       => __( 'Push to Live', 'skaaai' ),
-                'pushing'            => __( 'Pushing to Live...', 'skaaai' ),
-                'push_success'       => __( 'Post pushed to Live webhost successfully!', 'skaaai' ),
-                'view_live'          => __( 'View on Live', 'skaaai' ),
-                'conflict_detected'  => __( 'Conflict Detected: The live website has a newer revision of this post.', 'skaaai' ),
-                'force_push'         => __( 'Force Overwrite Live', 'skaaai' ),
-                'not_paired_warning' => __( 'Skaaa Bridge is not paired. Please connect your site in Skaaa Bridge settings first.', 'skaaai' ),
-                'saving_post_first'  => __( 'Saving post changes before pushing...', 'skaaai' ),
-                'skaaa_sync'         => __( 'Skaaa Sync', 'skaaai' ),
-                'last_synced_label'  => __( 'Last Synced:', 'skaaai' ),
-                'never'              => __( 'Never', 'skaaai' ),
-                're_sync'            => __( 'Re-sync to Live', 'skaaai' ),
-                'settings_link'      => admin_url( 'admin.php?page=skaaai-settings' ),
+                'push_to_live'        => __( 'Push to Live', 'skaaai' ),
+                'pushing'             => __( 'Pushing to Live...', 'skaaai' ),
+                'push_success'        => __( 'Post pushed to Live webhost successfully!', 'skaaai' ),
+                'pull_from_live'      => __( 'Pull from Live', 'skaaai' ),
+                'pulling_from_live'   => __( 'Pulling from Live...', 'skaaai' ),
+                'pull_success'        => __( 'Post pulled from Live webhost successfully!', 'skaaai' ),
+                'confirm_pull_editor' => __( 'Pulling will overwrite your current local editor content with the latest version from Live. A revision backup will be created. Are you sure you want to proceed?', 'skaaai' ),
+                'view_live'           => __( 'View on Live', 'skaaai' ),
+                'conflict_detected'   => __( 'Conflict Detected: The live website has a newer revision of this post.', 'skaaai' ),
+                'force_push'          => __( 'Force Overwrite Live', 'skaaai' ),
+                'not_paired_warning'  => __( 'Skaaa Bridge is not paired. Please connect your site in Skaaa Bridge settings first.', 'skaaai' ),
+                'saving_post_first'   => __( 'Saving post changes before pushing...', 'skaaai' ),
+                'skaaa_sync'          => __( 'Skaaa Sync', 'skaaai' ),
+                'last_synced_label'   => __( 'Last Synced:', 'skaaai' ),
+                'never'               => __( 'Never', 'skaaai' ),
+                're_sync'             => __( 'Re-sync to Live', 'skaaai' ),
+                'settings_link'       => admin_url( 'admin.php?page=skaaai-settings' ),
             ],
         ] );
     }
@@ -323,4 +396,102 @@ class Post_Sync_UI {
             wp_send_json_error( $result, 400 );
         }
     }
+
+    /**
+     * AJAX Xử lý kéo bài viết từ Live Webhost về Localhost
+     *
+     * @return void
+     */
+    public static function ajax_pull_post(): void {
+        check_ajax_referer( 'skaaai_post_sync_nonce', 'nonce' );
+
+        $post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
+
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied or invalid post ID.', 'skaaai' ) ] );
+        }
+
+        $result = Sync_Pull::pull_post_from_remote( $post_id );
+
+        if ( ! empty( $result['success'] ) ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result, 400 );
+        }
+    }
+
+    /**
+     * AJAX Xử lý đối soát trạng thái bài viết hàng loạt với Live
+     *
+     * @return void
+     */
+    public static function ajax_check_remote_status(): void {
+        check_ajax_referer( 'skaaai_post_sync_nonce', 'nonce' );
+
+        $post_ids = isset( $_POST['post_ids'] ) ? array_map( 'intval', (array) $_POST['post_ids'] ) : [];
+        if ( empty( $post_ids ) ) {
+            wp_send_json_error( [ 'message' => __( 'No post IDs provided.', 'skaaai' ) ] );
+        }
+
+        $result = Sync_Pull::check_remote_status_batch( $post_ids );
+
+        if ( ! empty( $result['success'] ) ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result, 400 );
+        }
+    }
+
+    /**
+     * AJAX Lấy thông tin so sánh Diff trước khi kéo bài viết về
+     *
+     * @return void
+     */
+    public static function ajax_get_post_diff(): void {
+        check_ajax_referer( 'skaaai_post_sync_nonce', 'nonce' );
+
+        $post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
+
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied or invalid post ID.', 'skaaai' ) ] );
+        }
+
+        $result = Sync_Pull::get_post_diff( $post_id );
+
+        if ( ! empty( $result['success'] ) ) {
+            wp_send_json_success( $result['diff'] );
+        } else {
+            wp_send_json_error( $result, 400 );
+        }
+    }
+
+    /**
+     * Render Hộp thoại xem trước đối soát Diff cho bài viết đơn lẻ
+     */
+    public static function render_post_diff_modal(): void {
+        ?>
+        <div id="skaaai-post-diff-modal" class="skaaai-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="skaaai-post-diff-title">
+            <div class="skaaai-modal-dialog" style="max-width: 680px;">
+                <div class="skaaai-modal-header">
+                    <h3 id="skaaai-post-diff-title">
+                        <span class="dashicons dashicons-visibility"></span> <?php esc_html_e( 'Review Remote Changes (Diff Preview)', 'skaaai' ); ?>
+                    </h3>
+                    <button type="button" class="skaaai-modal-close" id="btn-post-diff-close" aria-label="<?php esc_attr_e( 'Close', 'skaaai' ); ?>">&times;</button>
+                </div>
+                <div class="skaaai-modal-body" id="skaaai-post-diff-body" style="padding: 20px;">
+                    <!-- Populated dynamically via JS -->
+                </div>
+                <div class="skaaai-modal-footer">
+                    <button type="button" class="button button-secondary" id="btn-post-diff-cancel">
+                        <?php esc_html_e( 'Cancel', 'skaaai' ); ?>
+                    </button>
+                    <button type="button" class="button button-primary button-hero skaaai-btn-pull-gradient" id="btn-post-diff-approve">
+                        <span class="dashicons dashicons-cloud-download"></span> <?php esc_html_e( 'Approve & Overwrite Local', 'skaaai' ); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
 }
+

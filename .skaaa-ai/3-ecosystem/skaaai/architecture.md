@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.4.3)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] 1-Click Sync Bridge (Local ⟷ Host), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push to Live UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management).  
+**Status:** 🟢 Stable (v1.5.2)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -11,7 +11,7 @@
 Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao tiếp 100% qua WordPress Hooks và REST API bảo mật:
 - **Zero-Postmeta & Flat Tables:** Cấu hình hệ thống (Pairing Key, Remote URL, Secret Token, LLM API Keys) được lưu trữ tại bảng phẳng MySQL `wp_skaaa_data_sys_settings` của `skaaa-data-pro` (nếu có) hoặc fallback an toàn vào bảng phẳng cục bộ.
 - **Pluggable Nodes Framework:** Đăng ký các Node AI (`AIPromptNode`, `AIParserNode`) và Custom Nodes vào đồ thị Logic Engine thông qua hook `apply_filters( 'skaaa_logic_registered_nodes', ... )`.
-- **Gutenberg Editor Integration:** Nạp nút bấm 1-Click "🚀 Push to Live" trực tiếp trên Header Toolbar và Sidebar Document mà không can thiệp sâu vào code lõi của Design Engine.
+- **Gutenberg Editor Integration:** Nạp nút bấm 1-Click "🚀 Push to Live" và "📥 Pull from Live" trực tiếp trên Header Toolbar và Sidebar Document mà không can thiệp sâu vào code lõi của Design Engine.
 
 ---
 
@@ -30,14 +30,22 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - Khóa quyền xóa file trực tiếp trên Live Webhost (`role === 'receiver'`), thay nút Delete bằng huy hiệu `🔒 Live Protected`.
   - Xóa file trên Localhost (Sender) tự động kích hoạt cuộc gọi REST API `POST /wp-json/skaaai/v1/delete-file` dọn sạch file và bản sao lưu trên Live.
 
-### Trụ cột 2: Bidirectional Content Sync Engine & 1-Click Push to Live UI (v1.4.3)
-- **Mục tiêu:** Đồng bộ bài viết, landing page thiết kế bằng Skaaa giữa máy tính cá nhân (Local) và Webhost (Production/Staging) 2 chiều an toàn, không sợ lệch ID tự tăng (Auto Increment ID) của WordPress.
-- **Định danh toàn cục (`skaaa_uuid`) & Thuật toán Slug Fallback (v1.3.1):**
-  - Mỗi bài viết được cấp 1 mã định danh duy nhất (UUID v4) tự động qua hook `wp_insert_post`, lưu tại metadata `_skaaa_uuid`.
-  - Khi đồng bộ, hệ thống đối soát dựa trên `skaaa_uuid`. Nếu bài trên Live chưa có UUID (bài cũ hoặc nhập thủ công), thuật toán tự động tra cứu theo `post_name` (slug URL) và `post_type` qua `get_post_id_by_slug()`. Khi tìm thấy, tự động gán `_skaaa_uuid` và cập nhật đè trực tiếp (In-place update), triệt tiêu 100% tình trạng sinh bài trùng lặp `-2`.
-- **Bảo Vệ Ký Tự Khối Gutenberg (`wp_slash` Protection & KSES Bypass - v1.4.3):**
-  - Bọc hàm `wp_slash()` cho toàn bộ nội dung `$processed_content` và `$title` trước khi gọi `wp_update_post()` / `wp_insert_post()`.
-  - Khắc phục triệt để lỗi WordPress Core `stripslashes()` nuốt mất dấu gạch chéo ngược `\` trong JSON attributes của Gutenberg block (loại bỏ dứt điểm lỗi biến `\u0026` thành `u0026amp;`, vỡ SVG quotes `\"` và gãy xuống dòng `\n`).
+### Trụ cột 2: Bidirectional Content Sync Engine & Push/Pull UI (v1.5.0)
+- **Mục tiêu:** Đồng bộ bài viết, landing page thiết kế bằng Skaaa giữa máy tính cá nhân (Local) và Webhost (Production/Staging) 2 chiều hoàn chỉnh (Push ➔ Live & Pull ➔ Local) an toàn, không sợ lệch ID tự tăng (Auto Increment ID) của WordPress.
+- **Động Cơ Kéo Dữ Liệu An Toàn (Safe Pull from Live - v1.5.0):**
+  - **Endpoint Trích Xuất & Diff Check (Live Host):** `GET /export-post` xuất dữ liệu bài viết (UUID, thuộc tính Gutenberg, metadata), `POST /check-posts-status` nhận diện chênh lệch thời gian (`remote_ahead`) và `GET /export-ecosystem` xuất trọn vẹn 7 scopes hệ sinh thái.
+  - **Động Cơ Kéo Hệ Sinh Thái Toàn Diện (Full Ecosystem Pull - `Sync_Ecosystem_Pull`):** Kéo toàn bộ 7 thành phần từ Live về Local (Tokens, Organisms Header/Footer, Theme Templates, Logic Workflows, Smart Object Flat Tables `skaaa_data_*`, All Pages & Settings).
+  - **Quy Chế Revision-First (Zero Data Loss):** Luôn tự động tạo WordPress Revision cục bộ trước khi ghi đè, cho phép Undo khôi phục 100% phiên bản trước.
+  - **Bộ Hoán Đổi Ngược (Reverse Transformers):** Hoán đổi Live Domain ➔ Localhost Domain (`Sync_Post::rewrite_domain_urls`), hoán đổi Live Table Prefix ➔ Localhost Prefix `wp_skaaa_data_*` (`Sync_Post::rewrite_table_prefixes`), và tải ngược media nhúng (`Reverse Sideload Media`) vào thư mục `uploads/` của Localhost.
+  - **Bảo Vệ Khối & KSES Bypass:** Bọc `wp_slash()`, tạm ngắt KSES (`kses_remove_filters()`) và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) khi ghi đè để bảo tồn 100% icon SVG.
+- **Cổng Đối Soát 2 Tầng (Two-Tier Pre-flight Diff Gate):**
+  - **Tầng 1 - Full Ecosystem Diff Modal:** Trên Admin Cockpit & Admin Bar, nút `📥 1-Click Full Pull from Live` tự động chạy dry-run phân tích đối soát hiển thị chi tiết số Tokens, Organisms, Workflows, Smart Object Tables và Pages sẽ được kéo về trước khi yêu cầu người dùng phê duyệt ghi đè.
+  - **Tầng 2 - Single Post Diff Preview:** Trên danh sách bài viết (`edit.php`) và Gutenberg Toolbar, nút "Pull" gọi `skaaai_get_post_diff` mở modal so sánh trực quan song song (Tiêu đề, Ngày giờ sửa đổi, Ảnh đại diện, và Số lượng Blocks) giữa Localhost và Live trước khi thực thi.
+- **Giao diện Người dùng 1-Click Push & Pull:**
+  - Gutenberg Header Toolbar: Tích hợp song song 2 nút "🚀 Push to Live" và "📥 Pull from Live" kèm modal Diff Preview cảnh báo xác nhận ghi đè.
+  - Bảng quản lý `edit.php`: Bổ sung nút "Pull" cạnh nút "Push", thao tác hàng loạt "📥 Pull from Live (Skaaa)" và tự động đối soát hiển thị huy hiệu `⬇️ Remote Ahead` khi Live có sửa đổi mới hơn.
+  - Admin Cockpit: Hai nút hành động lớn đặt song song `🚀 1-Click Full Push to Live` và `📥 1-Click Full Pull from Live`.
+  - Admin Bar: Menu "Skaaa Sync" phân nhánh `🚀 Push All to Live` và `📥 Pull All from Live`.
   - **KSES Bypass & Administrator Context (v1.4.3):** Tạm thời gọi `kses_remove_filters()` và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) khi xử lý ghi bài qua REST API để ngăn WordPress Core xóa sạch thẻ `<svg>` trong thuộc tính JSON comment Gutenberg (`svgCode`), khôi phục bộ lọc qua `kses_init_filters()` ngay sau khi hoàn tất.
 - **Chuẩn Hóa Database Table Prefix Cho Khối Động (v1.4.2):**
   - Tự động quét và hoán đổi prefix bảng phẳng `skaaa_data_*` từ sender sang receiver (`Sync_Post::rewrite_table_prefixes()`) cho toàn bộ nội dung bài viết và các trang đồng bộ, đảm bảo các khối `loop` trỏ chính xác vào CSDL Live (ví dụ: `wpxi_skaaa_data_*`).

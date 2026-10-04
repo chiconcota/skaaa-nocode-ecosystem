@@ -36,6 +36,8 @@ class Ecosystem_Sync_UI {
         // AJAX handlers
         add_action( 'wp_ajax_skaaai_ecosystem_diff', [ self::class, 'ajax_ecosystem_diff' ] );
         add_action( 'wp_ajax_skaaai_ecosystem_execute', [ self::class, 'ajax_ecosystem_execute' ] );
+        add_action( 'wp_ajax_skaaai_ecosystem_pull_diff', [ self::class, 'ajax_ecosystem_pull_diff' ] );
+        add_action( 'wp_ajax_skaaai_ecosystem_pull_execute', [ self::class, 'ajax_ecosystem_pull_execute' ] );
     }
 
     /**
@@ -50,14 +52,14 @@ class Ecosystem_Sync_UI {
             'skaaai-ecosystem-sync-css',
             SKAAAI_URL . 'assets/css/skaaai-ecosystem-sync.css',
             [],
-            defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.4.0'
+            defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.5.0'
         );
 
         wp_enqueue_script(
             'skaaai-ecosystem-sync-js',
             SKAAAI_URL . 'assets/js/skaaai-ecosystem-sync.js',
             [ 'jquery', 'wp-util' ],
-            defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.4.0',
+            defined( 'SKAAAI_VERSION' ) ? SKAAAI_VERSION : '1.5.0',
             true
         );
 
@@ -69,13 +71,21 @@ class Ecosystem_Sync_UI {
             'remote_url' => $remote_url,
             'is_paired'  => ! empty( $remote_url ),
             'i18n'       => [
-                'not_paired_error' => __( 'Remote website is not paired yet. Please configure remote connection in Skaaa Bridge settings.', 'skaaai' ),
-                'analyzing'        => __( 'Analyzing Local Ecosystem vs Live Webhost...', 'skaaai' ),
-                'syncing'          => __( 'Synchronizing Ecosystem to Live Webhost...', 'skaaai' ),
-                'diff_error'       => __( 'Failed to analyze ecosystem changes.', 'skaaai' ),
-                'sync_error'       => __( 'Ecosystem synchronization encountered an error.', 'skaaai' ),
-                'sync_success'     => __( 'Full Ecosystem synchronized successfully!', 'skaaai' ),
-                'confirm_title'    => __( 'Ready to Synchronize', 'skaaai' ),
+                'not_paired_error'    => __( 'Remote website is not paired yet. Please configure remote connection in Skaaa Bridge settings.', 'skaaai' ),
+                'analyzing_push'      => __( 'Analyzing Local Ecosystem vs Live Webhost...', 'skaaai' ),
+                'syncing_push'        => __( 'Synchronizing Ecosystem to Live Webhost...', 'skaaai' ),
+                'diff_error_push'     => __( 'Failed to analyze ecosystem changes for push.', 'skaaai' ),
+                'sync_error_push'     => __( 'Ecosystem synchronization to Live encountered an error.', 'skaaai' ),
+                'sync_success_push'   => __( 'Full Ecosystem pushed to Live successfully!', 'skaaai' ),
+                'confirm_title_push'  => __( 'Ready to Synchronize to Live', 'skaaai' ),
+                'approve_btn_push'    => __( 'Approve & Execute Push', 'skaaai' ),
+                'analyzing_pull'      => __( 'Fetching and analyzing Ecosystem from Live Webhost...', 'skaaai' ),
+                'syncing_pull'        => __( 'Pulling and applying Ecosystem from Live Webhost to Localhost...', 'skaaai' ),
+                'diff_error_pull'     => __( 'Failed to fetch and analyze ecosystem from Live.', 'skaaai' ),
+                'sync_error_pull'     => __( 'Ecosystem pull from Live encountered an error.', 'skaaai' ),
+                'sync_success_pull'   => __( 'Full Ecosystem pulled from Live successfully!', 'skaaai' ),
+                'confirm_title_pull'  => __( 'Review Changes from Live (Pre-flight Diff Gate)', 'skaaai' ),
+                'approve_btn_pull'    => __( 'Approve & Pull to Localhost', 'skaaai' ),
             ],
         ] );
     }
@@ -96,22 +106,34 @@ class Ecosystem_Sync_UI {
         // Menu cha
         $admin_bar->add_node( [
             'id'    => 'skaaai-ecosystem-sync-bar',
-            'title' => '<span class="ab-icon dashicons dashicons-cloud-upload" style="margin-top:2px;"></span><span class="ab-label" style="font-weight:600;letter-spacing:0.3px;">' . esc_html__( '🚀 Push to Live', 'skaaai' ) . '</span>',
+            'title' => '<span class="ab-icon dashicons dashicons-randomize" style="margin-top:2px;"></span><span class="ab-label" style="font-weight:600;letter-spacing:0.3px;">' . esc_html__( 'Skaaa Sync', 'skaaai' ) . '</span>',
             'href'  => '#',
             'meta'  => [
                 'class' => 'skaaai-admin-bar-root',
-                'title' => esc_attr__( '1-Click Full Ecosystem Sync to Live Webhost', 'skaaai' ),
+                'title' => esc_attr__( 'Bidirectional Full Ecosystem Synchronization', 'skaaai' ),
             ],
         ] );
 
-        // Menu con: 1-Click Full Sync
+        // Menu con: 1-Click Full Push to Live
         $admin_bar->add_node( [
             'parent' => 'skaaai-ecosystem-sync-bar',
             'id'     => 'skaaai-bar-full-sync',
-            'title'  => '⚡ ' . esc_html__( '1-Click Full Ecosystem Sync', 'skaaai' ),
+            'title'  => '🚀 ' . esc_html__( 'Push All to Live', 'skaaai' ),
             'href'   => '#',
             'meta'   => [
                 'class'   => 'skaaai-trigger-full-sync',
+                'onclick' => 'return false;',
+            ],
+        ] );
+
+        // Menu con: 1-Click Full Pull from Live
+        $admin_bar->add_node( [
+            'parent' => 'skaaai-ecosystem-sync-bar',
+            'id'     => 'skaaai-bar-full-pull',
+            'title'  => '📥 ' . esc_html__( 'Pull All from Live', 'skaaai' ),
+            'href'   => '#',
+            'meta'   => [
+                'class'   => 'skaaai-trigger-full-pull',
                 'onclick' => 'return false;',
             ],
         ] );
@@ -230,9 +252,12 @@ class Ecosystem_Sync_UI {
                 </p>
             </div>
 
-            <div class="skaaai-ecosystem-actions">
+            <div class="skaaai-ecosystem-actions" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                 <button type="button" class="button button-primary button-hero skaaai-btn-gradient skaaai-trigger-full-sync" <?php disabled( ! $is_paired ); ?>>
-                    <span class="dashicons dashicons-cloud-upload"></span> <?php esc_html_e( '🚀 1-Click Full Sync to Live', 'skaaai' ); ?>
+                    <span class="dashicons dashicons-cloud-upload"></span> <?php esc_html_e( '🚀 1-Click Full Push to Live', 'skaaai' ); ?>
+                </button>
+                <button type="button" class="button button-secondary button-hero skaaai-btn-pull-gradient skaaai-trigger-full-pull" <?php disabled( ! $is_paired ); ?>>
+                    <span class="dashicons dashicons-cloud-download"></span> <?php esc_html_e( '📥 1-Click Full Pull from Live', 'skaaai' ); ?>
                 </button>
             </div>
         </div>
@@ -251,7 +276,7 @@ class Ecosystem_Sync_UI {
             <div class="skaaai-modal-dialog">
                 <div class="skaaai-modal-header">
                     <h3 id="skaaai-modal-title">
-                        <span class="dashicons dashicons-cloud-upload"></span> <?php esc_html_e( '1-Click Full Ecosystem Sync', 'skaaai' ); ?>
+                        <span class="dashicons dashicons-randomize"></span> <span id="skaaai-modal-title-text"><?php esc_html_e( '1-Click Full Ecosystem Sync', 'skaaai' ); ?></span>
                     </h3>
                     <button type="button" class="skaaai-modal-close" aria-label="<?php esc_attr_e( 'Close', 'skaaai' ); ?>">&times;</button>
                 </div>
@@ -261,8 +286,8 @@ class Ecosystem_Sync_UI {
                     <div id="skaaai-step-analyzing" class="skaaai-modal-step active">
                         <div class="skaaai-spinner-container">
                             <div class="skaaai-pulse-spinner"></div>
-                            <p class="skaaai-step-text"><?php esc_html_e( 'Analyzing Local Ecosystem vs Live Webhost...', 'skaaai' ); ?></p>
-                            <span class="skaaai-step-subtext"><?php esc_html_e( 'Running pre-flight dry-run check without modifying remote database...', 'skaaai' ); ?></span>
+                            <p class="skaaai-step-text" id="skaaai-analyzing-text"><?php esc_html_e( 'Analyzing Ecosystem Differences...', 'skaaai' ); ?></p>
+                            <span class="skaaai-step-subtext"><?php esc_html_e( 'Running pre-flight dry-run check without modifying database...', 'skaaai' ); ?></span>
                         </div>
                     </div>
 
@@ -271,8 +296,8 @@ class Ecosystem_Sync_UI {
                         <div class="skaaai-review-banner">
                             <span class="dashicons dashicons-yes-alt"></span>
                             <div>
-                                <strong><?php esc_html_e( 'Pre-Flight Analysis Completed', 'skaaai' ); ?></strong>
-                                <p><?php esc_html_e( 'Review changes below before committing updates to the Live host.', 'skaaai' ); ?></p>
+                                <strong id="skaaai-review-banner-title"><?php esc_html_e( 'Pre-Flight Analysis Completed', 'skaaai' ); ?></strong>
+                                <p id="skaaai-review-banner-sub"><?php esc_html_e( 'Review changes below before committing updates.', 'skaaai' ); ?></p>
                             </div>
                         </div>
 
@@ -303,7 +328,7 @@ class Ecosystem_Sync_UI {
                             </div>
                             <div class="skaaai-progress-item" data-stage="pages">
                                 <span class="skaaai-progress-icon"><span class="dashicons dashicons-ellipsis"></span></span>
-                                <span class="skaaai-progress-label"><?php esc_html_e( '4. Uploading Local Media & Syncing Pages...', 'skaaai' ); ?></span>
+                                <span class="skaaai-progress-label"><?php esc_html_e( '4. Sideloading Media & Syncing Pages...', 'skaaai' ); ?></span>
                             </div>
                             <div class="skaaai-progress-item" data-stage="settings">
                                 <span class="skaaai-progress-icon"><span class="dashicons dashicons-ellipsis"></span></span>
@@ -316,9 +341,9 @@ class Ecosystem_Sync_UI {
                     <div id="skaaai-step-completed" class="skaaai-modal-step hidden">
                         <div class="skaaai-completed-box">
                             <div class="skaaai-completed-icon">🎉</div>
-                            <h4><?php esc_html_e( 'Full Ecosystem Synchronized Successfully!', 'skaaai' ); ?></h4>
+                            <h4 id="skaaai-completed-title"><?php esc_html_e( 'Full Ecosystem Synchronized Successfully!', 'skaaai' ); ?></h4>
                             <p class="description" id="skaaai-completed-details">
-                                <?php esc_html_e( 'All selected components, pages, media, and configurations have been deployed to your Live Webhost.', 'skaaai' ); ?>
+                                <?php esc_html_e( 'All selected components, pages, media, and configurations have been synchronized.', 'skaaai' ); ?>
                             </p>
                             <div class="skaaai-completed-actions">
                                 <a href="#" id="btn-view-live-site" target="_blank" class="button button-primary button-hero">
@@ -343,7 +368,7 @@ class Ecosystem_Sync_UI {
                         <?php esc_html_e( 'Cancel', 'skaaai' ); ?>
                     </button>
                     <button type="button" class="button button-primary button-hero skaaai-btn-gradient hidden" id="btn-approve-sync">
-                        <span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Approve & Execute Sync', 'skaaai' ); ?>
+                        <span class="dashicons dashicons-yes"></span> <span id="btn-approve-sync-text"><?php esc_html_e( 'Approve & Execute Sync', 'skaaai' ); ?></span>
                     </button>
                 </div>
             </div>
@@ -352,7 +377,7 @@ class Ecosystem_Sync_UI {
     }
 
     /**
-     * AJAX Xử lý phân tích đối soát Dry-run
+     * AJAX Xử lý phân tích đối soát Dry-run cho chiều ĐẨY (Push)
      */
     public static function ajax_ecosystem_diff(): void {
         check_ajax_referer( 'skaaai_ecosystem_nonce', 'nonce' );
@@ -375,7 +400,7 @@ class Ecosystem_Sync_UI {
     }
 
     /**
-     * AJAX Xử lý Thực thi Đồng bộ Toàn diện
+     * AJAX Xử lý Thực thi Đồng bộ ĐẨY (Push) sang Live
      */
     public static function ajax_ecosystem_execute(): void {
         check_ajax_referer( 'skaaai_ecosystem_nonce', 'nonce' );
@@ -389,6 +414,52 @@ class Ecosystem_Sync_UI {
             : [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings' ];
 
         $result = Sync_Ecosystem::push_ecosystem_to_remote( false, $scopes );
+
+        if ( ! empty( $result['success'] ) ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
+
+    /**
+     * AJAX Xử lý phân tích đối soát Dry-run cho chiều KÉO (Pull)
+     */
+    public static function ajax_ecosystem_pull_diff(): void {
+        check_ajax_referer( 'skaaai_ecosystem_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+        }
+
+        $scopes = isset( $_POST['scopes'] ) && is_array( $_POST['scopes'] )
+            ? array_map( 'sanitize_key', $_POST['scopes'] )
+            : [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings' ];
+
+        $result = Sync_Ecosystem::pull_ecosystem_from_remote( true, $scopes );
+
+        if ( ! empty( $result['success'] ) ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
+
+    /**
+     * AJAX Xử lý Thực thi Đồng bộ KÉO (Pull) từ Live về Localhost
+     */
+    public static function ajax_ecosystem_pull_execute(): void {
+        check_ajax_referer( 'skaaai_ecosystem_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+        }
+
+        $scopes = isset( $_POST['scopes'] ) && is_array( $_POST['scopes'] )
+            ? array_map( 'sanitize_key', $_POST['scopes'] )
+            : [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings' ];
+
+        $result = Sync_Ecosystem::pull_ecosystem_from_remote( false, $scopes );
 
         if ( ! empty( $result['success'] ) ) {
             wp_send_json_success( $result );
