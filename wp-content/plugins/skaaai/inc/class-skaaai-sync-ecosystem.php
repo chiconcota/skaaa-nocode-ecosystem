@@ -8,7 +8,7 @@ namespace Skaaai;
 defined( 'ABSPATH' ) || exit;
 
 class Sync_Ecosystem {
-    const BLACKLISTED_OPTIONS = [ 'siteurl', 'home', 'admin_email', 'new_admin_email', 'active_plugins', 'users_can_register', 'mailserver_url', 'mailserver_login', 'mailserver_pass' ];
+    public const BLACKLISTED_OPTIONS = Sync_Config::BLACKLISTED_OPTIONS;
 
     /**
      * Ủy quyền trích xuất payload sang Sync_Ecosystem_Sender
@@ -77,7 +77,7 @@ class Sync_Ecosystem {
 
         // 1. Đồng bộ Design Tokens (Presets)
         if ( isset( $payload['presets'] ) && is_array( $payload['presets'] ) ) {
-            $results['details']['presets'] = self::apply_presets( $payload['presets'] );
+            $results['details']['presets'] = self::apply_presets( $payload['presets'], $origin_url );
         }
 
         // 2. Đồng bộ Cấu kiện Organisms
@@ -120,20 +120,19 @@ class Sync_Ecosystem {
         if ( isset( $payload['settings'] ) && is_array( $payload['settings'] ) ) {
             $results['details']['settings'] = self::apply_settings( $payload['settings'], $page_map );
         }
-
         // 8. Tự động Xóa Cache Hosting (Safeguard Layer 4)
         self::invalidate_caches();
-
         return $results;
     }
 
     /**
      * Cập nhật Design Tokens vào wp_skaaa_data_sys_presets và biên dịch cache
      *
-     * @param array $presets
+     * @param array  $presets
+     * @param string $origin_url
      * @return array
      */
-    private static function apply_presets( array $presets ): array {
+    private static function apply_presets( array $presets, string $origin_url = '' ): array {
         global $wpdb;
         $table = $wpdb->prefix . 'skaaa_data_sys_presets';
 
@@ -149,6 +148,10 @@ class Sync_Ecosystem {
 
             if ( empty( $name ) ) {
                 continue;
+            }
+
+            if ( ! empty( $origin_url ) && is_string( $value ) ) {
+                $value = Sync_Post::rewrite_domain_urls( $value, $origin_url );
             }
 
             $existing = $wpdb->get_var( $wpdb->prepare( "SELECT `id` FROM `{$table}` WHERE `type` = %s AND `name` = %s", $type, $name ) );
@@ -634,7 +637,7 @@ class Sync_Ecosystem {
         if ( ! empty( $settings['general'] ) && is_array( $settings['general'] ) ) {
             $allowed_general = [ 'blogname' => 'sanitize_text_field', 'blogdescription' => 'sanitize_text_field', 'timezone_string' => 'sanitize_text_field', 'gmt_offset' => 'sanitize_text_field', 'date_format' => 'sanitize_text_field', 'time_format' => 'sanitize_text_field', 'start_of_week' => 'absint' ];
             foreach ( $allowed_general as $opt_key => $sanitizer ) {
-                if ( isset( $settings['general'][ $opt_key ] ) && ! in_array( $opt_key, self::BLACKLISTED_OPTIONS, true ) ) {
+                if ( isset( $settings['general'][ $opt_key ] ) && ! Sync_Config::is_blacklisted_option( $opt_key ) ) {
                     $sanitized_val = call_user_func( $sanitizer, $settings['general'][ $opt_key ] );
                     update_option( $opt_key, $sanitized_val );
                     $applied[ $opt_key ] = $sanitized_val;
@@ -672,7 +675,7 @@ class Sync_Ecosystem {
         // 3. Permalink Structure
         if ( ! empty( $settings['permalink']['permalink_structure'] ) ) {
             $perm = sanitize_text_field( $settings['permalink']['permalink_structure'] );
-            if ( ! empty( $perm ) && ! in_array( 'permalink_structure', self::BLACKLISTED_OPTIONS, true ) ) {
+            if ( ! empty( $perm ) && ! Sync_Config::is_blacklisted_option( 'permalink_structure' ) ) {
                 update_option( 'permalink_structure', $perm );
                 $applied['permalink_structure'] = $perm;
             }
@@ -683,8 +686,6 @@ class Sync_Ecosystem {
 
     /**
      * Tự động xóa sạch Cache hosting và làm mới Rewrite Rules (Safeguard Layer 4)
-     *
-     * @return void
      */
     public static function invalidate_caches(): void {
         do_action( 'litespeed_purge_all' );

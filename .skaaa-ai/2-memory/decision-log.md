@@ -39,6 +39,25 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-15 - 🟢 Hoàn thành: Tái Cấu Trúc Tập Trung Cấu Hình (Sync_Config) & Phân Tách View Template MVC (Skaaai v1.5.5)
+- **Decision (Centralized Configuration SSoT & MVC View Template Separation):**
+  - **Bối cảnh & Vấn đề:** Trong quá trình mở rộng hệ sinh thái, hai tệp `class-skaaai-sync-ecosystem.php` (697 dòng) và `class-skaaai-admin.php` (696 dòng) đang chạm sát ngưỡng trần 700 dòng. Các mảng cấu hình (scopes, blacklists, timeouts, bảng hệ thống) bị khai báo lặp lại ở 4 tệp khác nhau (Sender, Receiver, Pull, Diff), trong khi `class-skaaai-admin.php` bị phình to bởi hơn 250 dòng mã HTML giao diện.
+  - **Giải pháp kiến trúc theo chuẩn Nocode Molecule & Clean Architecture:**
+    1. **Tạo Lớp Cấu Hình Tập Trung (`class-skaaai-sync-config.php` - 138 dòng):** Đóng vai trò Single Source of Truth (SSoT) định nghĩa tập trung: danh sách 8 Scopes, danh mục Blacklisted Options bảo vệ Live Webhost (`siteurl`, `home`, `admin_email`, `active_plugins`...), tiền tố bảng hệ thống (`sys_*`), hậu tố bảng nhạy cảm (`_submissions`), endpoints REST API và các mốc Timeouts mạng. Toàn bộ các class Sender, Receiver, Pull, Diff chỉ cần gọi `Sync_Config::get_all_scopes()` hoặc `Sync_Config::is_custom_table_allowed()`.
+    2. **Tách View Giao Diện Quản Trị (`views/admin-settings-page.php` - 275 dòng):** Di chuyển toàn bộ cấu trúc HTML render của `render_admin_page()` sang tệp view chuyên trách, đưa Controller `class-skaaai-admin.php` từ 696 dòng xuống còn **445 dòng** (giảm 36% độ dài). Bổ sung khai báo `namespace Skaaai;` trong file view để các lời gọi static class `Ecosystem_Sync_UI` và `Harness_Initializer` tự động phân giải đúng namespace nội bộ, triệt tiêu lỗi Fatal error `Class not found`.
+    3. **Đạt chuẩn kích thước tệp:** 100% tất cả các tệp nguồn của plugin `skaaai` đều nằm an toàn dưới ngưỡng 700 dòng, không còn nguy cơ vi phạm quy định File Size Limit.
+  - **Đóng gói & Phát hành:** Nâng phiên bản `skaaai` lên `v1.5.5`, đóng gói `skaaai-v1.5.5.zip` (0.15 MB) và đồng bộ 100% sang paired site `l-tt-thnh-siu-c-nhn`.
+
+## 2026-10-15 - 🟢 Hoàn thành: Tách Độc Lập Quét & Đẩy Media Hệ Sinh Thái (Decoupled Ecosystem Media Sync) Cho Cấu Kiện Organisms, Posts & Design Tokens (Skaaai v1.5.4)
+- **Decision (Decoupled Ecosystem Media Sync: Standalone Organism Logo Upload, Post Media & Preset URL Domain Rewrite):**
+  - **Bối cảnh & Vấn đề:** Khi website client (`l-tt-thnh-siu-c-nhn.local`) mới triển khai HeaderBar/FooterBar và nạp Design Tokens nhưng chưa có Trang tĩnh (`pages`) nào ở trạng thái `publish`, người dùng thực hiện "1-Click Full Push to Live" thì ảnh Logo (`lytatthanh_logo.png`) không hiển thị trên Live (`lytatthanh.com`), trình duyệt nhận 404 và chỉ hiện Alt text.
+  - **Nguyên nhân gốc rễ (Root Cause):** Trong `Sync_Ecosystem_Sender::push_to_remote()`, logic quét và đẩy file ảnh nhúng của `organisms` bị lồng sai bên trong điều kiện `if ( ! $dry_run && ! empty( $payload['pages'] ) )`. Do `$payload['pages']` rỗng, toàn bộ logic kích hoạt `prepare_and_sync_local_media` bị nhảy qua. Ngoài ra bài viết blog (`posts`), trường `json_content` và token (`presets`) cũng chưa được quét media.
+  - **Giải pháp kiến trúc:**
+    1. **Tách 4 khối tải Media độc lập (`Sync_Ecosystem_Sender`):** Phân tách `pages`, `posts`, `organisms` và `presets` thành các khối độc lập trong `push_to_remote()`. Đảm bảo dù chưa có Page nào thì Organisms (Header, Footer) vẫn được quét và tải toàn bộ ảnh nhúng lên Live Webhost qua `/wp-json/skaaai/v1/upload-media`.
+    2. **Bao quát `json_content` và Design Tokens:** Quét tải media và hoán đổi URL cho cả trường `json_content` của Organisms và các token chuỗi trong `sys_presets` (ví dụ `Logo Url`).
+    3. **Receiver Domain Rewrite:** Truyền `$origin_url` vào `apply_presets()` trong `Sync_Ecosystem` để tự động hoán đổi domain localhost sang domain Live cho các preset chứa URL.
+  - **Đóng gói & Phát hành:** Nâng phiên bản `skaaai` lên `v1.5.4`, đóng gói `skaaai-v1.5.4.zip` (0.15 MB) và đồng bộ 100% sang paired site `l-tt-thnh-siu-c-nhn`.
+
 ## 2026-10-05 - 🟢 Hoàn thành: Hiện Đại Hóa Skaaa System Dashboard (Skaaai v1.5.3 & Skaaa No-Code Design v2.4.8)
 - **Decision (Dashboard Decoupled Integration & Legacy Cleanup):**
   - **Bối cảnh:** Trang Skaaa System Dashboard còn tồn tại thẻ HTML tĩnh `Skaaa Bridge (In development) [Frozen]` từ thời sơ khởi và thẻ `Skaaa AI Architect` cũ có nút bấm alert thô sơ.

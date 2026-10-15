@@ -29,9 +29,9 @@ wp-content/
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
-| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules. | 🟢 Stable (v2.4.7) |
+| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules. | 🟢 Stable (v2.4.8) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer & Developer/Designer CLI Tools (db-tool, block-tool, jit-tool). | 🟢 Stable (v1.5.0) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer & Developer/Designer CLI Tools (db-tool, block-tool, jit-tool). | 🟢 Stable (v1.5.5) |
 
 ---
 
@@ -53,6 +53,17 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-15 - 🟢 Done (Skaaai v1.5.5 - Centralized Sync Configuration & MVC View Separation):**
+  - **Skaaai v1.5.5:** Tái cấu trúc phân tách file cấu hình và giao diện (Config & View Separation Architecture):
+    1. **Tập trung cấu hình (`class-skaaai-sync-config.php`):** Tạo class `Sync_Config` làm Single Source of Truth cho toàn bộ 8 scopes, blacklist options bảo vệ Live, bảng hệ thống, endpoints REST API và timeouts, xóa bỏ 100% code trùng lặp giữa Sender, Receiver, Pull và Diff.
+    2. **Bóc tách View Template Admin (`views/admin-settings-page.php`):** Tách 254 dòng HTML giao diện khỏi `class-skaaai-admin.php`, đưa file controller từ 696 dòng xuống còn 445 dòng rất sáng sủa; bổ sung `namespace Skaaai;` xử lý dứt điểm lỗi Fatal error `Class Ecosystem_Sync_UI not found`.
+    3. **Đóng gói & Phân phối:** Đóng gói `skaaai-v1.5.5.zip` (0.15 MB) và đồng bộ 100% sang paired site `l-tt-thnh-siu-c-nhn`.
+- **2026-10-15 - 🟢 Done (Skaaai v1.5.4 - Decoupled Ecosystem Media Sync & Standalone Organism / Token Upload):**
+  - **Skaaai v1.5.4:** Khắc phục triệt để lỗi logo Header/Footer không được đẩy lên máy chủ Live khi dự án chưa có Page published:
+    1. **Tách độc lập 4 khối tải media (`Sync_Ecosystem_Sender::push_to_remote`):** Phân rã vòng lặp tải media cho `pages`, `posts`, `organisms` và `presets` thành các khối độc lập. Dù website chưa có bài viết/trang published nào hoặc người dùng chỉ tick chọn đồng bộ Organisms/Tokens, hệ thống vẫn tự động trích xuất file ảnh logo (`.png`, `.jpg`, `.svg`...) và đẩy trực tiếp lên Live Webhost qua `/wp-json/skaaai/v1/upload-media`.
+    2. **Đồng bộ toàn diện JSON & Tokens:** Mở rộng quét media cho cả `json_content` của Organisms và giá trị chuỗi của Design Tokens (`sys_presets` như `Logo Url`).
+    3. **Hoán đổi domain cho Presets phía Receiver:** Truyền `$origin_url` vào `apply_presets()` trong `Sync_Ecosystem` để tự động hoán đổi domain localhost sang domain Live cho các presets chứa link ảnh.
+    4. **Đóng gói & Phân phối:** Đóng gói `skaaai-v1.5.4.zip` (0.15 MB) và đồng bộ 100% sang paired site `l-tt-thnh-siu-c-nhn`.
 - **2026-10-05 - 🟢 Done (Skaaai v1.5.3 & Skaaa No-Code Design v2.4.8 - Dashboard Bridge & AI Modernization):**
   - **Skaaai v1.5.3:** Tích hợp phương thức `render_dashboard_card()` hook vào `skaaa_system_dashboard_modules` hiển thị card module **Skaaai (Bridge & Sync)** sáng đèn trên Skaaa System Dashboard với đầy đủ thông tin vai trò (Sender/Receiver), nút mở nhanh `Bridge & Sync` và `Ecosystem Sync`.
   - **Skaaa No-Code Design v2.4.8:** Loại bỏ khối HTML tĩnh cũ `<!-- Module: Bridge -->` (Frozen), bổ sung `skaaai` vào danh sách `$ecosystem_modules` fallback khi chưa kích hoạt; nâng cấp thẻ `Skaaa AI Architect` thành `Skaaai AI Copilot & Automation` liên kết trực tiếp sang trang cấu hình Skaaai Settings thay vì popup alert.

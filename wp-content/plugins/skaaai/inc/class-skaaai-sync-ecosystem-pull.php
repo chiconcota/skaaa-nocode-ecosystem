@@ -40,17 +40,17 @@ class Sync_Ecosystem_Pull {
             ];
         }
 
-        $all_scopes = [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'posts', 'settings' ];
+        $all_scopes = Sync_Config::get_all_scopes();
         $target_scopes = ( ! empty( $scopes ) && is_array( $scopes ) ) ? $scopes : $all_scopes;
 
         // 1. Gửi yêu cầu trích xuất toàn bộ Hệ Sinh Thái sang Live
         $endpoint = add_query_arg( [
             'scopes'  => implode( ',', $target_scopes ),
             'dry_run' => $dry_run ? 1 : 0,
-        ], rtrim( $remote_url, '/' ) . '/wp-json/skaaai/v1/export-ecosystem' );
+        ], rtrim( $remote_url, '/' ) . '/wp-json/' . Sync_Config::REST_NAMESPACE . Sync_Config::ENDPOINT_EXPORT_ECOSYSTEM );
 
         $response = wp_remote_get( $endpoint, [
-            'timeout'   => 120,
+            'timeout'   => Sync_Config::TIMEOUT_LONG,
             'headers'   => [
                 'X-Skaaai-Token' => $remote_token,
                 'Accept'         => 'application/json',

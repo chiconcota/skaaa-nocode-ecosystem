@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.5.3)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration.  
+**Status:** 🟢 Stable (v1.5.5)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration & MVC View Templates.  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -10,6 +10,8 @@
 ## 1. Kiến Trúc Phân Chia Trách Nhiệm (Decoupled Integration)
 Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao tiếp 100% qua WordPress Hooks và REST API bảo mật:
 - **Zero-Postmeta & Flat Tables:** Cấu hình hệ thống (Pairing Key, Remote URL, Secret Token, LLM API Keys) được lưu trữ tại bảng phẳng MySQL `wp_skaaa_data_sys_settings` của `skaaa-data-pro` (nếu có) hoặc fallback an toàn vào bảng phẳng cục bộ.
+- **Centralized Configuration & Single Source of Truth (`Sync_Config` - v1.5.5):** Toàn bộ cấu hình scopes, blacklist options, bảng hệ thống, endpoints và timeouts được tập trung duy nhất tại `class-skaaai-sync-config.php`, triệt tiêu hoàn toàn code cấu hình trùng lặp giữa Sender, Receiver, Pull và Diff.
+- **MVC View Templates Separation (v1.5.5):** Bóc tách giao diện HTML Admin Settings sang `views/admin-settings-page.php`, giảm kích thước `class-skaaai-admin.php` từ 696 dòng xuống còn 445 dòng, bảo đảm 100% các file nguồn luôn nằm dưới ngưỡng 700 dòng.
 - **Pluggable Nodes Framework:** Đăng ký các Node AI (`AIPromptNode`, `AIParserNode`) và Custom Nodes vào đồ thị Logic Engine thông qua hook `apply_filters( 'skaaa_logic_registered_nodes', ... )`.
 - **Gutenberg Editor Integration:** Nạp nút bấm 1-Click "🚀 Push to Live" và "📥 Pull from Live" trực tiếp trên Header Toolbar và Sidebar Document mà không can thiệp sâu vào code lõi của Design Engine.
 - **System Dashboard Module Integration:** Tích hợp trực tiếp thẻ module Skaaai (Bridge & Sync) vào Skaaa System Dashboard thông qua hook `skaaa_system_dashboard_modules` (`Ecosystem_Sync_UI::render_dashboard_card`).
@@ -31,7 +33,7 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - Khóa quyền xóa file trực tiếp trên Live Webhost (`role === 'receiver'`), thay nút Delete bằng huy hiệu `🔒 Live Protected`.
   - Xóa file trên Localhost (Sender) tự động kích hoạt cuộc gọi REST API `POST /wp-json/skaaai/v1/delete-file` dọn sạch file và bản sao lưu trên Live.
 
-### Trụ cột 2: Bidirectional Content Sync Engine & Push/Pull UI (v1.5.0)
+### Trụ cột 2: Bidirectional Content Sync Engine & Push/Pull UI (v1.5.4)
 - **Mục tiêu:** Đồng bộ bài viết, landing page thiết kế bằng Skaaa giữa máy tính cá nhân (Local) và Webhost (Production/Staging) 2 chiều hoàn chỉnh (Push ➔ Live & Pull ➔ Local) an toàn, không sợ lệch ID tự tăng (Auto Increment ID) của WordPress.
 - **Động Cơ Kéo Dữ Liệu An Toàn (Safe Pull from Live - v1.5.0):**
   - **Endpoint Trích Xuất & Diff Check (Live Host):** `GET /export-post` xuất dữ liệu bài viết (UUID, thuộc tính Gutenberg, metadata), `POST /check-posts-status` nhận diện chênh lệch thời gian (`remote_ahead`) và `GET /export-ecosystem` xuất trọn vẹn 7 scopes hệ sinh thái.
@@ -50,10 +52,13 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **KSES Bypass & Administrator Context (v1.4.3):** Tạm thời gọi `kses_remove_filters()` và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) khi xử lý ghi bài qua REST API để ngăn WordPress Core xóa sạch thẻ `<svg>` trong thuộc tính JSON comment Gutenberg (`svgCode`), khôi phục bộ lọc qua `kses_init_filters()` ngay sau khi hoàn tất.
 - **Chuẩn Hóa Database Table Prefix Cho Khối Động (v1.4.2):**
   - Tự động quét và hoán đổi prefix bảng phẳng `skaaa_data_*` từ sender sang receiver (`Sync_Post::rewrite_table_prefixes()`) cho toàn bộ nội dung bài viết và các trang đồng bộ, đảm bảo các khối `loop` trỏ chính xác vào CSDL Live (ví dụ: `wpxi_skaaa_data_*`).
-- **Cơ chế nạp Media 2 Đầu (Base64 Sideload Media over NAT - v1.3.1):**
-  - Mở rộng endpoint tiếp nhận Media `POST /wp-json/skaaai/v1/upload-media` nhận file base64 trực tiếp từ Sender.
-  - Quét regex thông minh hỗ trợ cả URL tuyệt đối (`http...`) và URL tương đối (`/wp-content/uploads/...`) cùng escape gạch chéo `\/`.
-  - Sender tự động đọc file ảnh từ ổ cứng Localhost, đẩy trực tiếp lên Media Library của Live host, sau đó hoán đổi URL mới trước khi ghi nội dung bài viết.
+- **Cơ chế nạp Media 2 Đầu & Tách Độc Lập Quét Media (Decoupled Media Sync - v1.5.4):**
+  - Phân tách 4 khối xử lý tải ảnh độc lập trong `Sync_Ecosystem_Sender::push_to_remote`: Pages, Posts (Blog), Organisms (cả `html_content` và `json_content`), và Presets (Design Tokens như Logo Url).
+  - Triệt tiêu hoàn toàn lỗi bỏ quên upload ảnh/logo khi dự án chưa có Page published hoặc chỉ đồng bộ riêng Organisms/Tokens.
+  - Bổ sung hoán đổi domain cho Presets phía Receiver qua `apply_presets( $payload['presets'], $origin_url )`.
+- **Lớp Cấu Hình Tập Trung SSoT & Tách View MVC Admin (Sync_Config & MVC Admin View - v1.5.5):**
+  - Khởi tạo `Sync_Config` (`class-skaaai-sync-config.php` - 138 dòng): Single Source of Truth tập trung quản lý 8 Scopes, danh mục Blacklisted Options (`siteurl`, `home`, `admin_email`, `active_plugins`...), tiền tố bảng hệ thống (`sys_*`), hậu tố bảng nhạy cảm (`_submissions`), endpoints REST API và Timeouts mạng. Triệt tiêu 100% việc lặp lại mảng cấu hình tại Sender, Receiver, Pull và Diff.
+  - Tách giao diện HTML quản trị ra file View chuyên trách (`views/admin-settings-page.php` - 275 dòng) có khai báo `namespace Skaaai;`, đưa Controller `class-skaaai-admin.php` từ 696 dòng xuống còn 445 dòng (giảm 36% độ dài), tuân thủ nghiêm ngặt quy định trần kích thước tệp < 700 dòng.
 - **Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Document Panel):**
   - Tích hợp nút bấm trực tiếp "🚀 Push to Live" trên thanh Header Toolbar (bên cạnh nút Lưu/Đăng bài) và panel Status & Visibility trong Document Sidebar (`assets/js/skaaai-editor-toolbar.js`).
   - Tự động lưu bài trước khi push (`savePost()`), gửi payload bài viết qua REST API, tự động hoán đổi URL domain và tải ảnh về media library của Live host.

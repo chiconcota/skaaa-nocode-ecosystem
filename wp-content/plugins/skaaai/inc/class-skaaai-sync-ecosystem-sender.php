@@ -24,7 +24,7 @@ class Sync_Ecosystem_Sender {
     public static function export_payload( array $options = [] ): array {
         global $wpdb;
 
-        $scopes = $options['scopes'] ?? [ 'presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings' ];
+        $scopes = $options['scopes'] ?? Sync_Config::get_all_scopes();
 
         $payload = [
             'origin_url'   => site_url(),
@@ -169,13 +169,8 @@ class Sync_Ecosystem_Sender {
         foreach ( $tables as $table ) {
             $suffix = substr( $table, strlen( $prefix ) );
 
-            // Bỏ qua các bảng hệ thống sys_*
-            if ( str_starts_with( $suffix, 'sys_' ) ) {
-                continue;
-            }
-
-            // Bỏ qua các bảng chứa dữ liệu form submissions của khách (Safeguard Layer 3)
-            if ( str_ends_with( $suffix, '_submissions' ) || str_contains( $suffix, 'submission' ) ) {
+            // Bỏ qua các bảng hệ thống sys_* và bảng form submissions của khách
+            if ( ! Sync_Config::is_custom_table_allowed( $table, $prefix ) ) {
                 continue;
             }
 
@@ -305,26 +300,51 @@ class Sync_Ecosystem_Sender {
         ] );
 
         // 2. Nếu ở chế độ Thực thi (không phải dry-run), chủ động đẩy file ảnh nhúng
-        if ( ! $dry_run && ! empty( $payload['pages'] ) ) {
-            foreach ( $payload['pages'] as &$page ) {
-                $page['content'] = Sync_Post::prepare_and_sync_local_media( $page['content'], $remote_url, $remote_token );
+        if ( ! $dry_run ) {
+            // A. Đẩy ảnh nhúng cho các Trang tĩnh (Pages)
+            if ( ! empty( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
+                foreach ( $payload['pages'] as &$page ) {
+                    $page['content'] = Sync_Post::prepare_and_sync_local_media( $page['content'], $remote_url, $remote_token );
+                }
+                unset( $page );
             }
-            unset( $page );
 
-            if ( ! empty( $payload['organisms'] ) ) {
+            // B. Đẩy ảnh nhúng cho các Bài viết blog (Posts)
+            if ( ! empty( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
+                foreach ( $payload['posts'] as &$post ) {
+                    $post['content'] = Sync_Post::prepare_and_sync_local_media( $post['content'], $remote_url, $remote_token );
+                }
+                unset( $post );
+            }
+
+            // C. Đẩy ảnh nhúng cho Cấu kiện Organisms (HeaderBar, FooterBar, Components...)
+            if ( ! empty( $payload['organisms'] ) && is_array( $payload['organisms'] ) ) {
                 foreach ( $payload['organisms'] as &$org ) {
                     if ( ! empty( $org['html_content'] ) ) {
                         $org['html_content'] = Sync_Post::prepare_and_sync_local_media( $org['html_content'], $remote_url, $remote_token );
                     }
+                    if ( ! empty( $org['json_content'] ) && is_string( $org['json_content'] ) ) {
+                        $org['json_content'] = Sync_Post::prepare_and_sync_local_media( $org['json_content'], $remote_url, $remote_token );
+                    }
                 }
                 unset( $org );
+            }
+
+            // D. Đẩy ảnh nhúng cho Design Tokens (ví dụ: token Logo Url)
+            if ( ! empty( $payload['presets'] ) && is_array( $payload['presets'] ) ) {
+                foreach ( $payload['presets'] as &$preset ) {
+                    if ( ! empty( $preset['value'] ) && is_string( $preset['value'] ) ) {
+                        $preset['value'] = Sync_Post::prepare_and_sync_local_media( $preset['value'], $remote_url, $remote_token );
+                    }
+                }
+                unset( $preset );
             }
         }
 
         // 3. Gửi payload sang Live Webhost
-        $endpoint = rtrim( $remote_url, '/' ) . '/wp-json/skaaai/v1/sync-ecosystem';
+        $endpoint = rtrim( $remote_url, '/' ) . '/wp-json/' . Sync_Config::REST_NAMESPACE . Sync_Config::ENDPOINT_SYNC_ECOSYSTEM;
         $response = wp_remote_post( $endpoint, [
-            'timeout'   => 120,
+            'timeout'   => Sync_Config::TIMEOUT_LONG,
             'headers'   => [
                 'X-Skaaai-Token' => $remote_token,
                 'Content-Type'   => 'application/json',
