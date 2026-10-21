@@ -32,6 +32,10 @@
 - **Lỗi:** Khi tách giao diện HTML ra file view riêng trong thư mục `views/*.php`, không khai báo `namespace` ở đầu file. Do PHP include không tự thừa hưởng namespace của caller, các lời gọi class tĩnh nội bộ bị tìm ở Global namespace dẫn đến Fatal error `Class not found`.
 - **Sửa đổi:** BẮT BUỘC khai báo `namespace [Vendor];` (ví dụ: `namespace Skaaai;`) ngay đầu mọi file View template trong `views/` để đảm bảo cơ chế tự động phân giải namespace nội bộ hoạt động chính xác.
 
+### MISTAKE-023: Release Notes Format Mismatch
+- **Lỗi:** Xuất file Release Notes dạng bullet list trích xuất thô từ `system_map.md` thay vì định dạng chuẩn **Keep a Changelog** của `fcitx5-lilypad`.
+- **Sửa đổi:** Khi đóng gói và phát hành (`/release-github`), luôn phân loại và định dạng changelog theo 3 phân mục chuẩn Keep a Changelog: `🚀 Added / Improved`, `🐛 Fixed`, `🧹 Refactored / Clean Code`.
+
 ---
 
 ## 🟢 LỊCH SỬ LỖI ĐÃ KHẮC PHỤC (RESOLVED)

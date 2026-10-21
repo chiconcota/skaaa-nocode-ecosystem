@@ -108,10 +108,10 @@
 ### 🟢 ƯU TIÊN 4: ĐỊNH HƯỚNG TƯƠNG LAI (Roadmap Phase 6+)
 
 #### K. Trình biên dịch Editor (SkaaaWind JS Core)
-- [ ] **Tailwind Compiler Client-side:**
-  - [ ] Viết bộ parser Tailwind JIT bằng Vanilla JS chạy trực tiếp trên browser của Gutenberg Editor.
-  - [ ] Loại bỏ hoàn toàn sự phụ thuộc vào Tailwind CDN ngoài editor để tăng tốc độ load và bảo mật offline.
-  - [ ] Đồng bộ hóa màu Dark Mode (`darkMode: 'class'`) thời gian thực ngay trong màn hình thiết kế.
+- [x] **Tailwind Compiler Client-side:**
+  - [x] Viết bộ parser Tailwind JIT bằng Vanilla JS chạy trực tiếp trên browser của Gutenberg Editor (SkaaaWind).
+  - [x] Loại bỏ hoàn toàn sự phụ thuộc vào Tailwind CDN ngoài editor để tăng tốc độ load và bảo mật offline.
+  - [x] Đồng bộ hóa màu Dark Mode (`darkMode: 'class'`) thời gian thực ngay trong màn hình thiết kế kèm nút Dark/Light Mode toggle trực tiếp trên toolbar.
 
 #### L. Mở rộng Trigger & Circuit Breaker (Logic Engine)
 - [ ] **Trigger ngoại vi & Bảo vệ:**

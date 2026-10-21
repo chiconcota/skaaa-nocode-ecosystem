@@ -1,17 +1,17 @@
 # CHECKPOINT - PHẦN BÀN GIAO TIẾN ĐỘ
-*Ngày cập nhật: 2026-10-21 | Phiên làm việc: Tích hợp nút Toggle Dark/Light Mode trực tiếp trên Gutenberg Editor & Chuẩn hóa Selector :is(...) Parity (Skaaa No-Code Design v2.5.2)*
+*Ngày cập nhật: 2026-10-21 | Phiên làm việc: Phát hành v2.5.3, Tích hợp Dark Tokens vào SkaaaWind JS JIT, Viết lại README.md Showcase & Đóng gói Bản phát hành Chuẩn Keep a Changelog*
 
 ---
 
 ## 1. Thông Tin Môi Trường & Nhánh Git
-- **Git Branch:** `main`
+- **Git Branch:** `main` (Trạng thái sạch, đã push commit và tag `v2.5.3` lên GitHub)
 - **Thư mục làm việc (Active Workspace):** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/`
 - **Máy Chủ Live Đích (Production):** `https://lytatthanh.com` (Database prefix: `wpxi_`)
-- **Phiên bản Hệ Sinh Thái Hiện Tại:**
+- **Phiên bản Hệ Sinh Thái Đã Đóng Gói (Release v2.5.3):**
+  - `Skaaa No-Code Design: v2.5.3` (🟢 Live Editor Dark Mode, Selector :is(...) Parity, Dark Tokens in SkaaaWind JS JIT & Typography Preflight)
   - `Skaaai: v1.6.0` (🟢 Tách Sync_Media độc lập, MD5 Hash Deduplication, Standalone Media Library Sync & 1-Click Duplicate Cleanup)
   - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
-  - `Skaaa No-Code Design: v2.5.2` (🟢 Live Editor Dark/Light Mode Toggle Engine, Canvas Sync & :is(...) Selector Parity)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
   - `Skaaa Logic Engine: v1.3.0` (🟢 Stable)
 
@@ -19,84 +19,69 @@
 
 ## 2. Danh Sách Tệp Tin Đã Tạo & Chỉnh Sửa Trong Phiên (File Change Manifest)
 
-### A. Plugin Skaaai (`wp-content/plugins/skaaai/`)
-1. [inc/class-skaaai-sync-media.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-sync-media.php) *(MỚI - 621 dòng)*:
-   - Lớp chuyên trách xử lý Media và Attachment:
-     + **MD5 Hash Deduplication (`handle_incoming_media`):** Kiểm tra `_skaaa_file_hash` và `_wp_attached_file`/`_skaaa_source_file`. Nếu nội dung trùng khớp, tái sử dụng URL & ID attachment hiện có, không gọi `wp_upload_bits` và không tạo attachment mới.
-     + **Ghi đè thông minh:** Nếu file cùng tên nhưng nội dung thay đổi, ghi đè trực tiếp lên đĩa và regenerate metadata thay vì để WordPress tăng số `-1`, `-2`...
-     + **Static Session Cache (`prepare_and_sync_local_media`):** Bộ nhớ đệm tĩnh trong phiên ngăn việc upload lặp lại 1 file nhiều lần trong cùng một lượt sync.
-     + **Đồng bộ Thư viện Media Độc lập (`sync_media_library`):** Quét toàn bộ attachment độc lập trong Localhost Media Library và đẩy lên Live.
-     + **Tiện ích Dọn Dẹp Duplicate Media (`cleanup_duplicate_attachments`):** Tự động phát hiện và xóa sạch các file rác hậu tố tự tăng (`-1`, `-2` ... `-33`) trên Live.
-2. [inc/class-skaaai-sync-post.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-sync-post.php):
-   - Giảm từ 677 dòng xuống còn **470 dòng** (giảm 31% độ dài) bằng cách ủy quyền toàn bộ các phương thức `sideload_remote_images`, `handle_incoming_media`, `prepare_and_sync_local_media` sang `Sync_Media`.
-3. [inc/class-skaaai-sync-config.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-sync-config.php):
-   - Bổ sung scope `'media'` vào `Sync_Config::SCOPES` và khai báo `ENDPOINT_CLEANUP_MEDIA = '/cleanup-media'`.
-4. [inc/class-skaaai-sync-ecosystem-sender.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-sync-ecosystem-sender.php):
-   - Tích hợp `Sync_Media::clear_session_cache()` và `Sync_Media::sync_media_library()` khi scope `media` được chọn.
-5. [inc/class-skaaai-sync-ecosystem-diff.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-sync-ecosystem-diff.php):
-   - Bổ sung phân tích đối soát số lượng media độc lập trong Diff Summary.
-6. [inc/class-skaaai-ecosystem-sync-ui.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-ecosystem-sync-ui.php):
-   - Thêm checkbox `Standalone Media Library` vào Cockpit.
-   - Thêm nút hành động `🧹 Clean Media Duplicates on Live` và hook AJAX `skaaai_cleanup_media`.
-7. [assets/js/skaaai-ecosystem-sync.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/assets/js/skaaai-ecosystem-sync.js):
-   - Đăng ký sự kiện click cho nút Clean Media Duplicates kèm xác nhận bảo vệ an toàn và thông báo phản hồi.
-8. [inc/class-skaaai-core.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/inc/class-skaaai-core.php):
-   - Nạp `class-skaaai-sync-media.php` vào luồng `includes()`.
-9. [skaaai.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/skaaai.php):
-   - Nâng phiên bản SemVer lên `v1.6.0`.
+### A. Tệp Tin Cốt Lõi Hệ Sinh Thái & Tài Liệu
+1. [README.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/README.md) *(VIẾT LẠI HOÀN TOÀN - 199 dòng)*:
+   - Tái cấu trúc từ phong cách nhật ký phiên bản kỹ thuật cũ sang bản **Product & Ecosystem Showcase** chuẩn quốc tế.
+   - Giới thiệu kiến trúc Decoupled Microservices, 5 Trụ Cột Hệ Sinh Thái, so sánh điểm nghẽn với Page Builders cũ (No-Postmeta, Zero CDN, Flat DOM), quy trình 4 bước (Model ➔ Design ➔ Wire ➔ Deploy), và hướng dẫn cài đặt.
+2. [wp-content/plugins/release-notes-v2.5.3.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/release-notes-v2.5.3.md) *(MỚI)*:
+   - Bản ghi chú phát hành định dạng chuẩn **Keep a Changelog** theo phong cách của dự án `fcitx5-lilypad` (`🚀 Added / Improved`, `🐛 Fixed`, `🧹 Refactored / Clean Code`).
 
 ### B. Plugin Skaaa No-Code Design (`wp-content/plugins/skaaa-no-code-design/`)
-1. [assets/js/skaaa-editor-dark-mode.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaa-editor-dark-mode.js) *(MỚI - 180 dòng)*:
-   - Module chuyên trách quản lý Dark/Light mode trong Gutenberg Editor.
-   - Tự động chèn nút `🌙 Dark Mode` / `☀️ Light Mode` vào Gutenberg Header Toolbar (`.edit-post-header__settings`).
-   - Đồng bộ class `.dark` lên cả Shell ngoài và Canvas Iframe (`iframe[name="editor-canvas"]`, `.editor-styles-wrapper`).
-   - Lưu trạng thái vào `localStorage` (`skaaa_editor_dark_mode`) và tự động duy trì khi reload/chuyển trang (0ms loop-free).
-2. [assets/css/skaaa-editor-dark-mode.css](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/css/skaaa-editor-dark-mode.css) *(MỚI - 71 dòng)*:
-   - Styling nút bấm header với hiệu ứng viền/hover và bóng amber khi bật dark mode.
-   - Thiết lập màu nền dark dịu mắt (`#090d16` & `#08090c`) cho canvas editor.
+1. [inc/design-engine/class-core.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-core.php):
+   - Bổ sung `'darkBrandColorsJson' => Tailwind_Color_Registry::get_custom_dark_colors()` vào cấu hình `skaaaEditorConfig` truyền xuống trình duyệt cho Gutenberg Editor.
+2. [assets/js/skaaawind.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaawind.js):
+   - Constructor nạp `darkBrandColors`.
+   - Hàm `resolveClass(className, isDark)` nạp bảng màu `darkBrandColors` khi `isDark = true`, tính toán chính xác giá trị opacity cho các class như `dark:text-text/70` (`rgba(248, 250, 252, 0.70)`), chấm dứt hoàn toàn hiện tượng chữ thường bị gán mã màu đen trong Editor.
+   - Chuẩn hóa `editorBaseSelector` sang `:is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)`.
 3. [inc/design-engine/class-tailwind-compiler.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-tailwind-compiler.php):
-   - Chuẩn hóa `editor_base_selector` sang cú pháp `:is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)`.
-4. [assets/js/skaaawind.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaawind.js):
-   - Đồng bộ chuẩn hóa `editorBaseSelector` sang `:is(...)` để đạt 100% Compiler Parity.
-5. [inc/design-engine/class-tailwind-color-registry.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-tailwind-color-registry.php):
-   - Thêm quy tắc CSS `:is(...)` cho các token brand dark colors trong editor canvas.
-6. [assets/js/skaaa-editor-helper.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaa-editor-helper.js):
-   - Tự động nạp trạng thái Dark Mode trong `injectTailwind()` cho canvas iframe.
-7. [inc/design-engine/class-core.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-core.php):
-   - Nạp script và stylesheet dark mode trong `enqueue_editor_assets()` kèm i18n labels.
+   - Chuẩn hóa `$editor_base_selector` sang cú pháp `:is(...)` đồng bộ với JS compiler.
+4. [inc/design-engine/class-tailwind-color-registry.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-tailwind-color-registry.php):
+   - Bổ sung toàn bộ dải opacity tiêu chuẩn (`/10` đến `/90`, đặc biệt là `/70`) vào hàm sinh CSS tĩnh `get_brand_colors_css()`.
+5. [inc/design-engine/class-tailwind-config.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/inc/design-engine/class-tailwind-config.php):
+   - Bổ sung Typography Preflight CSS Rule cho `strong` và `b` tự động nhận độ sáng từ biến `--skaaa-color-text`.
+6. [assets/js/skaaa-editor-dark-mode.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaa-editor-dark-mode.js) *(MỚI)*:
+   - Module quản lý nút chuyển đổi Dark/Light mode trên Gutenberg Header Toolbar, đồng bộ 2 tầng và triệt tiêu 100% Mutation loop.
+7. [assets/css/skaaa-editor-dark-mode.css](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/css/skaaa-editor-dark-mode.css) *(MỚI)*:
+   - CSS styling cho nút bấm header và canvas nền tối.
 8. [skaaa-no-code-design.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/skaaa-no-code-design.php):
-   - Nâng phiên bản SemVer lên `v2.5.2` và định nghĩa hằng số `SKAAA_DESIGN_VERSION`.
+   - Nâng phiên bản SemVer lên `v2.5.3`.
 
-### C. Đồng Bộ Sang Paired Site & Đóng Gói
-- Đã đồng bộ 100% tất cả các tệp sang paired site: `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/wp-content/plugins/skaaa-no-code-design/`.
-- Đóng gói ZIP: `skaaai-v1.6.0.zip` (0.16 MB) và `skaaai.zip`.
+### C. Đóng Gói Phân Phối (Distribution Packages)
+- `wp-content/plugins/skaaa-nocode-ecosystem-v2.5.3.zip` *(1.26 MB - Gói hợp nhất All-in-One)*
+- `wp-content/plugins/skaaa-no-code-design-v2.5.3.zip` & `skaaa-no-code-design.zip` *(0.39 MB)*
+- `wp-content/plugins/skaaa-data-pro-v1.3.3.zip` & `skaaa-data-pro.zip` *(0.11 MB)*
+- `wp-content/plugins/skaaa-logic-engine-v1.3.0.zip` & `skaaa-logic-engine.zip` *(0.37 MB)*
+- `wp-content/plugins/skaaai-v1.6.0.zip` & `skaaai.zip` *(0.16 MB)*
+- `wp-content/plugins/skaaa-canvas-v1.0.1.zip` & `skaaa-canvas.zip` *(4.61 KB)*
 
 ---
 
-## 3. Danh Sách Lỗi & Cải Tiến Đã Giải Quyết Triệt Để (Resolved Issues Log)
-1. **Khắc phục lỗi nhân bản tệp ảnh tới 33 file trùng lặp trên Live (v1.6.0):**
-   - *Hiện tượng:* Mỗi lần bấm Push to Live, Media Library trên Live tự sinh ra các file `lytatthanh_logo-1`, `lytatthanh_logo-2`... đến `lytatthanh_logo-33`.
-   - *Nguyên nhân:* Hàm `wp_upload_bits()` của WordPress tự tăng hậu tố `-X` khi trùng tên file, sau đó `wp_insert_attachment` luôn tạo attachment mới mà không kiểm tra nội dung/hash.
-   - *Khắc phục:* Triển khai `Sync_Media::handle_incoming_media()` với thuật toán kiểm tra mã băm MD5 `_skaaa_file_hash`. Nếu file đã tồn tại trên Live và hash trùng, tái sử dụng URL/ID hiện có (Idempotent 100%). Nếu nội dung thay đổi, ghi đè trực tiếp. Cung cấp nút `🧹 Clean Media Duplicates on Live` để dọn sạch 33 file rác cũ.
-2. **Khắc phục lỗi ảnh up độc lập vào Media Library không được đồng bộ lên Live (v1.6.0):**
-   - *Hiện tượng:* Ảnh up vào `Media -> Thêm mới` ở Local nhưng chưa chèn vào trang/bài thì khi sync, Live không nhận được.
-   - *Nguyên nhân:* Trước đây hệ thống chỉ quét thụ động qua regex trong văn bản của 4 thực thể (`pages`, `posts`, `organisms`, `presets`). Danh sách `SCOPES` hoàn toàn thiếu scope `media`.
-   - *Khắc phục:* Bổ sung scope `media` (Standalone Media Library). Quét toàn bộ attachment độc lập và đồng bộ đối soát sang Live.
-3. **Tuân thủ thiết quân luật kích thước tệp (< 700 lines):**
-   - `class-skaaai-sync-post.php` giảm từ 677 dòng xuống còn 470 dòng. `class-skaaai-sync-media.php` tách riêng 621 dòng. 100% tệp nguồn đều đạt chuẩn an toàn.
+## 3. Danh Sách Lỗi Đã Giải Quyết Triệt Để Trong Phiên (Resolved Issues Log)
+1. **Lỗi chữ thường trong Editor bị màu đen khi bật Dark Mode (v2.5.3):**
+   - *Nguyên nhân:* `skaaawind.js` trong Editor chưa được nạp nhánh `darkColors` từ Theme Tokens. Khi gặp `dark:text-text/70`, nó lấy màu `#0f172a` của Light Mode tính ra `rgba(15, 23, 42, 0.70)`.
+   - *Khắc phục:* Nạp `darkBrandColorsJson` vào `skaaaEditorConfig` và nối nhánh `darkColors` vào hàm `resolveClass(className, isDark)` của `skaaawind.js`.
+2. **Lỗi Selector Dark Mode bị ngắt dấu phẩy trong Editor JIT (v2.5.2):**
+   - *Khắc phục:* Chuẩn hóa sang `:is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)`.
+3. **Lỗi treo/đơ trình duyệt khi click nút Dark Mode trong Gutenberg (v2.5.1):**
+   - *Khắc phục:* Triệt tiêu Mutation loop đệ quy, chỉ quan sát thanh Header và phục hồi dark mode thụ động.
+4. **Chuẩn hóa Release Notes theo mẫu fcitx5-lilypad:**
+   - *Khắc phục:* Viết lại `release-notes-v2.5.3.md` chuẩn Keep a Changelog thay thế cho dạng trích xuất thô trước đó.
 
 ---
 
 ## 4. Tình Trạng Kiểm Thử E2E (E2E Test Status)
-- **Kiểm thử cú pháp PHP Lint:** 100% Passed (0 syntax error trên cả 2 thư mục repo và paired site `l-tt-thnh-siu-c-nhn`).
-- **Kiểm thử đóng gói ZIP:** 100% Passed (`zip-all.js` tạo `skaaai-v1.6.0.zip` 0.16 MB hoàn tất).
-- **Kiểm thử giới hạn dòng file (File Size Limit):** Toàn bộ file đều < 700 dòng (`class-skaaai-sync-ecosystem.php` 697 dòng, `class-skaaai-sync-media.php` 621 dòng, `class-skaaai-sync-post.php` 470 dòng).
+- **Kiểm thử cú pháp PHP Lint:** 100% Passed (0 syntax error).
+- **Kiểm thử HTTP Status Paired Site:** HTTP 200 OK (`http://l-tt-thnh-siu-c-nhn.local/`).
+- **Kiểm thử Đóng gói ZIP (`zip-all.js` & `release.js`):** 100% Passed.
+- **Kiểm thử Git Tag & Remote Push:** Tag `v2.5.3` và commit `5fd57f4` đã được push thành công lên GitHub remote `origin/main`.
 
 ---
 
 ## 5. Kế Hoạch Bàn Giao Phiên Kế Tiếp (Next Actions Checklist)
-1. **Dọn dẹp ảnh trùng lặp trên Live Webhost:**
-   - Người dùng bấm nút **"🧹 Clean Media Duplicates on Live"** trên Admin Cockpit để dọn dẹp các bản ghi `-1` đến `-33` thừa thãi.
-2. **Kiểm thử Push to Live với ảnh độc lập & chống trùng lặp:**
-   - Upload thử 1 ảnh độc lập vào Media Library Localhost.
-   - Bấm **"🚀 1-Click Full Push to Live"** và kiểm tra Media Library trên Live: xác nhận ảnh xuất hiện và không sinh thêm file duplicate.
+1. **Hoàn tất Publish Release trên Web GitHub:**
+   - Người dùng truy cập [GitHub Releases Tag v2.5.3](https://github.com/chiconcota/skaaa-nocode-ecosystem/releases/new?tag=v2.5.3).
+   - Copy nội dung từ `release-notes-v2.5.3.md` vào phần mô tả.
+   - Đính kèm file `wp-content/plugins/skaaa-nocode-ecosystem-v2.5.3.zip` và bấm Publish release.
+2. **Backlog tiếp theo (Theo `project_manager_post_mvp_backlog.md`):**
+   - Triển khai Gutenberg Format API (`registerFormatType`) cho Inline Tailwind Highlighter (Ctrl + B / Highlight trong text rich-text).
+   - Kiểm thử tính năng Push to Live với Standalone Media Library và dọn dẹp ảnh duplicate trên máy chủ Live `lytatthanh.com`.
