@@ -6,7 +6,7 @@
 (function($) {
     'use strict';
 
-    var currentScopes = ['presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'settings'];
+    var currentScopes = ['presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'media', 'settings'];
     var currentMode   = 'push'; // 'push' hoặc 'pull'
 
     function getSelectedScopes() {
@@ -388,6 +388,39 @@
         $(document).on('click', '.skaaai-trigger-full-pull, #wp-admin-bar-skaaai-bar-full-pull', function(e) {
             e.preventDefault();
             openModal('pull');
+        });
+
+        // Nút dọn dẹp ảnh trùng lặp trên Live
+        $(document).on('click', '.skaaai-trigger-cleanup-media', function(e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to scan and remove duplicate media attachments (-1, -2... -33) on the Live Webhost? This action is permanent.')) {
+                return;
+            }
+            var $btn = $(this);
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<span class="dashicons dashicons-update skaaai-spin"></span> Cleaning...');
+
+            $.ajax({
+                url: skaaaiEcosystem.ajax_url,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'skaaai_cleanup_media',
+                    nonce: skaaaiEcosystem.nonce
+                },
+                success: function(response) {
+                    $btn.prop('disabled', false).html(originalHtml);
+                    if (response.success && response.data) {
+                        alert('✅ ' + (response.data.message || 'Cleanup completed successfully!'));
+                    } else {
+                        alert('❌ ' + (response.data.message || 'Failed to clean duplicates.'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $btn.prop('disabled', false).html(originalHtml);
+                    alert('❌ Network error: ' + error);
+                }
+            });
         });
 
         // Phê duyệt đồng bộ

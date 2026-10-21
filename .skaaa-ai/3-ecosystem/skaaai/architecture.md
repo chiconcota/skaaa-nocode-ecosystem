@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.5.5)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration & MVC View Templates.  
+**Status:** 🟢 Stable (v1.6.0)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync & MD5 Hash Deduplication (`Sync_Media`).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -59,6 +59,12 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
 - **Lớp Cấu Hình Tập Trung SSoT & Tách View MVC Admin (Sync_Config & MVC Admin View - v1.5.5):**
   - Khởi tạo `Sync_Config` (`class-skaaai-sync-config.php` - 138 dòng): Single Source of Truth tập trung quản lý 8 Scopes, danh mục Blacklisted Options (`siteurl`, `home`, `admin_email`, `active_plugins`...), tiền tố bảng hệ thống (`sys_*`), hậu tố bảng nhạy cảm (`_submissions`), endpoints REST API và Timeouts mạng. Triệt tiêu 100% việc lặp lại mảng cấu hình tại Sender, Receiver, Pull và Diff.
   - Tách giao diện HTML quản trị ra file View chuyên trách (`views/admin-settings-page.php` - 275 dòng) có khai báo `namespace Skaaai;`, đưa Controller `class-skaaai-admin.php` từ 696 dòng xuống còn 445 dòng (giảm 36% độ dài), tuân thủ nghiêm ngặt quy định trần kích thước tệp < 700 dòng.
+- **Lớp Chuyên Trách Media & Chống Trùng Lặp MD5 Hash (Sync_Media & Standalone Media Sync - v1.6.0):**
+  - Khởi tạo `Sync_Media` (`class-skaaai-sync-media.php`): Phân tách độc lập toàn bộ logic xử lý media khỏi `Sync_Post`, đưa `class-skaaai-sync-post.php` giảm từ 677 dòng xuống 470 dòng.
+  - **MD5 Hash Deduplication:** Tra cứu attachment theo `_skaaa_file_hash` và `_wp_attached_file`/`_skaaa_source_file`. Tái sử dụng URL & Attachment ID khi nội dung khớp, không tạo file và không sinh attachment rác. Ghi đè file đĩa trực tiếp khi update ảnh cùng tên thay vì để WP sinh `-1`, `-2` ... `-33`.
+  - **Static Session Cache:** Đảm bảo trong 1 đợt push (Pages, Posts, Organisms, Presets), mỗi file chỉ upload đúng 1 lần duy nhất.
+  - **Đồng Bộ Thư Viện Media Độc Lập:** Bổ sung scope `media` quét và đẩy toàn bộ attachments trong Localhost Media Library sang Live.
+  - **Tiện ích Dọn Dẹp Duplicate Media:** Nút bấm `🧹 Clean Media Duplicates on Live` gọi REST API `/wp-json/skaaai/v1/cleanup-media` 1-click dọn sạch các bản sao rác `-1` đến `-33` tồn đọng trên Live.
 - **Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Document Panel):**
   - Tích hợp nút bấm trực tiếp "🚀 Push to Live" trên thanh Header Toolbar (bên cạnh nút Lưu/Đăng bài) và panel Status & Visibility trong Document Sidebar (`assets/js/skaaai-editor-toolbar.js`).
   - Tự động lưu bài trước khi push (`savePost()`), gửi payload bài viết qua REST API, tự động hoán đổi URL domain và tải ảnh về media library của Live host.

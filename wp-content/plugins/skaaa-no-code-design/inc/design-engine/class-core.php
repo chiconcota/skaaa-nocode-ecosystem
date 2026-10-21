@@ -176,12 +176,13 @@ class Core
 
         // Pass theme config to JS
         wp_localize_script('skaaa-editor-helper', 'skaaaEditorConfig', array(
-            'tailwindRules'  => \Skaaa\Builder\Design\Tailwind_Config::get_rules(),
-            'editorResetCss' => \Skaaa\Builder\Design\Tailwind_Config::get_core_reset_css(),
-            'brandColorsJson' => \Skaaa\Builder\Design\Tailwind_Color_Registry::get_custom_colors(),
+            'tailwindRules'       => \Skaaa\Builder\Design\Tailwind_Config::get_rules(),
+            'editorResetCss'      => \Skaaa\Builder\Design\Tailwind_Config::get_core_reset_css(),
+            'brandColorsJson'     => \Skaaa\Builder\Design\Tailwind_Color_Registry::get_custom_colors(),
+            'darkBrandColorsJson' => \Skaaa\Builder\Design\Tailwind_Color_Registry::get_custom_dark_colors(),
             // Vẫn giữ brandColorsCss fallback nếu file JS chưa được cập nhật cache.
-            'brandColorsCss' => \Skaaa\Builder\Design\Tailwind_Config::get_core_reset_css() . "\n" . \Skaaa\Builder\Design\Tailwind_Color_Registry::get_brand_colors_css(),
-            'dummyPostId' => get_option('skaaa_organism_dummy_post_id'),
+            'brandColorsCss'      => \Skaaa\Builder\Design\Tailwind_Config::get_core_reset_css() . "\n" . \Skaaa\Builder\Design\Tailwind_Color_Registry::get_brand_colors_css(),
+            'dummyPostId'         => get_option('skaaa_organism_dummy_post_id'),
             'adminUrl' => admin_url(),
             'isDataProActive' => class_exists('\Skaaa_System_Framework\Dependency_Manager') && \Skaaa_System_Framework\Dependency_Manager::is_data_pro_active(),
         ));
@@ -227,6 +228,35 @@ class Core
                 true
             );
         }
+
+        // Enqueue Editor Dark Mode Toggle
+        wp_enqueue_style(
+            'skaaa-editor-dark-mode',
+            SKAAA_DESIGN_URL . 'assets/css/skaaa-editor-dark-mode.css',
+            array(),
+            defined( 'SKAAA_DESIGN_VERSION' ) ? SKAAA_DESIGN_VERSION : time()
+        );
+
+        wp_enqueue_script(
+            'skaaa-editor-dark-mode',
+            SKAAA_DESIGN_URL . 'assets/js/skaaa-editor-dark-mode.js',
+            array('skaaa-editor-helper'),
+            defined( 'SKAAA_DESIGN_VERSION' ) ? SKAAA_DESIGN_VERSION : time(),
+            true
+        );
+
+        wp_localize_script(
+            'skaaa-editor-dark-mode',
+            'skaaaEditorDarkModeConfig',
+            array(
+                'i18n' => array(
+                    'darkMode'      => __( 'Dark Mode', 'skaaa-no-code-design' ),
+                    'lightMode'     => __( 'Light Mode', 'skaaa-no-code-design' ),
+                    'switchToDark'  => __( 'Switch to Dark Mode (Preview)', 'skaaa-no-code-design' ),
+                    'switchToLight' => __( 'Switch to Light Mode (Preview)', 'skaaa-no-code-design' ),
+                ),
+            )
+        );
     }
 
     /**

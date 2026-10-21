@@ -1,0 +1,71 @@
+/**
+ * Skaaa Editor Dark Mode Toggle Styling
+ * Version: 2.5.0
+ */
+
+/* Toggle Button in Gutenberg Header */
+.skaaa-editor-dark-toggle-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    height: 32px !important;
+    padding: 0 10px !important;
+    margin-right: 8px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    vertical-align: middle !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    user-select: none !important;
+}
+
+.skaaa-editor-dark-toggle-btn:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+}
+
+.skaaa-editor-dark-toggle-btn.is-dark-active {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
+}
+
+.skaaa-editor-dark-toggle-btn.is-dark-active:hover {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+}
+
+.skaaa-editor-dark-toggle-btn .skaaa-toggle-icon {
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+
+.skaaa-editor-dark-toggle-btn .skaaa-toggle-label {
+    font-size: 13px !important;
+    line-height: 1 !important;
+}
+
+/* Outer editor background when dark mode active */
+body.skaaa-editor-dark-mode .edit-post-visual-editor,
+body.skaaa-editor-dark-mode .block-editor-iframe__container,
+body.skaaa-editor-dark-mode .editor-visual-editor,
+body.skaaa-editor-dark-mode .edit-site-visual-editor {
+    background-color: #090d16 !important;
+}
+
+/* Dark mode styling for canvas */
+.editor-styles-wrapper.dark,
+body.dark .editor-styles-wrapper,
+html.dark .editor-styles-wrapper {
+    background-color: var(--skaaa-color-background, #08090c) !important;
+    color: var(--skaaa-color-text, #f9fafb) !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+}

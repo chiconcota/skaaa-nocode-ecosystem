@@ -47,6 +47,7 @@ class Core {
         require_once SKAAAI_DIR . 'inc/class-skaaai-pairing.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-file-deployer.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-harness-initializer.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-sync-media.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-post.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-post-sync-ui.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-export-service.php';

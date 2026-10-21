@@ -91,7 +91,19 @@
   - [ ] Nâng cấp tương thích đầy đủ cho cơ chế liên kết dữ liệu hai chiều `x-model` đối với thẻ input text và text-area (hiện mới ổn định cho checkbox/radio).
   - [ ] Xử lý tự động đóng/mở các panel block lồng nhau (Nested Components) mà không gây gián đoạn luồng kéo thả của React.
 
+#### K. Inline Tailwind Highlighter & Gutenberg Format API (Skaaa No-Code Design)
+*Cho phép người dùng gán style Tailwind trực tiếp vào một cụm từ ngay giữa khối Text (Heading / Paragraph).*
+- [ ] **Gutenberg Format API (`registerFormatType`):**
+  - Đăng ký Format Type `skaaa/tailwind-inline` sử dụng `@wordpress/rich-text`.
+  - Hiển thị nút công cụ "🎨 Skaaa Inline Style" trên Inline Floating Toolbar khi người dùng bôi đen text trong khối `skaaaaa-builder/text`.
+  - Cung cấp Popover chọn nhanh màu Design Tokens (`text-primary`, `text-secondary`, `bg-primary/10`, `font-bold`...) hoặc ô nhập class Tailwind tùy biến.
+  - Tự động bọc cụm từ được chọn bằng `<span class="...">`.
+- [ ] **JIT Parity & Scanner Verification:**
+  - Tận dụng cơ chế JIT Scanner có sẵn tại `Style_Manager::extract_block_classes()` (đã có regex quét class trong thuộc tính `content` và `innerHTML`).
+  - Đảm bảo `SkaaaWind` trong Gutenberg Canvas tự động re-compile CSS tức thì khi áp dụng format.
+
 ---
+
 
 ### 🟢 ƯU TIÊN 4: ĐỊNH HƯỚNG TƯƠNG LAI (Roadmap Phase 6+)
 

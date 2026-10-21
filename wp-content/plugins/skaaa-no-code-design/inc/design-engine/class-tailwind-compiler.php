@@ -149,7 +149,7 @@ class Tailwind_Compiler {
 
 				if ( $is_dark ) {
 					$base_selector = 'html.dark body.skaaaaa-builder';
-					$editor_base_selector = '.editor-styles-wrapper.dark, .editor-styles-wrapper .dark';
+					$editor_base_selector = ':is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)';
 				}
 
 				if ( strpos( $css_rule, '&' ) === 0 ) {

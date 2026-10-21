@@ -345,10 +345,11 @@ class SkaaaWindCompiler {
         }
     }
 
-    constructor(brandColors = null) {
+    constructor(brandColors = null, darkBrandColors = null) {
         SkaaaWindCompiler.initRules();
         // Load brand colors from parameter or fallback to localized config
-        this.brandColors = brandColors || (window.skaaaEditorConfig && window.skaaaEditorConfig.brandColorsJson) || {};
+        this.brandColors = brandColors || (window.skaaaEditorConfig && window.skaaaEditorConfig.brandColorsJson) || (window.skaaaDesignTokens && window.skaaaDesignTokens.colors) || {};
+        this.darkBrandColors = darkBrandColors || (window.skaaaEditorConfig && window.skaaaEditorConfig.darkBrandColorsJson) || (window.skaaaDesignTokens && window.skaaaDesignTokens.darkColors) || {};
     }
 
     hexToRgb(hex) {
@@ -362,9 +363,12 @@ class SkaaaWindCompiler {
         return `${r}, ${g}, ${b}`;
     }
 
-    getColorHex(color, shade) {
-        if (this.brandColors && this.brandColors[color]) {
-            return this.brandColors[color];
+    getColorHex(color, shade, isDark = false) {
+        const customColors = isDark 
+            ? Object.assign({}, this.brandColors, this.darkBrandColors)
+            : this.brandColors;
+        if (customColors && customColors[color]) {
+            return customColors[color];
         }
         const c = SkaaaWindCompiler.palette[color];
         if (c) {
@@ -470,7 +474,9 @@ class SkaaaWindCompiler {
 
     resolveClass(className, isDark = false) {
         // 0. Custom Brand Colors
-        let colors = null; // could support dark custom colors if we separate them in JS later
+        let colors = isDark 
+            ? Object.assign({}, this.brandColors, this.darkBrandColors)
+            : this.brandColors;
         let customResult = this.resolveCustomColor(className, colors);
         if (customResult) {
             return customResult;
@@ -517,7 +523,7 @@ class SkaaaWindCompiler {
         let matches = className.match(/^(text|bg)-([a-z0-9-]+)-([1-9]00|950|50)(?:\/([0-9]+))?$/);
         if (matches) {
             const type = matches[1] === 'text' ? 'color' : 'background-color';
-            const hex = this.getColorHex(matches[2], matches[3]);
+            const hex = this.getColorHex(matches[2], matches[3], isDark);
             if (!hex) return null;
             if (matches[4] !== undefined) {
                 const rgb = this.hexToRgb(hex);
@@ -1151,7 +1157,7 @@ class SkaaaWindCompiler {
 
                 if (isDark) {
                     baseSelector = 'html.dark body.skaaaaa-builder';
-                    editorBaseSelector = '.editor-styles-wrapper.dark, .editor-styles-wrapper .dark';
+                    editorBaseSelector = ':is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)';
                 }
 
                 let fullRule = '';

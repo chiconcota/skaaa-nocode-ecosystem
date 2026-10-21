@@ -148,7 +148,7 @@ class Design_Tokens_Compiler {
 
         // Generate .dark mappings
         if ( ! empty( $data['darkColors'] ) ) {
-            $css_content .= "html.dark {\n";
+            $css_content .= "html.dark, .editor-styles-wrapper.dark, .editor-styles-wrapper .dark, body.dark {\n";
             foreach ( $data['darkColors'] as $key => $value ) {
                 if ( ! empty( $value ) ) {
                     // Cập nhật giá trị biến Light Mode thành giá trị Dark Mode

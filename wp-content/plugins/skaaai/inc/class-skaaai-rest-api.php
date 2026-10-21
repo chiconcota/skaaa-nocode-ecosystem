@@ -90,6 +90,13 @@ class Rest_Api {
             'callback'            => [ self::class, 'handle_export_ecosystem' ],
             'permission_callback' => [ self::class, 'verify_token_permission' ],
         ] );
+
+        // 11. Endpoint dọn dẹp các attachment media trùng lặp
+        register_rest_route( self::NAMESPACE, '/cleanup-media', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [ self::class, 'handle_cleanup_media' ],
+            'permission_callback' => [ self::class, 'verify_token_permission' ],
+        ] );
     }
 
     /**
@@ -193,7 +200,17 @@ class Rest_Api {
      */
     public static function handle_upload_media( \WP_REST_Request $request ): \WP_REST_Response {
         $params = $request->get_json_params() ?: $request->get_params();
-        $result = Sync_Post::handle_incoming_media( $params );
+        $result = Sync_Media::handle_incoming_media( $params );
+        $status = ! empty( $result['success'] ) ? 200 : 400;
+
+        return new \WP_REST_Response( $result, $status );
+    }
+
+    /**
+     * Xử lý request dọn dẹp các attachment media trùng lặp trên host đích
+     */
+    public static function handle_cleanup_media( \WP_REST_Request $request ): \WP_REST_Response {
+        $result = Sync_Media::cleanup_duplicate_attachments();
         $status = ! empty( $result['success'] ) ? 200 : 400;
 
         return new \WP_REST_Response( $result, $status );

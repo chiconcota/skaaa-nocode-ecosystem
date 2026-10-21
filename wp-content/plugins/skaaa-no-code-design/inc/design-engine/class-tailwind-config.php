@@ -161,7 +161,8 @@ class Tailwind_Config {
 		$css .= "html body.skaaaaa-builder .skaaa-default-content > :not([class*=\"wp-block-skaaaaa-builder\"]):not([class*=\"skaaa-\"]) { max-width: var(--skaaa-container-width); margin-left: auto; margin-right: auto; padding-left: var(--skaaa-content-padding); padding-right: var(--skaaa-content-padding); }\n";
 		$css .= "html body.skaaaaa-builder .skaaa-container-block:not([class*=\"grid\"]):not([class*=\"flex\"]) > * + *, .editor-styles-wrapper .skaaa-container-block:not([class*=\"grid\"]):not([class*=\"flex\"]) > * + * { margin-top: var(--skaaa-block-gap); }\n";
 		if ( is_admin() ) {
-			$css .= ".editor-styles-wrapper { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; background-color: var(--skaaa-color-background, #ffffff); color: var(--skaaa-color-text, #111827); }\n";
+			$css .= ".editor-styles-wrapper { font-family: var(--font-primary), ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; background-color: var(--skaaa-color-background, #ffffff); color: var(--skaaa-color-text, #111827); transition: background-color 0.2s ease, color 0.2s ease; }\n";
+			$css .= ".editor-styles-wrapper.dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper { background-color: var(--skaaa-color-background, #08090c); color: var(--skaaa-color-text, #f9fafb); }\n";
 			$css .= ".editor-styles-wrapper h1, .editor-styles-wrapper h2, .editor-styles-wrapper h3, .editor-styles-wrapper h4, .editor-styles-wrapper h5, .editor-styles-wrapper h6 { font-family: var(--font-secondary), ui-sans-serif, system-ui, sans-serif; }\n";
 			$css .= ".editor-styles-wrapper code, .editor-styles-wrapper kbd, .editor-styles-wrapper samp, .editor-styles-wrapper pre { font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }\n";
 		} else {
@@ -193,6 +194,9 @@ class Tailwind_Config {
 		$css .= $build_rule( 'button:not(:where(.components-button))' ) . " { border: 0; background: none; padding: 0; margin: 0; cursor: pointer; font-family: inherit; }\n";
 		$css .= $build_rule( 'a' ) . " { text-decoration: none; color: inherit; }\n";
 		$css .= $build_rule( 'a.underline' ) . " { text-decoration: underline; }\n";
+
+		// Typography Preflight: Bold elements inside Skaaa text blocks automatically inherit high-contrast token color
+		$css .= "html body.skaaaaa-builder .skaaa-text-block :is(strong, b):not([class*='text-']), .editor-styles-wrapper .skaaa-text-block :is(strong, b):not([class*='text-']) { color: var(--skaaa-color-text); font-weight: 700; }\n";
 
 		// Typography Margin Resets (Tailwind Preflight Parity)
 		$typography_elements = array( 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'figure', 'hr' );

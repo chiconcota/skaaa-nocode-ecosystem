@@ -149,6 +149,13 @@ class Sync_Ecosystem_Sender {
             ];
         }
 
+        // 8. Thư viện Media (Attachments count)
+        if ( in_array( 'media', $scopes, true ) ) {
+            $payload['media_count'] = (int) $wpdb->get_var(
+                "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'"
+            );
+        }
+
         return $payload;
     }
 
@@ -299,12 +306,15 @@ class Sync_Ecosystem_Sender {
             'scopes'  => $scopes,
         ] );
 
-        // 2. Nếu ở chế độ Thực thi (không phải dry-run), chủ động đẩy file ảnh nhúng
+        // 2. Nếu ở chế độ Thực thi (không phải dry-run), chủ động đẩy file ảnh nhúng & thư viện media
         if ( ! $dry_run ) {
+            // Xóa cache phiên làm việc cũ để nạp mới hoàn toàn
+            Sync_Media::clear_session_cache();
+
             // A. Đẩy ảnh nhúng cho các Trang tĩnh (Pages)
             if ( ! empty( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
                 foreach ( $payload['pages'] as &$page ) {
-                    $page['content'] = Sync_Post::prepare_and_sync_local_media( $page['content'], $remote_url, $remote_token );
+                    $page['content'] = Sync_Media::prepare_and_sync_local_media( $page['content'], $remote_url, $remote_token );
                 }
                 unset( $page );
             }
@@ -312,7 +322,7 @@ class Sync_Ecosystem_Sender {
             // B. Đẩy ảnh nhúng cho các Bài viết blog (Posts)
             if ( ! empty( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
                 foreach ( $payload['posts'] as &$post ) {
-                    $post['content'] = Sync_Post::prepare_and_sync_local_media( $post['content'], $remote_url, $remote_token );
+                    $post['content'] = Sync_Media::prepare_and_sync_local_media( $post['content'], $remote_url, $remote_token );
                 }
                 unset( $post );
             }
@@ -321,10 +331,10 @@ class Sync_Ecosystem_Sender {
             if ( ! empty( $payload['organisms'] ) && is_array( $payload['organisms'] ) ) {
                 foreach ( $payload['organisms'] as &$org ) {
                     if ( ! empty( $org['html_content'] ) ) {
-                        $org['html_content'] = Sync_Post::prepare_and_sync_local_media( $org['html_content'], $remote_url, $remote_token );
+                        $org['html_content'] = Sync_Media::prepare_and_sync_local_media( $org['html_content'], $remote_url, $remote_token );
                     }
                     if ( ! empty( $org['json_content'] ) && is_string( $org['json_content'] ) ) {
-                        $org['json_content'] = Sync_Post::prepare_and_sync_local_media( $org['json_content'], $remote_url, $remote_token );
+                        $org['json_content'] = Sync_Media::prepare_and_sync_local_media( $org['json_content'], $remote_url, $remote_token );
                     }
                 }
                 unset( $org );
@@ -334,10 +344,16 @@ class Sync_Ecosystem_Sender {
             if ( ! empty( $payload['presets'] ) && is_array( $payload['presets'] ) ) {
                 foreach ( $payload['presets'] as &$preset ) {
                     if ( ! empty( $preset['value'] ) && is_string( $preset['value'] ) ) {
-                        $preset['value'] = Sync_Post::prepare_and_sync_local_media( $preset['value'], $remote_url, $remote_token );
+                        $preset['value'] = Sync_Media::prepare_and_sync_local_media( $preset['value'], $remote_url, $remote_token );
                     }
                 }
                 unset( $preset );
+            }
+
+            // E. Đẩy toàn bộ Thư viện Media (Standalone Media Library Attachments)
+            if ( in_array( 'media', $scopes, true ) ) {
+                $media_stats = Sync_Media::sync_media_library( $remote_url, $remote_token );
+                $payload['media_stats'] = $media_stats;
             }
         }
 

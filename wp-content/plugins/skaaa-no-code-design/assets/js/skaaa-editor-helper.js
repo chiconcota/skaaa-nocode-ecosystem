@@ -438,6 +438,16 @@
         // 2. Chạy biên dịch đồng bộ lần đầu
         runJITCompilation();
 
+        // 3. Khôi phục trạng thái Dark Mode nếu đang được kích hoạt
+        try {
+            if (localStorage.getItem('skaaa_editor_dark_mode') === 'dark') {
+                if (doc.documentElement) doc.documentElement.classList.add('dark');
+                if (doc.body) doc.body.classList.add('dark');
+                const wrapper = doc.querySelector('.editor-styles-wrapper');
+                if (wrapper) wrapper.classList.add('dark');
+            }
+        } catch (e) {}
+
         // MutationObserver for Dynamic Elements (e.g. video, ServerSideRendered Organisms)
         const observer = new MutationObserver((mutations) => {
             let shouldRecompile = false;

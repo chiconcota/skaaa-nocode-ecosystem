@@ -1,5 +1,5 @@
-# SYSTEM MAP: SKAAA NO-CODE (v2.4.8)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-05
+# SYSTEM MAP: SKAAA NO-CODE (v2.5.3)
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-21
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -29,9 +29,9 @@ wp-content/
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
-| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules. | 🟢 Stable (v2.4.8) |
+| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.3) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer & Developer/Designer CLI Tools (db-tool, block-tool, jit-tool). | 🟢 Stable (v1.5.5) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync & MD5 Hash Deduplication. | 🟢 Stable (v1.6.0) |
 
 ---
 
@@ -53,6 +53,12 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.5.3 - Dark Tokens Integration in SkaaaWind JS JIT):**
+  - **Skaaa No-Code Design v2.5.3:** Tích hợp đầy đủ bảng màu Dark Tokens (`darkColors`) từ `tokens.json` vào cỗ máy JIT JavaScript (`skaaawind.js`) trong Gutenberg Editor:
+    1. **Truyền cấu hình `darkBrandColorsJson` (`class-core.php`):** Nạp toàn bộ bảng màu Dark Mode (`get_custom_dark_colors()`) vào `skaaaEditorConfig` cho trình duyệt.
+    2. **Hỗ trợ Dark Tokens trong `skaaawind.js`:** Constructor tiếp nhận `darkBrandColors`. Hàm `resolveClass(className, isDark)` tự động nạp bảng màu tối khi `isDark = true`, tính toán chính xác giá trị opacity cho các class như `dark:text-text/70` (`rgba(248, 250, 252, 0.70)`), chấm dứt hoàn toàn hiện tượng chữ thường bị gán mã màu đen trong Editor.
+    3. **Mở rộng dải Opacity tĩnh (`class-tailwind-color-registry.php`):** Thêm toàn bộ các mức opacity phổ biến (`/10` đến `/90`) vào hàm sinh CSS tĩnh dự phòng `get_brand_colors_css()`.
+    4. **Đồng bộ:** Đã đồng bộ sang site sản phẩm `l-tt-thnh-siu-c-nhn`.
 - **2026-10-15 - 🟢 Done (Skaaai v1.5.5 - Centralized Sync Configuration & MVC View Separation):**
   - **Skaaai v1.5.5:** Tái cấu trúc phân tách file cấu hình và giao diện (Config & View Separation Architecture):
     1. **Tập trung cấu hình (`class-skaaai-sync-config.php`):** Tạo class `Sync_Config` làm Single Source of Truth cho toàn bộ 8 scopes, blacklist options bảo vệ Live, bảng hệ thống, endpoints REST API và timeouts, xóa bỏ 100% code trùng lặp giữa Sender, Receiver, Pull và Diff.
@@ -88,6 +94,14 @@ wp-content/
 - **2026-10-03 - 🟢 Done (Skaaai v1.4.3 - Bypass KSES & Admin Context For Post/Page Sync + db-tool Regex Resolution):**
   - **Skaaai v1.4.3:** Khắc phục triệt để lỗi mất toàn bộ mã icon SVG trong block `skaaa-svg` khi đồng bộ sang hosting Live: Bọc `kses_remove_filters()` và thiết lập ngữ cảnh Administrator (`wp_set_current_user`) bao quanh các thao tác `wp_insert_post` và `wp_update_post` trong cả `apply_pages()` và `process_incoming_post()`, khôi phục `kses_init_filters()` ngay sau khi lưu; tích hợp bộ lọc rewrite table prefix cho các trang. Đóng gói `skaaai-v1.4.3.zip` (0.13 MB).
   - **Agent Kit CLI (`db-tool.php`):** Nâng cấp hàm `handle_schema()` và `handle_sample()` tự động chuẩn hóa tên bảng con (như `projects`, `skaaa_data_projects`) sang prefix đầy đủ của môi trường hiện tại (`wp_skaaa_data_*`), loại bỏ lỗi `Table not found` khi AI gõ cú pháp tắt.
+
+- **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.5.2 - Parity Fix: Chuẩn hóa Selector Dark Mode trong Editor JIT):** Khắc phục triệt để lỗi chữ có class `dark:*` (như `text-text/70 dark:text-text/70`) bị chìm hoặc hiển thị đen trong Gutenberg Editor khi bật Dark Mode. Loại bỏ lỗi ngắt đôi chuỗi dấu phẩy từ commit tháng 07/2026, chuẩn hóa `editor_base_selector` trong cả PHP Compiler (`class-tailwind-compiler.php`, `class-tailwind-color-registry.php`) và JS Compiler (`skaaawind.js`) sang bộ chọn hiện đại `:is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)`. Đạt 100% Visual Parity giữa Gutenberg Editor và Frontend.
+
+- **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.5.1 - Hotfix: Triệt tiêu Infinite Mutation Loop trong Editor Dark Mode):** Khắc phục triệt để sự cố click nút Dark Mode làm treo trình duyệt do `MutationObserver` đệ quy kích hoạt `applyDarkMode()` liên tục. Loại bỏ hoàn toàn việc gọi `applyDarkMode()` bên trong observer, giới hạn observer chỉ theo dõi thanh Header để duy trì nút bấm, và nạp cơ chế khôi phục dark mode thụ động tức thì bên trong `injectTailwind()` của `skaaa-editor-helper.js`.
+
+- **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.5.0 - Live Editor Dark/Light Mode Toggle Engine):** Bổ sung nút chuyển đổi chế độ Sáng / Tối tương tác trực tiếp trên Gutenberg Header Toolbar (vị trí bên cạnh Push to Live): (1) Xây dựng script chuyên biệt `assets/js/skaaa-editor-dark-mode.js` tự động inject nút toggle (🌙 Dark Mode / ☀️ Light Mode) và bắt sự kiện toggle đồng bộ 2 tầng (Shell + Canvas Iframe); (2) Tự động kích hoạt toàn bộ biến Design Tokens Dark (`--skaaa-color-background`, `--skaaa-color-text`...) và các class `dark:*` của Tailwind v4 offline JIT trên canvas; (3) Lưu trạng thái vào `localStorage` của trình duyệt để duy trì chế độ xem khi refresh hoặc chuyển trang; (4) Tích hợp CSS Reset và styling `assets/css/skaaa-editor-dark-mode.css` tạo hiệu ứng nền tối mượt mà cho editor canvas.
+
+- **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.4.9 - Typography Inline Preflight for High-Contrast Bold Elements):** Khắc phục triệt để lỗi chữ bôi đậm (`strong`, `b`) bị chìm hoặc hiển thị đen trên nền tối khi khối cha sử dụng class màu mờ (`text-text/70`, `text-text/50`...). Bổ sung Typography Preflight CSS Rule vào `class-tailwind-config.php`: `html body.skaaaaa-builder .skaaa-text-block :is(strong, b):not([class*='text-']), .editor-styles-wrapper .skaaa-text-block :is(strong, b):not([class*='text-']) { color: var(--skaaa-color-text); font-weight: 700; }`. Giúp chữ in đậm luôn tự động nhận 100% độ sáng từ biến Design Token `--skaaa-color-text` (#0f172a ở Light Mode, #f8fafc ở Dark Mode) mà không cần can thiệp class vào giữa khối text. Đồng thời bổ sung kế hoạch Gutenberg Format API (`registerFormatType`) cho Inline Tailwind Highlighter vào Backlog.
 
 - **2026-10-03 - 🟢 Done (Skaaa No-Code Design v2.4.7 & Skaaai v1.4.2 - Fix Table Prefix Inconsistency in Skaaa Loop):**
   - **Skaaa No-Code Design v2.4.7:** Khắc phục triệt để lỗi khối `Skaaa Loop` không render ra giao diện trên Live host do lệch database prefix (`wp_` trên localhost ⟷ `wpxi_` trên live host). Tái cấu trúc bộ resolve tên bảng trong `skaaa-loop/render.php` tự động tách suffix bảng phẳng sau `skaaa_data_` và luôn ghép chuẩn với `$wpdb->prefix . 'skaaa_data_'`. Nạp đầy đủ context aliases cho template Mustache và điều kiện SkaaaFX. Đóng gói `skaaa-no-code-design-v2.4.7.zip` (0.39 MB).

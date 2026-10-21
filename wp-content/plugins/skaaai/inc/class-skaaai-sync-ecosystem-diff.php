@@ -147,7 +147,15 @@ class Sync_Ecosystem_Diff {
             'unchanged' => $pages_analysis['counts']['unchanged'] + $posts_analysis['counts']['unchanged'],
         ];
 
-        // 7. Phân tích Settings
+        // 7. Phân tích Thư viện Media
+        if ( isset( $payload['media_count'] ) ) {
+            $diff['summary']['media'] = [
+                'count'  => (int) $payload['media_count'],
+                'action' => sprintf( __( '%d Standalone media attachments will be synchronized with MD5 hash parity check.', 'skaaai' ), (int) $payload['media_count'] ),
+            ];
+        }
+
+        // 8. Phân tích Settings
         $diff['summary']['settings'] = [
             'blogname'            => $payload['settings']['general']['blogname'] ?? get_option( 'blogname' ),
             'blogdescription'     => $payload['settings']['general']['blogdescription'] ?? get_option( 'blogdescription' ),

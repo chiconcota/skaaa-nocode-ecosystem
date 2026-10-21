@@ -26,6 +26,7 @@ class Sync_Config {
         'custom_tables',
         'pages',
         'posts',
+        'media',
         'settings',
     ];
 
@@ -79,6 +80,7 @@ class Sync_Config {
     public const ENDPOINT_EXPORT_POST      = '/export-post';
     public const ENDPOINT_CHECK_STATUS     = '/check-posts-status';
     public const ENDPOINT_UPLOAD_MEDIA     = '/upload-media';
+    public const ENDPOINT_CLEANUP_MEDIA    = '/cleanup-media';
     public const ENDPOINT_DELETE_FILE      = '/delete-file';
     public const ENDPOINT_HANDSHAKE        = '/handshake';
 

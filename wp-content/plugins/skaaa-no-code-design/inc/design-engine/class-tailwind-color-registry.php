@@ -276,7 +276,7 @@ class Tailwind_Color_Registry {
 			);
 
 			foreach ( $base_classes as $base ) {
-				$classes_to_compile = array( $base, "{$base}/20", "{$base}/50", "{$base}/80" );
+				$classes_to_compile = array( $base, "{$base}/10", "{$base}/20", "{$base}/30", "{$base}/40", "{$base}/50", "{$base}/60", "{$base}/70", "{$base}/80", "{$base}/90" );
 				foreach ( $classes_to_compile as $class ) {
 					$rule = self::resolve_custom_color( $class, $custom_colors );
 					if ( $rule ) {
@@ -303,7 +303,7 @@ class Tailwind_Color_Registry {
 				);
 
 				foreach ( $base_classes as $base ) {
-					$classes_to_compile = array( $base, "{$base}/20", "{$base}/50", "{$base}/80" );
+					$classes_to_compile = array( $base, "{$base}/10", "{$base}/20", "{$base}/30", "{$base}/40", "{$base}/50", "{$base}/60", "{$base}/70", "{$base}/80", "{$base}/90" );
 					foreach ( $classes_to_compile as $class ) {
 						$rule = self::resolve_custom_color( $class, $custom_dark_colors );
 						if ( $rule ) {
@@ -314,6 +314,7 @@ class Tailwind_Color_Registry {
 							$css .= ".dark .{$dark_escaped} { {$rule} }\n";
 							$css .= "html.dark body.skaaaaa-builder .{$dark_escaped}.{$dark_escaped} { {$rule} }\n";
 							$css .= "html.dark .editor-styles-wrapper .{$dark_escaped}.{$dark_escaped} { {$rule} }\n";
+							$css .= ":is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, body.dark .editor-styles-wrapper) .{$dark_escaped}.{$dark_escaped} { {$rule} }\n";
 						}
 					}
 				}

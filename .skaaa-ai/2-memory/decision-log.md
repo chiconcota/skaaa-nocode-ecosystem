@@ -39,6 +39,66 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-21 - 🟢 Hoàn thành: Tích Hợp Dark Tokens Vào SkaaaWind JS Compiler Cho Gutenberg Editor (Skaaa No-Code Design v2.5.3)
+- **Decision (SkaaaWind JS Compiler Dark Tokens Integration & Dynamic Opacity Support):**
+  - **Bối cảnh & Vấn đề:** Khi bật Dark Mode trong Gutenberg Editor, các đoạn văn bản sử dụng class custom tokens có tiền tố `dark:` (ví dụ `dark:text-text/70`, `dark:bg-surface`) vẫn bị tính theo mã màu tối của Light Mode (`#0f172a` với 70% opacity -> `rgba(15, 23, 42, 0.70)`), khiến chữ thường gần như tàng hình trên nền tối đen. Trong khi đó, Frontend (PHP Compiler) hiển thị màu trắng sáng chuẩn xác. Nguyên nhân: `skaaawind.js` trong Editor chưa được nạp nhánh `darkColors` và đang để dở TODO `let colors = null; // could support dark custom colors if we separate them in JS later`.
+  - **Giải pháp kiến trúc:**
+    1. Trong `class-core.php`: Truyền `darkBrandColorsJson` (`Tailwind_Color_Registry::get_custom_dark_colors()`) vào cấu hình `skaaaEditorConfig` cho trình duyệt.
+    2. Trong `skaaawind.js`: Constructor tiếp nhận `darkBrandColors`. Hàm `resolveClass(className, isDark = false)` khi `isDark = true` tự động nạp bảng màu Dark Tokens (`Object.assign({}, this.brandColors, this.darkBrandColors)`), tính toán chính xác mã màu sáng `#f8fafc` với opacity 70% (`rgba(248, 250, 252, 0.70)`).
+    3. Trong `class-tailwind-color-registry.php`: Bổ sung toàn bộ dải opacity tiêu chuẩn (`/10` đến `/90`) vào hàm sinh CSS tĩnh dự phòng `get_brand_colors_css()`.
+    4. Nâng version lên `2.5.3` và đồng bộ sang toàn bộ site sản phẩm.
+
+## 2026-10-21 - 🟢 Hoàn thành: Chuẩn Hóa Bộ Chọn Selector Dark Mode Cho Gutenberg Editor (:is(...) Parity) (Skaaa No-Code Design v2.5.2)
+- **Decision (Tailwind JIT Editor Base Selector Normalization & Full Visual Parity):**
+  - **Bối cảnh & Vấn đề:** Chữ có class `dark:*` (như `text-text/70 dark:text-text/70`) hiển thị trắng sáng ở Frontend nhưng lại tối đen trong Gutenberg Editor khi bật Dark Mode. Nguyên nhân do commit cũ từ 22/07/2026 (`f3cc352`) đã đặt chuỗi `$editor_base_selector = '.editor-styles-wrapper.dark, .editor-styles-wrapper .dark'`. Dấu phẩy khiến selector bị ngắt đôi và không match khi class `.dark` nằm trực tiếp trên `.editor-styles-wrapper` hoặc `html`/`body`. Lỗi này nằm ngủ yên từ tháng 7 và chỉ lộ ra khi Editor có nút bật Dark Mode lần đầu tiên hôm nay.
+  - **Giải pháp kiến trúc:**
+    1. Chuẩn hóa `editor_base_selector` trong cả PHP Compiler (`class-tailwind-compiler.php`, `class-tailwind-color-registry.php`) và JS Compiler (`skaaawind.js`) sang bộ chọn hiện đại: `:is(.editor-styles-wrapper.dark, .editor-styles-wrapper .dark, html.dark .editor-styles-wrapper, body.dark .editor-styles-wrapper)`.
+    2. Đảm bảo 100% các class `dark:*` (text, bg, border, opacity...) trong Editor khớp hoàn hảo với Frontend.
+
+## 2026-10-21 - 🟢 Hoàn thành: Triệt Tiêu Lỗi Treo Trình Duyệt Infinite Mutation Loop Trong Editor Dark Mode (Skaaa No-Code Design v2.5.1)
+- **Decision (Infinite Mutation Loop Elimination & Zero-Overhead Scoped Observer):**
+  - **Bối cảnh & Vấn đề:** Khi click vào nút Dark Mode trong Gutenberg Editor, trình duyệt bị treo cứng do `MutationObserver` theo dõi toàn bộ `document.body`. Khi `applyDarkMode` cập nhật icon/chữ của nút bấm, observer lại nhận diện biến đổi DOM và gọi lại `applyDarkMode`, sinh ra vòng lặp đệ quy vô tận làm nghẽn Main Thread CPU.
+  - **Giải pháp kiến trúc:**
+    1. Gỡ bỏ hoàn toàn việc gọi `applyDarkMode()` bên trong bất kỳ `MutationObserver` nào. Hàm `applyDarkMode()` chỉ chạy 1 lần duy nhất khi người dùng click (hoặc nạp trang lần đầu).
+    2. Thu hẹp phạm vi observer chỉ quan sát riêng thanh Header (`.edit-post-header`) và thêm cờ `isReinjecting` để chỉ phục hồi nút bấm nếu React re-render.
+    3. Tích hợp kiểm tra `localStorage` tự động vào `injectTailwind()` của `skaaa-editor-helper.js` để canvas iframe tự động nhận chế độ tối thụ động mà không cần observer.
+
+## 2026-10-21 - 🟢 Hoàn thành: Bộ Động Cơ Chuyển Đổi Dark/Light Mode Trực Tiếp Trong Gutenberg Editor (Skaaa No-Code Design v2.5.0)
+- **Decision (Live Editor Dark/Light Mode Toggle Engine & Canvas State Synchronization):**
+  - **Bối cảnh & Vấn đề:**
+    1. Trong WordPress Core và Gutenberg Editor, hoàn toàn không có bất kỳ nút hay công cụ nào cho phép người dùng chuyển đổi qua lại giữa Light Mode và Dark Mode khi đang soạn thảo.
+    2. Khi thiết kế trang web có chế độ nền tối (Dark Mode), người dùng gặp nhiều bất tiện vì canvas soạn thảo luôn hiển thị ở chế độ sáng, không thể xem trước (preview) trực quan các biến thể `dark:*` của Tailwind và các token màu tối (`--skaaa-color-background`, `--skaaa-color-text`...).
+  - **Giải pháp kiến trúc:**
+    1. **Nút bấm trực quan trên Gutenberg Header Toolbar (`assets/js/skaaa-editor-dark-mode.js`):** Tự động inject nút `🌙 Dark Mode` / `☀️ Light Mode` vào thanh tiêu đề Gutenberg (`.edit-post-header__settings`), đặt ngay cạnh nút `Push to Live`.
+    2. **Đồng bộ hóa 2 tầng (Editor Shell & Canvas Iframe):** Khi click toggle, script đồng bộ class `.dark` lên cả thẻ `<html>`, `<body>`, và canvas iframe (`iframe[name="editor-canvas"]`, `.editor-styles-wrapper`).
+    3. **Kích hoạt tức thì Design Tokens & Tailwind JIT:** Tự động kích hoạt toàn bộ CSS variables dark mode trong `tokens.css` và toàn bộ các rule CSS `dark:*` đã được biên dịch offline bởi Tailwind JIT engine.
+    4. **Persistence qua LocalStorage:** Lưu lựa chọn người dùng vào `localStorage.getItem('skaaa_editor_dark_mode')`, tự động khôi phục chế độ xem khi refresh trang hoặc chuyển bài viết khác.
+    5. **Styling & Reset (`assets/css/skaaa-editor-dark-mode.css` & `class-tailwind-config.php`):** Định nghĩa giao diện nút bấm hiện đại và thiết lập màu nền tối êm dịu (`#090d16` và `#08090c`) cho canvas, triệt tiêu viền trắng xung quanh.
+
+## 2026-10-21 - 🟢 Hoàn thành: Typography Inline Preflight cho Chữ In Đậm (Skaaa No-Code Design v2.4.9) & Điều 7 Harness-First trong Skaaai
+- **Decision (High-Contrast Bold Elements Typography Preflight & Agent Harness Rule):**
+  - **Bối cảnh & Vấn đề:**
+    1. Khi khối text cha dùng class màu mờ (`text-text/70`, `text-text/50`...), các chữ được người dùng bôi đậm `Ctrl + B` (`<strong>`, `<b>`) thừa kế màu mờ đó, dẫn tới việc ở Dark Mode chữ in đậm bị chìm hoặc hiển thị đen, mất tương phản.
+    2. Agent CLI bên site product do thiếu rule chỉ dẫn đã không biết dùng tool `jit-tool.php` có sẵn, dẫn đến việc spam 13 lệnh bash và đổ lỗi cho người dùng thiếu class `dark:text-text` trên thẻ `<strong>`.
+  - **Giải pháp kiến trúc:**
+    1. **Typography Inline Preflight (`class-tailwind-config.php`):** Bổ sung CSS reset thông minh: `html body.skaaaaa-builder .skaaa-text-block :is(strong, b):not([class*='text-']), .editor-styles-wrapper .skaaa-text-block :is(strong, b):not([class*='text-']) { color: var(--skaaa-color-text); font-weight: 700; }`. Đảm bảo chữ in đậm luôn tự động nhận 100% độ sáng từ biến Token `--skaaa-color-text` (#0f172a ở Light, #f8fafc ở Dark) mà không cần can thiệp class vào giữa đoạn văn.
+    2. **Điều 7 trong `company-rules.md` (Skaaai):** Ban hành thiết quân luật bắt buộc dùng `php .agent/harness/jit-tool.php --check="..."` và cấm chạy raw `wp-load.php` trên CLI.
+    3. **Backlog Gutenberg Format API:** Đưa kế hoạch Inline Tailwind Highlighter (`registerFormatType`) vào Post-MVP Backlog để hỗ trợ tùy biến style giữa câu trong tương lai.
+
+## 2026-10-21 - 🟢 Hoàn thành: Tách Lớp Chuyên Trách Sync_Media, Chống Trùng Lặp MD5 Hash, Đồng Bộ Thư Viện Media Độc Lập & Dọn Rác 1-Click (Skaaai v1.6.0)
+- **Decision (Dedicated Sync_Media Architecture, MD5 Hash Deduplication, Standalone Media Library Sync & Duplicate Cleanup Tool):**
+  - **Bối cảnh & Vấn đề:** 
+    1. Khi người dùng bấm Push to Live, Media Library trên Live bị nhân bản một lượng lớn ảnh trùng lặp (ví dụ `lytatthanh_logo-1` đến `lytatthanh_logo-33`) do hàm `wp_upload_bits` tự tăng hậu tố `-X` và `wp_insert_attachment` luôn tạo attachment mới mà không đối soát nội dung/hash.
+    2. Các bức ảnh upload độc lập vào `Media -> Thêm mới` ở Localhost (chưa chèn vào Page/Post) không bao giờ được đồng bộ sang Live vì hệ thống cũ chỉ quét thụ động qua regex văn bản và danh sách `SCOPES` thiếu hẳn scope `media`.
+    3. Tệp `class-skaaai-sync-post.php` chạm 677 dòng (gần trần 700 dòng).
+  - **Giải pháp kiến trúc:**
+    1. **Tách Lớp Chuyên Trách (`class-skaaai-sync-media.php`):** Tách toàn bộ logic nhị phân, attachment, sideload và upload ra class `Sync_Media`, đưa `class-skaaai-sync-post.php` từ 677 dòng xuống còn **470 dòng** (giảm 31%), đảm bảo 100% tệp tuân thủ giới hạn < 700 dòng.
+    2. **Thuật toán Chống Trùng Lặp MD5 Hash (`handle_incoming_media`):** Kiểm tra `_skaaa_file_hash` và `_wp_attached_file`/`_skaaa_source_file`. Nếu file đã có trên Live và hash trùng khớp, lập tức trả về URL & ID hiện có (Idempotent 100%), không gọi `wp_upload_bits` và không tạo attachment mới. Nếu file cùng tên nhưng sửa nội dung, ghi đè trực tiếp lên đĩa thay vì để WordPress tăng số.
+    3. **Static Session Cache (`prepare_and_sync_local_media`):** Bộ nhớ đệm tĩnh trong phiên ngăn việc upload lặp lại 1 file nhiều lần trong cùng một lượt sync.
+    4. **Đồng bộ Thư viện Media Độc Lập (Scope `media`):** Bổ sung scope `media` vào `Sync_Config::SCOPES` và Cockpit UI, quét toàn bộ attachment độc lập trong Localhost Media Library và đẩy sang Live.
+    5. **Tiện ích Dọn Dẹp Duplicate Media (`cleanup_duplicate_attachments`):** Cung cấp endpoint `POST /wp-json/skaaai/v1/cleanup-media` và nút bấm `🧹 Clean Media Duplicates on Live` trên Cockpit giúp người dùng 1-click dọn sạch các file rác `-1` đến `-33` tồn đọng trên Live.
+  - **Đóng gói & Phát hành:** Nâng phiên bản `skaaai` lên `v1.6.0`, đóng gói `skaaai-v1.6.0.zip` (0.16 MB) và đồng bộ 100% sang paired site `l-tt-thnh-siu-c-nhn`.
+
 ## 2026-10-15 - 🟢 Hoàn thành: Tái Cấu Trúc Tập Trung Cấu Hình (Sync_Config) & Phân Tách View Template MVC (Skaaai v1.5.5)
 - **Decision (Centralized Configuration SSoT & MVC View Template Separation):**
   - **Bối cảnh & Vấn đề:** Trong quá trình mở rộng hệ sinh thái, hai tệp `class-skaaai-sync-ecosystem.php` (697 dòng) và `class-skaaai-admin.php` (696 dòng) đang chạm sát ngưỡng trần 700 dòng. Các mảng cấu hình (scopes, blacklists, timeouts, bảng hệ thống) bị khai báo lặp lại ở 4 tệp khác nhau (Sender, Receiver, Pull, Diff), trong khi `class-skaaai-admin.php` bị phình to bởi hơn 250 dòng mã HTML giao diện.

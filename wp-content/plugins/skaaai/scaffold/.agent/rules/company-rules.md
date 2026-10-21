@@ -43,3 +43,11 @@
 - **Button Native:** Chuyển đổi Dark Mode bắt buộc dùng `wp:skaaaaa-builder/button` với `actionType: "theme_toggle"`, icon `dark_mode` và directive `@click.prevent="$store.skaaaTheme.toggle()"`. Nút mở Mobile Menu bắt buộc dùng block `button` với `actionType: "button"`, icon `menu`, class `lg:hidden` và `@click.prevent="$store.nav.open = !$store.nav.open"`.
 - **Form Engine 3 Chân Vạc:** Form bắt buộc dựng bằng `container` (`tagName: "form"`, `isSkaaaForm: true`, `formActionId: "insert_{table_slug}"`) kết hợp các block nguyên tử `input`, `select`, `form-rich-text` và `button` (`actionType: "submit"`). CẤM nhét thẻ `<form>` HTML thô.
 - **Design Tokens First:** 100% màu sắc bắt buộc sử dụng họ class theo Design Tokens (`bg-background`, `bg-surface`, `border-border`, `text-text`, `bg-primary`, `text-primary`, `text-secondary`, `border-primary`...). Tuyệt đối CẤM hardcode class màu cụ thể (`bg-amber-500`, `text-amber-400`, `bg-[#10131a]`, `border-[#1e2433]`) làm tê liệt khả năng đổi màu nhận diện tập trung của hệ thống.
+
+### Điều 7: Thiết Quân Luật Harness-First & Chống Lạc Lối Môi Trường (Anti-Environment-Blindness & Anti-Loop)
+- **Kiểm Thử JIT Bắt Buộc Dùng `jit-tool.php`:** Khi cần kiểm tra, tra cứu hoặc xác minh một class Tailwind (hoặc nhóm class) có hợp lệ trong hệ thống Skaaa hay không, **BẮT BUỘC dùng công cụ Harness có sẵn:**
+  `php .agent/harness/jit-tool.php --check="<classes>"` (hoặc thêm cờ `--compile` để xem trước mã CSS được sinh ra).
+  Công cụ này chạy offline 100%, độc lập với WordPress DB, trả kết quả tức thì trong 30ms mà không gây lỗi môi trường.
+- **Nghiêm Cấm Chạy Raw `wp-load.php` Trên CLI:** Môi trường website thường chạy qua Local by Flywheel hoặc Docker với Unix Socket riêng. **TUYỆT ĐỐI CẤM** chạy các lệnh dạng `php -r 'require "wp-load.php"; ...'` hoặc `php wp-load.php` từ shell terminal vì sẽ gây văng lỗi `Critical Error` do thiếu kết nối socket DB.
+- **Cầu Dao Ngắt Lỗi Vòng Lặp (Circuit Breaker):** Nếu một lệnh bash trả về lỗi (Fatal Error hoặc Exit code != 0), nhân viên AI **BỊ CẤM TUYỆT ĐỐI** việc chạy tiếp các lệnh phái sinh để đi sửa lỗi môi trường phụ (như `ps aux | grep mysql`, grep socket trong `my.cnf`, grep `wp-config.php`). BẮT BUỘC dừng lại ngay lập tức, phân tích đúng bản chất và sử dụng công cụ Harness chuyên dụng (`jit-tool.php`, `db-tool.php`, `block-tool.php`).
+

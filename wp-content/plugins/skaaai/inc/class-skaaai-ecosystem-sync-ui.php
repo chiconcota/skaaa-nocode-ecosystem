@@ -38,6 +38,7 @@ class Ecosystem_Sync_UI {
         add_action( 'wp_ajax_skaaai_ecosystem_execute', [ self::class, 'ajax_ecosystem_execute' ] );
         add_action( 'wp_ajax_skaaai_ecosystem_pull_diff', [ self::class, 'ajax_ecosystem_pull_diff' ] );
         add_action( 'wp_ajax_skaaai_ecosystem_pull_execute', [ self::class, 'ajax_ecosystem_pull_execute' ] );
+        add_action( 'wp_ajax_skaaai_cleanup_media', [ self::class, 'ajax_cleanup_media' ] );
 
         // Hook thẻ module Skaaai vào Skaaa System Dashboard
         add_action( 'skaaa_system_dashboard_modules', [ self::class, 'render_dashboard_card' ] );
@@ -238,6 +239,14 @@ class Ecosystem_Sync_UI {
                     </label>
 
                     <label class="skaaai-scope-item">
+                        <input type="checkbox" name="ecosystem_scope[]" value="media" checked>
+                        <div>
+                            <strong>🖼️ <?php esc_html_e( 'Standalone Media Library', 'skaaai' ); ?></strong>
+                            <span><?php esc_html_e( 'Sync independent media files with MD5 deduplication parity', 'skaaai' ); ?></span>
+                        </div>
+                    </label>
+
+                    <label class="skaaai-scope-item">
                         <input type="checkbox" name="ecosystem_scope[]" value="settings" checked>
                         <div>
                             <strong>⚙️ <?php esc_html_e( 'Site Setup & Homepage Routing', 'skaaai' ); ?></strong>
@@ -261,6 +270,9 @@ class Ecosystem_Sync_UI {
                 </button>
                 <button type="button" class="button button-secondary button-hero skaaai-btn-pull-gradient skaaai-trigger-full-pull" <?php disabled( ! $is_paired ); ?>>
                     <span class="dashicons dashicons-cloud-download"></span> <?php esc_html_e( '📥 1-Click Full Pull from Live', 'skaaai' ); ?>
+                </button>
+                <button type="button" class="button button-secondary button-hero skaaai-trigger-cleanup-media" <?php disabled( ! $is_paired ); ?> title="<?php esc_attr_e( 'Remove duplicate media uploads (-1, -2... -33) on Live', 'skaaai' ); ?>" style="border-color:#e05252;color:#e05252;">
+                    <span class="dashicons dashicons-trash"></span> <?php esc_html_e( '🧹 Clean Media Duplicates on Live', 'skaaai' ); ?>
                 </button>
             </div>
         </div>
@@ -468,6 +480,46 @@ class Ecosystem_Sync_UI {
             wp_send_json_success( $result );
         } else {
             wp_send_json_error( $result );
+        }
+    }
+
+    /**
+     * AJAX Xử lý dọn dẹp các attachment media rác trùng lặp trên host đích
+     */
+    public static function ajax_cleanup_media(): void {
+        check_ajax_referer( 'skaaai_ecosystem_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+        }
+
+        $remote_url   = esc_url_raw( Core::get_setting( 'skaaai_remote_url', '' ) );
+        $remote_token = sanitize_text_field( Core::get_setting( 'skaaai_remote_token', '' ) );
+
+        if ( empty( $remote_url ) || empty( $remote_token ) ) {
+            wp_send_json_error( [ 'message' => __( 'Remote website is not paired.', 'skaaai' ) ] );
+        }
+
+        $endpoint = rtrim( $remote_url, '/' ) . '/wp-json/' . Sync_Config::REST_NAMESPACE . Sync_Config::ENDPOINT_CLEANUP_MEDIA;
+        $response = wp_remote_post( $endpoint, [
+            'timeout'   => Sync_Config::TIMEOUT_MEDIA,
+            'headers'   => [
+                'X-Skaaai-Token' => $remote_token,
+                'Content-Type'   => 'application/json',
+                'Accept'         => 'application/json',
+            ],
+            'sslverify' => false,
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            wp_send_json_error( [ 'message' => $response->get_error_message() ] );
+        }
+
+        $res_body = json_decode( wp_remote_retrieve_body( $response ), true );
+        if ( ! empty( $res_body['success'] ) ) {
+            wp_send_json_success( $res_body );
+        } else {
+            wp_send_json_error( $res_body ?: [ 'message' => __( 'Cleanup failed on remote host.', 'skaaai' ) ] );
         }
     }
 
