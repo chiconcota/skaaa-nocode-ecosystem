@@ -1,5 +1,5 @@
-# SYSTEM MAP: SKAAA NO-CODE (v2.5.3)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-21
+# SYSTEM MAP: SKAAA NO-CODE (v2.5.4)
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: hotfix/logic-engine | @last_update: 2026-10-24
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -29,9 +29,9 @@ wp-content/
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
-| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.3) |
+| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.4) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync & MD5 Hash Deduplication. | 🟢 Stable (v1.6.0) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync & MD5 Hash Deduplication. | 🟢 Stable (v1.6.1) |
 
 ---
 
@@ -53,6 +53,15 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-24 - 🟢 Done (Skaaai Plugin v1.6.2 - Safeguard True Mirror Deletion & Type Safety Fix):** Khắc phục triệt để sự cố toàn bộ các trang trên site Live bị chuyển vào Thùng rác (Trash) sau khi Push đồng bộ Hệ sinh thái:
+  - **Type Safety & Early Exit (`class-skaaai-sync-ecosystem.php`):** Hàm `apply_pages()` nhận tham số loại bài viết tường minh (`$target_type = 'page'` hoặc `'post'`) thay vì phỏng đoán qua `$pages[0]`. Bổ sung kiểm tra mảng rỗng `empty($pages)` để lập tức thoát an toàn (`return`), triệt tiêu hoàn toàn nguy cơ quét nhầm và xóa sạch nội dung khi mảng nguồn rỗng.
+  - **Phân rã Scopes Độc Lập (`class-skaaai-sync-ecosystem-sender.php`):** Chỉ xuất `posts` khi scope `posts` được yêu cầu rõ ràng, loại bỏ việc tự động đính kèm mảng `posts` rỗng khi người dùng chỉ đồng bộ `pages`.
+  - **Safeguard True Mirror (`class-skaaai-sync-ecosystem.php` & `class-skaaai-sync-ecosystem-diff.php`):** Vô hiệu hóa việc tự ý gọi `wp_trash_post()` khi Push mặc định; chỉ kích hoạt đối soát xóa khi có cờ `$allow_trash = true`, loại trừ tuyệt đối trang chủ tĩnh (`page_on_front`) và chỉ quét các bài viết do Skaaa quản lý (`_skaaa_uuid`). Đóng gói `skaaai-v1.6.2.zip`.
+- **2026-10-24 - 🟢 Done (Skaaa No-Code Design v2.5.4 & Skaaai v1.6.1 - Mobile Navigation Store Parity & Reading Settings Sync Fix):**
+  - **Skaaa No-Code Design v2.5.4:** Khắc phục triệt để lỗi menu mobile không hoạt động/không hiển thị khi click nút hamburger trên hosting Live:
+    1. **Tích hợp Alpine Store `$store.nav` (`assets/js/skaaa-frontend.js`):** Khai báo và kích hoạt hàm `_registerSkaaaNav()` quản lý state `open`, `toggle()`, `close()` đồng bộ trong cả hai giai đoạn (trực tiếp khi Alpine đã sẵn sàng hoặc qua sự kiện `alpine:init`). Đạt 100% tính năng đồng bộ giao diện điều hướng Mobile giữa Local và Live.
+    2. **Đồng bộ Design Tokens Alias (`class-design-tokens-api.php` & `design-tokens-app.php`):** Hỗ trợ nhận diện không phân biệt hoa thường cho `logoUrl` / `logourl`.
+  - **Skaaai v1.6.1:** Khắc phục lỗi trang chủ Live trả về HTTP 404 sau khi đồng bộ: Bổ sung nhánh `else if ('posts' === $show_on_front)` trong `Sync_Ecosystem::apply_settings()`, tự động cập nhật `show_on_front = 'posts'` và reset `page_on_front = 0` khi site Local thiết lập đọc dạng blog/bài viết mới nhất.
 - **2026-10-21 - 🟢 Done (Skaaa No-Code Design v2.5.3 - Dark Tokens Integration in SkaaaWind JS JIT):**
   - **Skaaa No-Code Design v2.5.3:** Tích hợp đầy đủ bảng màu Dark Tokens (`darkColors`) từ `tokens.json` vào cỗ máy JIT JavaScript (`skaaawind.js`) trong Gutenberg Editor:
     1. **Truyền cấu hình `darkBrandColorsJson` (`class-core.php`):** Nạp toàn bộ bảng màu Dark Mode (`get_custom_dark_colors()`) vào `skaaaEditorConfig` cho trình duyệt.

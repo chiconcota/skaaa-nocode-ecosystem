@@ -39,6 +39,29 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-24 - 🟢 Hoàn thành: Safeguard True Mirror Deletion & Type Safety Fix (Skaaai v1.6.2 & Ecosystem v2.5.5)
+- **Decision (Safeguard True Mirror Deletion & Type Safety in Ecosystem Sync):**
+  - **Bối cảnh & Vấn đề:** Khi người dùng thực hiện đồng bộ Hệ sinh thái (Skaaa Sync / Push All to Live) từ Localhost lên hosting Live (`lytatthanh.com`), toàn bộ các trang trên Live (Liên Hệ, Privacy Policy, Trang Chủ) bị chuyển vào Thùng rác (`Trash (4)`).
+  - **Nguyên nhân gốc rễ:** 
+    1. Khi đồng bộ `pages`, `Sync_Ecosystem_Sender` đồng thời gửi mảng `posts` rỗng `[]` (do Local không có bài viết blog `post_type = 'post'`).
+    2. Trên receiver (`class-skaaai-sync-ecosystem.php`), `apply_pages()` được gọi lần 2 cho mảng `posts` rỗng. Do mảng rỗng, `$target_type` fallback nhầm về `'page'` thay vì `'post'`, và `$processed_ids` rỗng.
+    3. Đoạn mã "True Mirror" quét toàn bộ các trang `page` trên Live và thấy không có trang nào trong `$processed_ids` rỗng, nên đã gọi `wp_trash_post()` xóa sạch toàn bộ các Trang trên Live.
+  - **Giải pháp kiến trúc:**
+    1. **Type Safety & Early Exit:** Bổ sung tham số `$target_type = 'page'` và cờ `$allow_trash = false` vào `apply_pages()`. Nếu `$pages` rỗng, thoát ngay lập tức (`return`).
+    2. **Tách Scope Độc Lập:** Chỉ xuất `posts` khi scope `posts` được yêu cầu trong `Sync_Ecosystem_Sender`.
+    3. **Safeguard True Mirror:** Vô hiệu hóa việc tự ý gọi `wp_trash_post()` khi Push mặc định; chỉ kích hoạt khi có cờ `$allow_trash = true`, loại trừ tuyệt đối trang chủ tĩnh (`page_on_front`) và chỉ quét bài có `_skaaa_uuid`. Cập nhật `Sync_Ecosystem_Diff` đồng bộ.
+    4. **Đóng gói & Phân phối:** Nâng Skaaai lên `v1.6.2`, đóng gói `skaaai-v1.6.2.zip` và bản phân phối `skaaa-nocode-ecosystem-v2.5.5.zip`.
+
+## 2026-10-24 - 🟢 Hoàn thành: Tích Hợp Alpine Nav Store & Vá Lỗi Đồng Bộ Trang Chủ Live (Skaaa No-Code Design v2.5.4 & Skaaai v1.6.1)
+- **Decision (Alpine Navigation Store Integration & Reading Settings Synchronization Parity):**
+  - **Bối cảnh & Vấn đề:** 
+    1. Khi người dùng thiết kế menu mobile với nút hamburger `@click.prevent="$store.nav.open = !$store.nav.open"` và dropdown `x-show="$store.nav && $store.nav.open"` trong HeaderBar, menu mở tốt trên Localhost nhưng khi đồng bộ sang hosting Live [lytatthanh.com](https://lytatthanh.com) thì click hoàn toàn không mở. Nguyên nhân: Localhost paired site đã được thêm hàm `_registerSkaaaNav()` cục bộ nhưng chưa merge vào codebase Plugin gốc, và Ecosystem Sync chỉ đồng bộ CSDL chứ không đẩy file JS plugin. Do đó file `skaaa-frontend.js` trên Live thiếu store `$store.nav`, dẫn đến lỗi JavaScript `undefined`.
+    2. Trang chủ Live trả về HTTP 404 (nội dung `<main>` trống) do `apply_settings()` của Skaaai thiếu nhánh xử lý khi Localhost dùng chế độ đọc `show_on_front = 'posts'`, khiến Live giữ nguyên `page_on_front = 35` (trang không tồn tại).
+  - **Giải pháp kiến trúc:**
+    1. Đưa hàm `_registerSkaaaNav()` vào `skaaa-frontend.js` của `Skaaa No-Code Design`, đăng ký `Alpine.store('nav', { open: false, toggle(), close() })` cả khi Alpine sẵn sàng và trong sự kiện `alpine:init`. Nâng version lên `v2.5.4`.
+    2. Bổ sung nhánh `else if ('posts' === $show_on_front)` vào `Sync_Ecosystem::apply_settings()`, tự động cập nhật `show_on_front = 'posts'` và reset `page_on_front = 0`. Nâng Skaaai lên `v1.6.1`.
+    3. Đóng gói phân phối: `skaaa-no-code-design-v2.5.4.zip`, `skaaai-v1.6.1.zip` và bản All-in-One `skaaa-nocode-ecosystem-v2.5.4.zip`.
+
 ## 2026-10-21 - 🟢 Hoàn thành: Tích Hợp Dark Tokens Vào SkaaaWind JS Compiler Cho Gutenberg Editor (Skaaa No-Code Design v2.5.3)
 - **Decision (SkaaaWind JS Compiler Dark Tokens Integration & Dynamic Opacity Support):**
   - **Bối cảnh & Vấn đề:** Khi bật Dark Mode trong Gutenberg Editor, các đoạn văn bản sử dụng class custom tokens có tiền tố `dark:` (ví dụ `dark:text-text/70`, `dark:bg-surface`) vẫn bị tính theo mã màu tối của Light Mode (`#0f172a` với 70% opacity -> `rgba(15, 23, 42, 0.70)`), khiến chữ thường gần như tàng hình trên nền tối đen. Trong khi đó, Frontend (PHP Compiler) hiển thị màu trắng sáng chuẩn xác. Nguyên nhân: `skaaawind.js` trong Editor chưa được nạp nhánh `darkColors` và đang để dở TODO `let colors = null; // could support dark custom colors if we separate them in JS later`.

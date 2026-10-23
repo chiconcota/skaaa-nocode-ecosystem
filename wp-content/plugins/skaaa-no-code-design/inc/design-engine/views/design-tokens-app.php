@@ -517,6 +517,9 @@ function skaaaDesignTokensApp() {
                     }
                     if (d.brand && typeof d.brand === 'object' && !Array.isArray(d.brand) && Object.keys(d.brand).length > 0) {
                         this.formData.brand = { ...this.formData.brand, ...d.brand };
+                        if (!this.formData.brand.logoUrl && d.brand.logourl) {
+                            this.formData.brand.logoUrl = d.brand.logourl;
+                        }
                     }
                     if (d.typography && typeof d.typography === 'object' && !Array.isArray(d.typography) && Object.keys(d.typography).length > 0) {
                         this.formData.typography = { ...this.formData.typography, ...d.typography };

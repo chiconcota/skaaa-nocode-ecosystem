@@ -129,8 +129,9 @@ class Sync_Ecosystem_Diff {
         $diff['summary']['custom_tables'] = $tbl_summary;
 
         // 6. Phân tích Pages & Posts Chuyên Sâu (Modified, New, Deleted on Remote, Unchanged)
-        $pages_analysis = self::analyze_content_items( $payload['pages'] ?? [], 'page' );
-        $posts_analysis = self::analyze_content_items( $payload['posts'] ?? [], 'post' );
+        $allow_trash    = ! empty( $payload['allow_trash'] );
+        $pages_analysis = self::analyze_content_items( $payload['pages'] ?? [], 'page', $allow_trash );
+        $posts_analysis = self::analyze_content_items( $payload['posts'] ?? [], 'post', $allow_trash );
 
         $diff['summary']['pages']        = $pages_analysis['items'];
         $diff['summary']['pages_counts'] = $pages_analysis['counts'];
@@ -172,9 +173,23 @@ class Sync_Ecosystem_Diff {
      *
      * @param array  $remote_items Danh sách các bài từ máy chủ Remote
      * @param string $post_type    Loại bài ('page' hoặc 'post')
+     * @param bool   $allow_trash  Cho phép cảnh báo đối soát xóa
      * @return array Báo cáo đối soát gồm items chi tiết và tổng hợp số liệu
      */
-    public static function analyze_content_items( array $remote_items, string $post_type = 'page' ): array {
+    public static function analyze_content_items( array $remote_items, string $post_type = 'page', bool $allow_trash = false ): array {
+        if ( empty( $remote_items ) ) {
+            return [
+                'items'  => [],
+                'counts' => [
+                    'total'     => 0,
+                    'modified'  => 0,
+                    'new'       => 0,
+                    'deleted'   => 0,
+                    'unchanged' => 0,
+                ],
+            ];
+        }
+
         $items             = [];
         $matched_local_ids = [];
         $counts            = [
@@ -268,41 +283,47 @@ class Sync_Ecosystem_Diff {
             }
         }
 
-        // 2. Chiều đối chiếu ngược: Quét các mục trên Localhost bị xóa trên Remote (True Mirror: cả publish và draft)
-        $local_query = get_posts( [
-            'post_type'      => $post_type,
-            'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ] );
+        // 2. Chiều đối chiếu ngược: Quét các mục trên Localhost bị xóa trên Remote (chỉ chạy khi được bật cờ allow_trash)
+        if ( $allow_trash ) {
+            $local_query = get_posts( [
+                'post_type'      => $post_type,
+                'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_key'       => '_skaaa_uuid',
+            ] );
 
-        foreach ( $local_query as $lid ) {
-            $lid = (int) $lid;
-            if ( ! in_array( $lid, $matched_local_ids, true ) ) {
-                $lpost = get_post( $lid );
-                if ( ! ( $lpost instanceof \WP_Post ) ) {
+            foreach ( $local_query as $lid ) {
+                $lid = (int) $lid;
+                if ( $lid === $front_page_id ) {
                     continue;
                 }
+                if ( ! in_array( $lid, $matched_local_ids, true ) ) {
+                    $lpost = get_post( $lid );
+                    if ( ! ( $lpost instanceof \WP_Post ) ) {
+                        continue;
+                    }
 
-                $l_uuid     = get_post_meta( $lid, '_skaaa_uuid', true ) ?: '';
-                $l_modified = (int) get_post_modified_time( 'U', true, $lid );
+                    $l_uuid     = get_post_meta( $lid, '_skaaa_uuid', true ) ?: '';
+                    $l_modified = (int) get_post_modified_time( 'U', true, $lid );
 
-                $status = 'deleted_on_remote';
-                $action = __( 'Deleted on Live (Will be moved to Trash)', 'skaaai' );
-                $counts['deleted']++;
+                    $status = 'deleted_on_remote';
+                    $action = __( 'Deleted on Live (Will be moved to Trash)', 'skaaai' );
+                    $counts['deleted']++;
 
-                $items[] = [
-                    'id'              => $lid,
-                    'uuid'            => $l_uuid,
-                    'title'           => $lpost->post_title ?: __( '(No Title)', 'skaaai' ),
-                    'slug'            => $lpost->post_name,
-                    'post_type'       => $post_type,
-                    'status'          => $status,
-                    'action'          => $action,
-                    'remote_modified' => '-',
-                    'local_modified'  => $l_modified ? wp_date( 'Y-m-d H:i', $l_modified ) : '-',
-                    'is_front_page'   => ( $lid === $front_page_id ),
-                ];
+                    $items[] = [
+                        'id'              => $lid,
+                        'uuid'            => $l_uuid,
+                        'title'           => $lpost->post_title ?: __( '(No Title)', 'skaaai' ),
+                        'slug'            => $lpost->post_name,
+                        'post_type'       => $post_type,
+                        'status'          => $status,
+                        'action'          => $action,
+                        'remote_modified' => '-',
+                        'local_modified'  => $l_modified ? wp_date( 'Y-m-d H:i', $l_modified ) : '-',
+                        'is_front_page'   => false,
+                    ];
+                }
             }
         }
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Skaaa No-Code Design
  * Description: The UI design engine and blocks framework for Skaaa No-Code Builder.
- * Version: 2.5.3
+ * Version: 2.5.4
  * Author: Skaaa Team
  * Text Domain: skaaa-no-code-design
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define Constants
-define( 'SKAAA_DESIGN_VERSION', '2.5.3' );
+define( 'SKAAA_DESIGN_VERSION', '2.5.4' );
 define( 'SKAAA_DESIGN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SKAAA_DESIGN_URL', plugin_dir_url( __FILE__ ) );
 

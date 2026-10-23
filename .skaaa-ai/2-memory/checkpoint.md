@@ -1,16 +1,16 @@
 # CHECKPOINT - PHẦN BÀN GIAO TIẾN ĐỘ
-*Ngày cập nhật: 2026-10-21 | Phiên làm việc: Phát hành v2.5.3, Tích hợp Dark Tokens vào SkaaaWind JS JIT, Viết lại README.md Showcase & Đóng gói Bản phát hành Chuẩn Keep a Changelog*
+*Ngày cập nhật: 2026-10-24 | Phiên làm việc: Khắc phục sự cố đồng bộ Hệ sinh thái tự xóa bài viết/trang trên Live site lytatthanh.com (v2.5.5 & Skaaai v1.6.2)*
 
 ---
 
 ## 1. Thông Tin Môi Trường & Nhánh Git
-- **Git Branch:** `main` (Trạng thái sạch, đã push commit và tag `v2.5.3` lên GitHub)
+- **Git Branch:** `hotfix/logic-engine` (Sẵn sàng commit và đóng gói release v2.5.5)
 - **Thư mục làm việc (Active Workspace):** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/`
 - **Máy Chủ Live Đích (Production):** `https://lytatthanh.com` (Database prefix: `wpxi_`)
-- **Phiên bản Hệ Sinh Thái Đã Đóng Gói (Release v2.5.3):**
-  - `Skaaa No-Code Design: v2.5.3` (🟢 Live Editor Dark Mode, Selector :is(...) Parity, Dark Tokens in SkaaaWind JS JIT & Typography Preflight)
-  - `Skaaai: v1.6.0` (🟢 Tách Sync_Media độc lập, MD5 Hash Deduplication, Standalone Media Library Sync & 1-Click Duplicate Cleanup)
+- **Phiên bản Hệ Sinh Thái Đã Đóng Gói (Release v2.5.5):**
+  - `Skaaai: v1.6.2` (🟢 Khóa an toàn True Mirror, type safety & early exit chống xóa nhầm Pages vào Trash)
+  - `Skaaa No-Code Design: v2.5.4` (🟢 Tích hợp Alpine Store nav vào skaaa-frontend.js, chuẩn hóa logoUrl)
   - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
   - `Skaaa Logic Engine: v1.3.0` (🟢 Stable)

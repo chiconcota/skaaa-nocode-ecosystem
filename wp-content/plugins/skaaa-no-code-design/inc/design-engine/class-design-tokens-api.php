@@ -72,6 +72,10 @@ class Design_Tokens_API {
                         case 'token_brand':
                             $camel_key = lcfirst( str_replace( ' ', '', ucwords( str_replace( ['-', '_'], ' ', sanitize_title( $name ) ) ) ) );
                             $data['brand'][$camel_key] = $val;
+                            if ( strtolower( $camel_key ) === 'logourl' ) {
+                                $data['brand']['logoUrl'] = $val;
+                                $data['brand']['logourl'] = $val;
+                            }
                             break;
                         case 'token_color':
                             $data['colors'][$key] = $val;

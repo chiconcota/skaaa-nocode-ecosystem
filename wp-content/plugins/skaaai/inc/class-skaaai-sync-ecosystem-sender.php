@@ -118,7 +118,7 @@ class Sync_Ecosystem_Sender {
         }
 
         // 7. Toàn Bộ Các Bài Viết Đang Publish (Blog Posts)
-        if ( in_array( 'posts', $scopes, true ) || in_array( 'pages', $scopes, true ) ) {
+        if ( in_array( 'posts', $scopes, true ) ) {
             $payload['posts'] = self::export_published_posts();
         }
 

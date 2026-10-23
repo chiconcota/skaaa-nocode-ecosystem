@@ -105,13 +105,13 @@ class Sync_Ecosystem {
 
         // 6. Đồng bộ Toàn Bộ Các Trang & Bài Viết (Pages, Posts & Media)
         $page_map = [];
-        if ( isset( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
-            $page_result = self::apply_pages( $payload['pages'], $origin_url );
+        if ( ! empty( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
+            $page_result = self::apply_pages( $payload['pages'], $origin_url, 'page', ! empty( $payload['allow_trash'] ) );
             $results['details']['pages'] = $page_result['summary'];
             $page_map = array_merge( $page_map, $page_result['map'] );
         }
-        if ( isset( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
-            $post_result = self::apply_pages( $payload['posts'], $origin_url );
+        if ( ! empty( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
+            $post_result = self::apply_pages( $payload['posts'], $origin_url, 'post', ! empty( $payload['allow_trash'] ) );
             $results['details']['posts'] = $post_result['summary'];
             $page_map = array_merge( $page_map, $post_result['map'] );
         }
@@ -498,13 +498,22 @@ class Sync_Ecosystem {
     }
 
     /**
-     * Đồng bộ danh sách tất cả các trang
+     * Đồng bộ danh sách tất cả các trang hoặc bài viết
      *
      * @param array  $pages
      * @param string $origin_url
+     * @param string $target_type
+     * @param bool   $allow_trash
      * @return array
      */
-    private static function apply_pages( array $pages, string $origin_url ): array {
+    private static function apply_pages( array $pages, string $origin_url, string $target_type = 'page', bool $allow_trash = false ): array {
+        if ( empty( $pages ) ) {
+            return [
+                'summary' => [ 'count' => 0, 'pages' => [], 'trashed' => [] ],
+                'map'     => [],
+            ];
+        }
+
         $count   = 0;
         $map     = [];
         $summary = [];
@@ -533,7 +542,7 @@ class Sync_Ecosystem {
                 continue;
             }
 
-            $post_type = ! empty( $page['post_type'] ) ? sanitize_key( $page['post_type'] ) : 'page';
+            $post_type = ! empty( $page['post_type'] ) ? sanitize_key( $page['post_type'] ) : $target_type;
 
             $existing_id = Sync_Post::get_post_id_by_uuid( $uuid );
             if ( ! $existing_id && ! empty( $slug ) ) {
@@ -589,23 +598,30 @@ class Sync_Ecosystem {
             }
         }
 
-        // True Mirror: Chuyển các bài/trang không còn trên nguồn vào Thùng rác (Trash)
-        $processed_ids = array_values( array_filter( $map, 'is_int' ) );
-        $target_type   = ! empty( $pages[0]['post_type'] ) ? sanitize_key( $pages[0]['post_type'] ) : 'page';
-        $candidates    = get_posts( [
-            'post_type'      => $target_type,
-            'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ] );
-
         $trashed = [];
-        foreach ( $candidates as $cid ) {
-            $cid = (int) $cid;
-            if ( ! in_array( $cid, $processed_ids, true ) ) {
-                $cpost = get_post( $cid );
-                wp_trash_post( $cid );
-                $trashed[] = [ 'id' => $cid, 'title' => $cpost ? $cpost->post_title : '' ];
+        // True Mirror chỉ kích hoạt khi được chỉ định rõ ràng qua cờ allow_trash
+        // và chỉ áp dụng cho các bài viết do Skaaa quản lý (_skaaa_uuid), tuyệt đối không tự xóa trang hệ thống
+        if ( $allow_trash && $count > 0 ) {
+            $processed_ids = array_values( array_filter( $map, 'is_int' ) );
+            $front_page_id = (int) get_option( 'page_on_front' );
+            $candidates    = get_posts( [
+                'post_type'      => $target_type,
+                'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_key'       => '_skaaa_uuid',
+            ] );
+
+            foreach ( $candidates as $cid ) {
+                $cid = (int) $cid;
+                if ( $cid === $front_page_id ) {
+                    continue;
+                }
+                if ( ! in_array( $cid, $processed_ids, true ) ) {
+                    $cpost = get_post( $cid );
+                    wp_trash_post( $cid );
+                    $trashed[] = [ 'id' => $cid, 'title' => $cpost ? $cpost->post_title : '' ];
+                }
             }
         }
 
@@ -669,6 +685,11 @@ class Sync_Ecosystem {
                     $applied['show_on_front'] = 'page';
                     $applied['page_on_front'] = $target_front_id;
                 }
+            } elseif ( 'posts' === $show_on_front ) {
+                update_option( 'show_on_front', 'posts' );
+                update_option( 'page_on_front', 0 );
+                $applied['show_on_front'] = 'posts';
+                $applied['page_on_front'] = 0;
             }
         }
 

@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.6.0)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync & MD5 Hash Deduplication (`Sync_Media`).  
+**Status:** 🟢 Stable (v1.6.2)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization with Safeguard), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync & MD5 Hash Deduplication (`Sync_Media`).  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -65,6 +65,11 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **Static Session Cache:** Đảm bảo trong 1 đợt push (Pages, Posts, Organisms, Presets), mỗi file chỉ upload đúng 1 lần duy nhất.
   - **Đồng Bộ Thư Viện Media Độc Lập:** Bổ sung scope `media` quét và đẩy toàn bộ attachments trong Localhost Media Library sang Live.
   - **Tiện ích Dọn Dẹp Duplicate Media:** Nút bấm `🧹 Clean Media Duplicates on Live` gọi REST API `/wp-json/skaaai/v1/cleanup-media` 1-click dọn sạch các bản sao rác `-1` đến `-33` tồn đọng trên Live.
+- **Khóa An Toàn True Mirror & Type Safety (`apply_pages` - v1.6.2):**
+  - Hàm `apply_pages()` nhận tham số loại bài viết tường minh (`$target_type = 'page'` hoặc `'post'`) thay vì phỏng đoán qua `$pages[0]`.
+  - Early Exit: Thoát ngay lập tức nếu mảng `$pages` rỗng (`empty($pages)`), triệt tiêu hoàn toàn nguy cơ quét nhầm và xóa bài trên Live.
+  - Vô hiệu hóa việc tự ý gọi `wp_trash_post()` khi Push mặc định; chỉ kích hoạt khi có cờ `$allow_trash = true`, bảo vệ an toàn tuyệt đối các trang hệ thống (`page_on_front`) và chỉ quét bài viết do Skaaa quản lý (`_skaaa_uuid`).
+  - Phân rã Scopes Độc Lập: `Sync_Ecosystem_Sender` chỉ xuất `posts` khi scope `posts` được yêu cầu, không gửi mảng rỗng làm ảnh hưởng các scope khác.
 - **Giao diện Người dùng 1-Click Push to Live (Gutenberg Toolbar & Document Panel):**
   - Tích hợp nút bấm trực tiếp "🚀 Push to Live" trên thanh Header Toolbar (bên cạnh nút Lưu/Đăng bài) và panel Status & Visibility trong Document Sidebar (`assets/js/skaaai-editor-toolbar.js`).
   - Tự động lưu bài trước khi push (`savePost()`), gửi payload bài viết qua REST API, tự động hoán đổi URL domain và tải ảnh về media library của Live host.

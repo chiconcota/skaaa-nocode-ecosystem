@@ -343,6 +343,23 @@ function _registerSkaaaTheme() {
 }
 
 /**
+ * // FIX: Đăng ký nav Store vào Alpine để quản lý điều hướng Mobile.
+ */
+function _registerSkaaaNav() {
+    if (!window.Alpine) return;
+
+    Alpine.store('nav', {
+        open: false,
+        toggle() {
+            this.open = !this.open;
+        },
+        close() {
+            this.open = false;
+        }
+    });
+}
+
+/**
  * Đăng ký skaaaPortal Store vào Alpine để quản lý Dữ liệu trang hiện tại (Current Page Data).
  */
 function _registerSkaaaPortal() {
@@ -548,12 +565,14 @@ function _registerSkaaaScratchpad() {
 if (window.Alpine) {
     _registerSkaaaForm();
     _registerSkaaaTheme();
+    _registerSkaaaNav();
     _registerSkaaaPortal();
     _registerSkaaaScratchpad();
 } else {
     document.addEventListener('alpine:init', () => {
         _registerSkaaaForm();
         _registerSkaaaTheme();
+        _registerSkaaaNav();
         _registerSkaaaPortal();
         _registerSkaaaScratchpad();
     });
