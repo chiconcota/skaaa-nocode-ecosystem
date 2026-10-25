@@ -39,6 +39,19 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-26 - 🟢 Hoàn thành: Singleton Instantiation & Zero-Crash Safeguard for Organism Cache Invalidation (Skaaai v1.6.5)
+- **Decision (Root Elimination of Private Constructor Fatal Error & Complete Cache Shield):**
+  - **Bối cảnh & Vấn đề:** Khi người dùng bấm "1-Click Full Ecosystem Push to Live" trong modal Ecosystem Sync của Skaaai (hoặc đồng bộ cấu kiện Organisms), giao diện lập tức báo lỗi đỏ: `<p>There has been a critical error on this website.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>`.
+  - **Nguyên nhân kỹ thuật sâu (Root Cause):**
+    1. Trong quá trình tiếp nhận gói đồng bộ Hệ sinh thái tại endpoint `/wp-json/skaaai/v1/sync-ecosystem`, phương thức `Sync_Ecosystem::apply_organisms()` lưu trữ dữ liệu vào bảng phẳng `wp_skaaa_data_sys_organisms` và gọi `Sync_Cache::refresh_organisms_cache()` để tái tạo file cache tĩnh `uploads/skaaa-data/organisms.json`.
+    2. Trong `class-skaaai-sync-cache.php:160`, code khởi tạo trực tiếp instance: `$api = new \Skaaa\Design\Api\Organisms_API();`. Tuy nhiên, trong class `\Skaaa\Design\Api\Organisms_API`, hàm khởi tạo `__construct()` được định nghĩa là `private` (Singleton pattern).
+    3. Việc gọi `new` trên class có constructor `private` làm phát sinh lỗi nghiêm trọng: `Fatal error: Uncaught Error: Call to private Skaaa\Design\Api\Organisms_API::__construct() from scope Skaaai\Sync_Cache`. WordPress Fatal Error handler đã bắt lỗi này và trả về mã HTTP 500 JSON báo critical error.
+  - **Giải pháp kiến trúc sạch (Singleton Parity & Zero-Crash Shield):**
+    1. *Singleton Call:* Thay thế toán tử `new` bằng hàm khởi tạo chuẩn của class: `\Skaaa\Design\Api\Organisms_API::get_instance()`.
+    2. *Decoupled Action Hook:* Bổ sung phát lệnh action hook `do_action( 'skaaa_refresh_organisms_cache' )` trước khi fallback vào Singleton, tuân thủ nghiêm ngặt quy định Microservices Decoupling của hệ sinh thái Skaaa.
+    3. *Zero-Crash Try-Catch:* Bọc toàn bộ phương thức `refresh_organisms_cache()` và `invalidate()` trong khối `try ... catch ( \Throwable $e )` kết hợp ghi log `error_log()`. Đảm bảo trong bất kỳ trường hợp nào, sự cố ở tầng bộ nhớ đệm (Cache) cục bộ hay plugin bên thứ ba cũng không bao giờ được phép làm gián đoạn hoặc đánh sập tiến trình đồng bộ CSDL của hệ thống.
+    4. *Cập nhật Phiên bản & Đóng gói:* Nâng SemVer của plugin `Skaaai` lên `v1.6.5`, biên dịch đóng gói `skaaai-v1.6.5.zip` (0.16 MB) và đồng bộ tức thì sang Paired Site `l-tt-thnh-siu-c-nhn`.
+
 ## 2026-10-25 - 🟢 Hoàn thành: Elimination of Gutenberg Intermediate Block Wrappers & Clean Architecture for Dynamic Binding (Skaaa Logic Engine v1.3.3)
 - **Decision (Root Elimination of Inline Block Wrappers & True Flat Editor DOM):**
   - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, dù đã sửa selector và media queries trong `skaaa-editor-helper.js` v2.5.5, người dùng phản ánh trên trang Home (Post 17) văn bản tiêu đề H1 ("LỢI ÍCH TỐI ĐA, CHI PHÍ TỐI THIỂU.") vẫn bị bóp nghẹt thành dải chữ dọc 1 ký tự (chiều rộng chỉ 40px, chiều cao vọt lên 1620px).

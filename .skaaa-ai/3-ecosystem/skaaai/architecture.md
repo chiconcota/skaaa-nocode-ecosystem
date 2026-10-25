@@ -1,7 +1,7 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.6.3)  
+**Status:** 🟢 Stable (v1.6.5)  
 **Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization with Safeguard), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync, Server-Level LiteSpeed Cache Purge (`Sync_Cache`) & Gutenberg Organism Sync.  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
@@ -65,10 +65,10 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - **Static Session Cache:** Đảm bảo trong 1 đợt push (Pages, Posts, Organisms, Presets), mỗi file chỉ upload đúng 1 lần duy nhất.
   - **Đồng Bộ Thư Viện Media Độc Lập:** Bổ sung scope `media` quét và đẩy toàn bộ attachments trong Localhost Media Library sang Live.
   - **Tiện ích Dọn Dẹp Duplicate Media:** Nút bấm `🧹 Clean Media Duplicates on Live` gọi REST API `/wp-json/skaaai/v1/cleanup-media` 1-click dọn sạch các bản sao rác `-1` đến `-33` tồn đọng trên Live.
-- **Lớp Chuyên Trách Xóa Cache & LiteSpeed Server Purge (Sync_Cache - v1.6.3):**
+- **Lớp Chuyên Trách Xóa Cache & LiteSpeed Server Purge (Sync_Cache - v1.6.5):**
   - Khởi tạo `Sync_Cache` (`class-skaaai-sync-cache.php`): Tập trung toàn bộ logic xóa bộ nhớ đệm đa tầng (Server-level LiteSpeed, WP Cache, Page Cache plugins, rewrite rules).
   - **LiteSpeed Server Native Header:** Phát header `X-LiteSpeed-Purge: *` (hoặc theo URL cụ thể) và đính kèm vào `WP_REST_Response` cho cả `/push-post` và `/sync-ecosystem`, ép máy chủ LiteSpeed Web Server xóa sạch 100% cache ngay lập tức (0ms) mà không phụ thuộc vào plugin cache của bên thứ ba.
-  - **Tái tạo File Cache Cấu kiện Tĩnh:** Tự động gọi `Organisms_API::export_physical_cache()` trong `Sync_Ecosystem::apply_organisms()` sau khi nạp CSDL để file tĩnh `uploads/skaaa-data/organisms.json` trên Live luôn đồng bộ với MySQL.
+  - **Tái tạo File Cache Cấu kiện Tĩnh (v1.6.5 Parity):** Tuân thủ Singleton pattern `Organisms_API::get_instance()->export_physical_cache()` và kích hoạt hook Decoupled `do_action( 'skaaa_refresh_organisms_cache' )`. Toàn bộ phương thức được bọc `try ... catch ( \Throwable $e )` đảm bảo Zero-Crash 100% cho tiến trình đồng bộ hệ sinh thái.
   - **Gutenberg Organisms Toolbar Sync:** Khi người dùng mở trình sửa Symbol/Organism, thanh Header Toolbar tự động nhận diện `organism_id` và kích hoạt đẩy nhanh Organisms & Theme Templates lên Live kèm lệnh purge cache tức thì.
 - **Khóa An Toàn True Mirror & Type Safety (`apply_pages` - v1.6.2):**
   - Hàm `apply_pages()` nhận tham số loại bài viết tường minh (`$target_type = 'page'` hoặc `'post'`) thay vì phỏng đoán qua `$pages[0]`.

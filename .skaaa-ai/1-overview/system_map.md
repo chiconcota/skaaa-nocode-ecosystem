@@ -1,5 +1,5 @@
 # SYSTEM MAP: SKAAA NO-CODE (v2.5.5)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-25
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: fix/sync-issue | @last_update: 2026-10-26
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -31,7 +31,7 @@ wp-content/
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch, hỗ trợ Featured Image. | 🟢 Stable (v1.0.2) |
 | **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.5) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.4) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.5) |
 | **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.3) |
 
 ---
@@ -54,6 +54,11 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-26 - 🟢 Done (Skaaai Plugin v1.6.5 - Singleton Organisms_API Parity & Zero-Crash Cache Safeguard):** Khắc phục triệt để lỗi Fatal Error làm sập tiến trình Push to Live khi đồng bộ Organisms:
+  - **Singleton Parity (`Sync_Cache::refresh_organisms_cache`):** Thay thế toán tử `new \Skaaa\Design\Api\Organisms_API()` bằng `\Skaaa\Design\Api\Organisms_API::get_instance()`, loại bỏ hoàn toàn lỗi Uncaught Error do gọi constructor private.
+  - **Decoupled Action Hook:** Kích hoạt `do_action( 'skaaa_refresh_organisms_cache' )` trước khi fallback vào Singleton, tuân thủ nguyên tắc Microservices Decoupling giữa các Plugin.
+  - **Zero-Crash Try-Catch:** Bọc toàn bộ phương thức `refresh_organisms_cache()` và `invalidate()` trong khối `try ... catch ( \Throwable $e )` kết hợp ghi log an toàn. Đảm bảo lỗi ở tầng cache không bao giờ làm gián đoạn tiến trình đồng bộ hệ sinh thái.
+  - **Đóng gói & Phân phối:** Nâng phiên bản `skaaai` lên `v1.6.5`, đóng gói `skaaai-v1.6.5.zip` (0.16 MB) và đồng bộ sang Paired Site `l-tt-thnh-siu-c-nhn`.
 - **2026-10-25 - 🟢 Done (Skaaa Logic Engine v1.3.3 - Dynamic Binding Wrapper & Flat Editor DOM Parity):**
   - **Triệt tiêu thẻ wrapper trung gian:** Sửa HOC `withUniversalDynamicBinding` trong `skaaafx-editor` trả về `<BlockEdit {...props} />` thuần khiết khi không có dynamic binding script (`!bindingData.script`), xóa sạch 100% thẻ `<div>` chen ngang giữa CSS Grid và Grid Items.
   - **Áp dụng Display Contents:** Khi có script, bọc bằng `<div className="skaaa-dynamic-binding-wrapper" style={{ display: 'contents' }}>` giúp thẻ bọc vô hình trong layout calculation của CSS Grid và Flexbox, bảo toàn bố cục responsive mà không cần `!important`.
