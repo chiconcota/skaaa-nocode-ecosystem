@@ -1,5 +1,5 @@
 # Kiến trúc Skaaa Logic Engine (Skaaa-xi măng)
-@version: 1.3.0
+@version: 1.3.3
 @focus: Lớp Nhân (Dự án The Trinity Architecture)
 
 Skaaa Logic Engine là bộ óc kết nối (Node Engine định tuyến) giúp "Vỏ" (Skaaa Design / Form Frontend) nối với "Kho" (Skaaa Data Pro / Flat Tables MySQL).
@@ -57,6 +57,9 @@ Cỗ máy không chỉ đón dữ liệu đẩy xuống, mà còn bơm dữ li�
 - **SkaaaFX Context Resolver (Đoán ngữ cảnh thông minh):** Ngăn ngừa triệt để lỗi "nhân đôi tiền tố" và xung đột (Collision) giữa các App:
   1. **Smart Context Guessing:** Ưu tiên đọc tham số `GLOBAL_TABLE` (như `?table=app_kiem_thu_moi`) kết hợp với Hậu tố truy vấn của người dùng để sinh ra Full Tên đúng mà KHÔNG cần dùng Suffix Scan. Loại bỏ hoàn toàn ngoại lệ Xung đột.
   2. **Memory Array Traversal:** Nạp nguyên từ điển Schema lên bộ nhớ tĩnh (Static Cache RAM PHP). Dù mảng có hơn 5,000 DB flat tables, tốc độ cắt chuỗi truy vết (`substr`) vẫn đạt dưới 1ms. Bảo toàn 100% Hiệu năng Nocode Frontend.
+- **Gutenberg Editor Flat DOM & Zero-Wrapper Protocol (v1.3.3):**
+  - HOC `withUniversalDynamicBinding` (`assets/js/skaaafx-editor/src/index.jsx`) tuyệt đối không sinh thẻ `<div>` bọc thừa nếu block không chứa dynamic binding script (`!bindingData.script`), trả về trực tiếp `<BlockEdit {...props} />` thuần khiết.
+  - Khi block chứa dynamic script, thẻ bọc bắt buộc áp dụng `style={{ display: 'contents' }}` (`.skaaa-dynamic-binding-wrapper`), giúp thẻ bọc hoàn toàn "vô hình" trước bộ máy tính toán Grid/Flex layout của CSS, bảo toàn 100% kích thước và bố cục responsive trong Editor mà không cần can thiệp cờ `!important`.
 
 ## 6. SkaaaFX Evaluator (Engine Thông Dịch Cú Pháp Lõi)
 SkaaaFX cấu tạo nên Trái Tim Giải Trí (Logic & Calculation) của toàn bộ Micro-Ecosystem Skaaa. Nó là ngôn ngữ chung dùng cho tất cả Plugins thay thế Blockly truyền thống.

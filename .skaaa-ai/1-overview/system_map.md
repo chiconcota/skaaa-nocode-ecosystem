@@ -1,4 +1,4 @@
-# SYSTEM MAP: SKAAA NO-CODE (v2.5.4)
+# SYSTEM MAP: SKAAA NO-CODE (v2.5.5)
 @status: MILESTONE 2 (DEVELOPMENT) | @git_branch: fix/no-code-design | @last_update: 2026-10-25
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
@@ -29,10 +29,10 @@ wp-content/
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch, hỗ trợ Featured Image. | 🟢 Stable (v1.0.2) |
-| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.4) |
+| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.5) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
 | **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.4) |
-| **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.2) |
+| **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.3) |
 
 ---
 
@@ -54,6 +54,15 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-25 - 🟢 Done (Skaaa Logic Engine v1.3.3 - Dynamic Binding Wrapper & Flat Editor DOM Parity):**
+  - **Triệt tiêu thẻ wrapper trung gian:** Sửa HOC `withUniversalDynamicBinding` trong `skaaafx-editor` trả về `<BlockEdit {...props} />` thuần khiết khi không có dynamic binding script (`!bindingData.script`), xóa sạch 100% thẻ `<div>` chen ngang giữa CSS Grid và Grid Items.
+  - **Áp dụng Display Contents:** Khi có script, bọc bằng `<div className="skaaa-dynamic-binding-wrapper" style={{ display: 'contents' }}>` giúp thẻ bọc vô hình trong layout calculation của CSS Grid và Flexbox, bảo toàn bố cục responsive mà không cần `!important`.
+  - **Đồng bộ & Đóng gói:** Nâng SemVer lên `v1.3.3`, biên dịch lại bundle `dist/index.jsx.js`, tạo zip package `skaaa-logic-engine-v1.3.3.zip` và kiểm thử trực tiếp trên Gutenberg Editor xác nhận tiêu đề H1 và Grid bung chuẩn 100%.
+- **2026-10-25 - 🟢 Done (Skaaa No-Code Design v2.5.5 - Responsive Col-Span & Container Layout Parity Fix):**
+  - **Triệt tiêu thẻ trung gian Container:** Bổ sung `display: contents;` cho các thẻ bọc Gutenberg (`.block-editor-inner-blocks`, `.block-editor-block-list__layout`) bên trong `wp-block-skaaaaa-builder-container` trong `assets/js/skaaa-editor-helper.js`, đảm bảo các khối con tham gia trực tiếp vào CSS Grid layout mà không bị ngắt kết nối.
+  - **Chuẩn hóa Col-Span Selector:** Thay thế toàn bộ selector substring `*=` bằng word selector `~=` (`[class~="col-span-*"]`), xóa bỏ triệt để hiện tượng class `lg:col-span-*` bị bắt nhầm ở chế độ màn hình nhỏ.
+  - **Tổ chức 5 tầng Media Query cho Col-Span:** Bọc các biến thể responsive vào 5 khối `@media` chuẩn Tailwind (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`). Khắc phục hoàn toàn lỗi chữ bị co rúm thành 1 cột dọc (sợi chỉ) trong Gutenberg Editor khi canvas co hẹp dưới 1024px.
+  - **Đóng gói & Đồng bộ:** Nâng phiên bản `skaaa-no-code-design` lên `v2.5.5`, đóng gói `skaaa-no-code-design-v2.5.5.zip` (0.40 MB) và đồng bộ sang paired site `l-tt-thnh-siu-c-nhn`.
 - **2026-10-25 - 🟢 Done (Skaaa No-Code Ecosystem v2.5.6 - Universal WordPress Dynamic Content, Post Featured Image Support & Agent Kit Upgrade):**
   - **Skaaa Canvas v1.0.2:**
     1. **Bật Featured Image bản địa:** Bổ sung `add_theme_support( 'post-thumbnails' )` vào `functions.php` giúp khôi phục ô tải ảnh đại diện Featured Image trong thanh Sidebar khi soạn thảo Post của WordPress.

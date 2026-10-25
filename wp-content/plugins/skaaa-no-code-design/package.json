@@ -1,6 +1,6 @@
 {
     "name": "skaaa-no-code-design",
-    "version": "2.4.4",
+    "version": "2.5.5",
     "description": "Skaaa No-Code Design Plugin",
     "scripts": {
         "build": "wp-scripts build",

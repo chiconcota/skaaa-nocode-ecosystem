@@ -92,9 +92,9 @@ const withUniversalDynamicBinding = createHigherOrderComponent((BlockEdit) => {
 
         return (
             <Fragment>
-                <div style={{ position: 'relative', display: 'block' }}>
-                    <BlockEdit {...props} />
-                    {bindingData.script && (
+                {bindingData.script ? (
+                    <div className="skaaa-dynamic-binding-wrapper" style={{ display: 'contents' }}>
+                        <BlockEdit {...props} />
                         <div style={{
                             position: 'absolute',
                             top: '-12px',
@@ -115,8 +115,10 @@ const withUniversalDynamicBinding = createHigherOrderComponent((BlockEdit) => {
                         }}>
                             <span>🪄</span> {__( 'Dynamic Data', 'skaaa-logic-engine' )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <BlockEdit {...props} />
+                )}
                 {isSelected && (
                     <InspectorControls>
                         <PanelBody title={__( '🪄 Universal Dynamic Binding', 'skaaa-logic-engine' )} initialOpen={false}>

@@ -39,6 +39,32 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-25 - 🟢 Hoàn thành: Elimination of Gutenberg Intermediate Block Wrappers & Clean Architecture for Dynamic Binding (Skaaa Logic Engine v1.3.3)
+- **Decision (Root Elimination of Inline Block Wrappers & True Flat Editor DOM):**
+  - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, dù đã sửa selector và media queries trong `skaaa-editor-helper.js` v2.5.5, người dùng phản ánh trên trang Home (Post 17) văn bản tiêu đề H1 ("LỢI ÍCH TỐI ĐA, CHI PHÍ TỐI THIỂU.") vẫn bị bóp nghẹt thành dải chữ dọc 1 ký tự (chiều rộng chỉ 40px, chiều cao vọt lên 1620px).
+  - **Nguyên nhân kỹ thuật sâu (Root Cause):**
+    1. Trong plugin `skaaa-logic-engine` (`assets/js/skaaafx-editor/src/index.jsx:95`), HOC `withUniversalDynamicBinding` đã tự ý bọc MỌI block `skaaaaa-builder/` vào một thẻ `<div>` có inline style cứng: `<div style={{ position: 'relative', display: 'block' }}>`.
+    2. Trong CSS Grid đa cột (`grid grid-cols-1 lg:grid-cols-12`), thẻ `<div>` trung gian này chen ngang giữa Grid container và khối con `lg:col-span-7`. Thẻ `<div>` này trở thành Grid Item trực tiếp, nhưng không mang bất kỳ class `col-span` nào nên bị CSS Grid ép về 1 cột mặc định (chiều rộng $1008\text{px} \div 12 = 40\text{px}$). Khối con `lg:col-span-7` bên trong bị nhốt trong hộp 40px, khiến H1 rớt từng chữ cái xuống dòng.
+    3. Thẻ bọc này sinh ra vô điều kiện ngay cả khi block không có bất kỳ dynamic script nào (`!bindingData.script`).
+  - **Giải pháp kiến trúc sạch (Zero-Important & Flat DOM):**
+    1. *Bỏ bọc vô điều kiện:* Khi block không có dynamic binding script (`!bindingData.script` - 99% trường hợp), HOC trả về trực tiếp `<BlockEdit {...props} />` thuần khiết, hoàn toàn không sinh thẻ `<div>` trung gian trong DOM.
+    2. *Display Contents cho Dynamic Blocks:* Khi block có script dynamic data, dùng `<div className="skaaa-dynamic-binding-wrapper" style={{ display: 'contents' }}>` để thẻ bọc hoàn toàn "vô hình" trước bộ máy tính toán bố cục của CSS Grid và Flexbox, bảo toàn 100% responsive parity mà không cần dùng đến cờ `!important`.
+    3. *Biên dịch lại Bundle:* Chạy `npm run build` trong `skaaafx-editor` xuất ra `dist/index.jsx.js` 501 KiB sạch.
+    4. *Cập nhật SemVer & Đồng Bộ:* Nâng `skaaa-logic-engine` lên `v1.3.3`, đóng gói `skaaa-logic-engine-v1.3.3.zip` (0.37 MB), đồng bộ sang paired site `l-tt-thnh-siu-c-nhn` và kiểm thử trực tiếp bằng Chrome DevTools xác nhận `intermediateDivsCount = 0`, tiêu đề H1 bung chuẩn 698.6px (7/12 cột) hoàn hảo 100%.
+
+## 2026-10-25 - 🟢 Hoàn thành: Responsive Col-Span Breakpoints & Gutenberg Container Layout Parity Fix (Skaaa No-Code Design v2.5.5)
+- **Decision (Responsive Col-Span Breakpoints & Container Wrapper Neutralization):**
+  - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, khi mở các trang có bố cục Grid đa cột đáp ứng (như `grid-cols-1 lg:grid-cols-12`) với khối con mang class `lg:col-span-7`, toàn bộ khối con và văn bản bên trong (như tiêu đề "LỢI ÍCH TỐI ĐA, CHI PHÍ TỐI THIỂU.") bị bóp nghẹt thành một đường thẳng đứng dày 1 ký tự (mỗi chữ cái rơi xuống một dòng), trong khi ngoài Frontend hiển thị hoàn hảo.
+  - **Nguyên nhân kỹ thuật sâu:**
+    1. Trong file `assets/js/skaaa-editor-helper.js:146-173`, bộ chọn CSS can thiệp vào Gutenberg wrapper sử dụng toán tử chuỗi con `*=` (substring): `.editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-7"] { grid-column: span 7 / span 7; }`. Selector này đã bắt dính cả `lg:col-span-7`, `md:col-span-7`, `sm:col-span-7` trên mọi độ rộng màn hình mà không bọc trong bất kỳ media query nào.
+    2. Khi mở trong Gutenberg Editor, thanh menu quản trị và sidebar inspector khiến độ rộng canvas iframe co hẹp dưới 1024px. Lưới cha đang ở chế độ 1 cột (`grid-cols-1`), nhưng khối con lại bị ép chiếm 7 cột (`span 7`). CSS Grid buộc phải sinh 6 cột ẩn có bề ngang 0px, ép bề ngang khối con về 0px.
+    3. Thẻ bọc trung gian của Gutenberg (`.block-editor-inner-blocks`, `.block-editor-block-list__layout`) bên trong `wp-block-skaaaaa-builder-container` chưa được triệt tiêu bằng `display: contents;`.
+  - **Giải pháp kiến trúc:**
+    1. *Chuẩn hóa whole-word selector:* Đổi toàn bộ sang `[class~="col-span-N"]` để chỉ bắt trúng các class cơ sở không mang tiền tố breakpoint.
+    2. *Hệ thống 5 tầng Responsive Media Queries:* Bọc các class mang tiền tố `sm:`, `md:`, `lg:`, `xl:`, `2xl:` vào đúng các block `@media (min-width: ...)` chuẩn Tailwind, đảm bảo `lg:col-span-7` chỉ kích hoạt khi màn hình >= 1024px.
+    3. *Triệt tiêu thẻ trung gian Container:* Áp dụng `display: contents;` cho `.block-editor-inner-blocks` và `.block-editor-block-list__layout` là con trực tiếp của container.
+    4. *Nâng SemVer & Đồng Bộ:* Nâng `skaaa-no-code-design` lên `v2.5.5`, đóng gói `skaaa-no-code-design-v2.5.5.zip` (0.40 MB) và đồng bộ sang paired site `l-tt-thnh-siu-c-nhn`.
+
 ## 2026-10-25 - 🟢 Hoàn thành: Universal WordPress Dynamic Content & Agent Kit Upgrade (Skaaa Logic Engine v1.3.2 & Skaaai v1.6.4)
 - **Decision (Universal WordPress Dynamic Content via SkaaaFX AST & Agent Kit Integration):**
   - **Bối cảnh & Vấn đề:** Khi thiết kế giao diện Single Post hoặc Custom Post Type template, các khối của Skaaa (`Skaaa Text`, `Skaaa Image`, `Skaaa Button`) không có cách nào kéo dữ liệu động bản địa của WordPress (Tiêu đề, Ảnh đại diện/Featured Image, Tác giả, Ngày đăng, Trích dẫn, Permalink). Lõi `class-dynamic-content.php` bỏ ngỏ khối Image (chỉ có comment chờ phát triển). Đồng thời, bộ Agent Kit của Skaaai chưa hướng dẫn AI Agent cách dùng `skaaaDynamicBinding`, khiến AI khi dựng template tự ý lùi về dùng block mặc định của WordPress (`core/post-*`).

@@ -85,11 +85,15 @@
             border-style: solid;
         }
 
-        /* Video block and nested inner blocks layout preservation */
+        /* Container, video block and nested inner blocks layout preservation */
+        .editor-styles-wrapper .wp-block-skaaaaa-builder-container > .block-editor-inner-blocks,
+        .editor-styles-wrapper .wp-block-skaaaaa-builder-container > .block-editor-inner-blocks > .block-editor-block-list__layout,
+        .editor-styles-wrapper .wp-block-skaaaaa-builder-container:not(.block-editor-block-list__layout) > .block-editor-block-list__layout,
         .editor-styles-wrapper .wp-block-skaaaaa-builder-video .block-editor-inner-blocks,
         .editor-styles-wrapper .wp-block-skaaaaa-builder-video .block-editor-block-list__layout,
         .editor-styles-wrapper [class*='wp-block-skaaaaa-builder'] > .wp-block-html,
-        .editor-styles-wrapper .skaaapine-wrapper {
+        .editor-styles-wrapper .skaaapine-wrapper,
+        .editor-styles-wrapper .skaaa-dynamic-binding-wrapper {
             display: contents;
         }
 
@@ -143,33 +147,179 @@
         .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container > .wp-block.justify-self-center { justify-self: center; }
         .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container > .wp-block.justify-self-stretch { justify-self: stretch; }
 
-        /* Grid item col-span pass-through to Gutenberg wrapper */
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-12"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-12"] { grid-column: span 12 / span 12; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-11"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-11"] { grid-column: span 11 / span 11; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-10"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-10"] { grid-column: span 10 / span 10; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-9"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-9"] { grid-column: span 9 / span 9; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-8"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-8"] { grid-column: span 8 / span 8; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-7"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-7"] { grid-column: span 7 / span 7; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-6"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-6"] { grid-column: span 6 / span 6; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-5"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-5"] { grid-column: span 5 / span 5; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-4"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-4"] { grid-column: span 4 / span 4; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-3"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-3"] { grid-column: span 3 / span 3; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-2"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-2"] { grid-column: span 2 / span 2; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-1"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-1"] { grid-column: span 1 / span 1; }
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class*="col-span-full"]),
-        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class*="col-span-full"] { grid-column: 1 / -1; }
+        /* Grid item col-span pass-through to Gutenberg wrapper (Unprefixed / Mobile-first) */
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-12"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-12"] { grid-column: span 12 / span 12; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-11"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-11"] { grid-column: span 11 / span 11; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-10"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-10"] { grid-column: span 10 / span 10; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-9"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-9"] { grid-column: span 9 / span 9; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-8"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-8"] { grid-column: span 8 / span 8; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-7"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-7"] { grid-column: span 7 / span 7; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-6"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-6"] { grid-column: span 6 / span 6; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-5"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-5"] { grid-column: span 5 / span 5; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-4"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-4"] { grid-column: span 4 / span 4; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-3"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-3"] { grid-column: span 3 / span 3; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-2"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-2"] { grid-column: span 2 / span 2; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-1"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-1"] { grid-column: span 1 / span 1; }
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="col-span-full"]),
+        .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="col-span-full"] { grid-column: 1 / -1; }
+
+        /* Responsive Grid item col-span pass-through */
+        @media (min-width: 640px) {
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-12"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-12"] { grid-column: span 12 / span 12; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-11"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-11"] { grid-column: span 11 / span 11; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-10"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-10"] { grid-column: span 10 / span 10; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-9"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-9"] { grid-column: span 9 / span 9; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-8"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-8"] { grid-column: span 8 / span 8; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-7"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-7"] { grid-column: span 7 / span 7; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-6"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-6"] { grid-column: span 6 / span 6; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-5"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-5"] { grid-column: span 5 / span 5; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-4"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-4"] { grid-column: span 4 / span 4; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-3"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-3"] { grid-column: span 3 / span 3; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-2"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-2"] { grid-column: span 2 / span 2; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-1"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-1"] { grid-column: span 1 / span 1; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="sm:col-span-full"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="sm:col-span-full"] { grid-column: 1 / -1; }
+        }
+
+        @media (min-width: 768px) {
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-12"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-12"] { grid-column: span 12 / span 12; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-11"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-11"] { grid-column: span 11 / span 11; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-10"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-10"] { grid-column: span 10 / span 10; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-9"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-9"] { grid-column: span 9 / span 9; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-8"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-8"] { grid-column: span 8 / span 8; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-7"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-7"] { grid-column: span 7 / span 7; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-6"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-6"] { grid-column: span 6 / span 6; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-5"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-5"] { grid-column: span 5 / span 5; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-4"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-4"] { grid-column: span 4 / span 4; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-3"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-3"] { grid-column: span 3 / span 3; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-2"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-2"] { grid-column: span 2 / span 2; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-1"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-1"] { grid-column: span 1 / span 1; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="md:col-span-full"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="md:col-span-full"] { grid-column: 1 / -1; }
+        }
+
+        @media (min-width: 1024px) {
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-12"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-12"] { grid-column: span 12 / span 12; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-11"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-11"] { grid-column: span 11 / span 11; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-10"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-10"] { grid-column: span 10 / span 10; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-9"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-9"] { grid-column: span 9 / span 9; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-8"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-8"] { grid-column: span 8 / span 8; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-7"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-7"] { grid-column: span 7 / span 7; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-6"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-6"] { grid-column: span 6 / span 6; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-5"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-5"] { grid-column: span 5 / span 5; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-4"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-4"] { grid-column: span 4 / span 4; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-3"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-3"] { grid-column: span 3 / span 3; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-2"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-2"] { grid-column: span 2 / span 2; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-1"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-1"] { grid-column: span 1 / span 1; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="lg:col-span-full"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="lg:col-span-full"] { grid-column: 1 / -1; }
+        }
+
+        @media (min-width: 1280px) {
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-12"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-12"] { grid-column: span 12 / span 12; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-11"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-11"] { grid-column: span 11 / span 11; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-10"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-10"] { grid-column: span 10 / span 10; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-9"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-9"] { grid-column: span 9 / span 9; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-8"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-8"] { grid-column: span 8 / span 8; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-7"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-7"] { grid-column: span 7 / span 7; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-6"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-6"] { grid-column: span 6 / span 6; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-5"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-5"] { grid-column: span 5 / span 5; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-4"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-4"] { grid-column: span 4 / span 4; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-3"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-3"] { grid-column: span 3 / span 3; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-2"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-2"] { grid-column: span 2 / span 2; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-1"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-1"] { grid-column: span 1 / span 1; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="xl:col-span-full"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="xl:col-span-full"] { grid-column: 1 / -1; }
+        }
+
+        @media (min-width: 1536px) {
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-12"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-12"] { grid-column: span 12 / span 12; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-11"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-11"] { grid-column: span 11 / span 11; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-10"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-10"] { grid-column: span 10 / span 10; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-9"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-9"] { grid-column: span 9 / span 9; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-8"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-8"] { grid-column: span 8 / span 8; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-7"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-7"] { grid-column: span 7 / span 7; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-6"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-6"] { grid-column: span 6 / span 6; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-5"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-5"] { grid-column: span 5 / span 5; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-4"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-4"] { grid-column: span 4 / span 4; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-3"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-3"] { grid-column: span 3 / span 3; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-2"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-2"] { grid-column: span 2 / span 2; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-1"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-1"] { grid-column: span 1 / span 1; }
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block:has(> [class~="2xl:col-span-full"]),
+            .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container[class*="grid"] > .wp-block[class~="2xl:col-span-full"] { grid-column: 1 / -1; }
+        }
 
         /* POSITIONING OVERRIDES (CRITICAL) */
         .editor-styles-wrapper.editor-styles-wrapper .wp-block-skaaaaa-builder-container.absolute,

@@ -1,5 +1,5 @@
 # CHECKPOINT - PHẦN BÀN GIAO TIẾN ĐỘ
-*Ngày cập nhật: 2026-10-25 | Phiên làm việc: Universal WordPress Dynamic Content & Agent Kit Upgrade (Skaaa Logic Engine v1.3.2 & Skaaai v1.6.4)*
+*Ngày cập nhật: 2026-10-25 | Phiên làm việc: Responsive Col-Span Parity & Dynamic Binding Zero-Wrapper Flat DOM (Skaaa No-Code Design v2.5.5 & Skaaa Logic Engine v1.3.3)*
 
 ---
 
@@ -8,64 +8,79 @@
 - **Thư mục làm việc (Active Workspace):** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/`
 - **Phiên bản Hệ Sinh Thái Hiện Tại:**
-  - `Skaaa Logic Engine: v1.3.2` (🟢 Kích hoạt Dynamic Hydration cho `skaaaaa-builder/image` & `button`, context `[post.*]`, direct assignment parser)
-  - `Skaaai: v1.6.4` (🟢 Cập nhật Agent Kit `developer-blocks` & `company-rules` bắt buộc dùng `skaaaDynamicBinding`, cấm `core/post-*`)
-  - `Skaaa No-Code Design: v2.5.4` (🟢 Stable)
-  - `Skaaa Canvas Theme: v1.0.1` (🟢 Stable)
+  - `Skaaa No-Code Design: v2.5.5` (🟢 5 Tầng Media Query Col-Span, Inner Container Wrappers `display: contents`)
+  - `Skaaa Logic Engine: v1.3.3` (🟢 Triệt tiêu thẻ bọc trung gian `withUniversalDynamicBinding`, `display: contents` cho Dynamic Blocks)
+  - `Skaaa Canvas Theme: v1.0.2` (🟢 Stable)
   - `Skaaa Data Pro: v1.3.3` (🟢 Stable)
+  - `Skaaai: v1.6.4` (🟢 Stable)
 
 ---
 
 ## 2. Danh Sách Tệp Tin Đã Tạo & Chỉnh Sửa Trong Phiên (File Change Manifest)
 
-### A. Project Manager & Quản Trị Hệ Thống (`.skaaa-ai/`)
-1. [.skaaa-ai/1-overview/project-managers/pm_skaaafx_wordpress_dynamic_content.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_skaaafx_wordpress_dynamic_content.md) *(MỚI)*:
-   - Kế hoạch 5 bước chi tiết quản lý vòng đời tính năng WordPress Dynamic Content.
-2. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md):
-   - Cập nhật phiên bản hệ sinh thái (`Skaaa Logic Engine v1.3.2`, `Skaaai v1.6.4`) và Recent Logs.
-3. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md):
-   - Ghi nhận quyết định kiến trúc: Cơ chế Universal WordPress Dynamic Content via SkaaaFX AST & Agent Kit Integration.
+### A. Plugin Skaaa No-Code Design (`wp-content/plugins/skaaa-no-code-design/`)
+1. [assets/js/skaaa-editor-helper.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/assets/js/skaaa-editor-helper.js):
+   - Chuyển đổi toàn bộ selector substring `*=` sang whole-word selector `~=` (`[class~="col-span-*"]`).
+   - Tổ chức hệ thống 5 tầng Media Query chuẩn Tailwind (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`).
+   - Bổ sung `display: contents;` cho các thẻ bọc Gutenberg bên trong Container (`.block-editor-inner-blocks`, `.block-editor-block-list__layout`, `.skaaa-dynamic-binding-wrapper`).
+2. [package.json](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/package.json) & [skaaa-no-code-design.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-no-code-design/skaaa-no-code-design.php):
+   - Nâng phiên bản SemVer lên `2.5.5`.
 
 ### B. Plugin Skaaa Logic Engine (`wp-content/plugins/skaaa-logic-engine/`)
-1. [includes/pipeline/class-dynamic-content.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/includes/pipeline/class-dynamic-content.php):
-   - Bổ sung `WP_POST_ID` tự động vào AST Context khi render block.
-   - Hiện thực hóa nhánh render cho `skaaaaa-builder/image`: thay thế linh hoạt `src` trong thẻ `<img>` hoặc tự động tạo thẻ `<img>` responsive nếu là placeholder div rỗng.
-   - Thêm xử lý label thay thế cho `skaaaaa-builder/button`.
-2. [includes/skaaafx/class-skaaafx-evaluator.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/includes/skaaafx/class-skaaafx-evaluator.php):
-   - Xây dựng hàm `resolve_wp_variable()` framework-agnostic giải quyết biến WordPress: `[post.title]`, `[post.featured_image]`, `[post.thumbnail]`, `[post.author]`, `[post.author_avatar]`, `[post.date]`, `[post.modified_date]`, `[post.excerpt]`, `[post.permalink]`, `[post.id]`, `[post.content]`, `[post.meta.*]`, `[user.name]`, `[user.email]`, `[user.avatar]`, `[site.title]`, `[site.url]`.
-3. [includes/skaaafx/class-skaaafx-parser.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/includes/skaaafx/class-skaaafx-parser.php):
-   - Bổ sung `peek_ahead()` trong `parse_statement()` để nhận diện `T_IDENT = expr` là phép gán `Node_Assign` thay vì so sánh bằng `Node_BinaryOp` (hỗ trợ `data = [post.title]` và `var data = [post.title]`).
-4. [includes/api/class-form-receiver.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/includes/api/class-form-receiver.php):
-   - Mở rộng REST API `/skaaa-logic/v1/schema` trả về các biến gợi ý WordPress Core chuẩn i18n tiếng Anh.
-5. [skaaa-logic-engine.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/skaaa-logic-engine.php) & [package.json](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/package.json):
-   - Nâng phiên bản SemVer lên `1.3.2`.
+1. [assets/js/skaaafx-editor/src/index.jsx](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/assets/js/skaaafx-editor/src/index.jsx):
+   - Sửa HOC `withUniversalDynamicBinding`: trả về trực tiếp `<BlockEdit {...props} />` thuần khiết khi `!bindingData.script` (zero intermediate wrapper).
+   - Khi có script dynamic data, dùng `<div className="skaaa-dynamic-binding-wrapper" style={{ display: 'contents' }}>` giúp thẻ bọc vô hình trước Grid/Flex layout calculations.
+2. [assets/js/dist/index.jsx.js](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/assets/js/dist/index.jsx.js) & [assets/js/dist/index.jsx.asset.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/assets/js/dist/index.jsx.asset.php):
+   - Biên dịch lại bundle sạch (501 KiB) bằng `npm run build`.
+3. [package.json](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/package.json) & [skaaa-logic-engine.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaa-logic-engine/skaaa-logic-engine.php):
+   - Nâng phiên bản SemVer lên `1.3.3`.
 
-### C. Plugin Skaaai (`wp-content/plugins/skaaai/`)
-1. [scaffold/.agent/skills/developer-blocks/SKILL.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/skills/developer-blocks/SKILL.md):
-   - Thêm Mục 4.2 hướng dẫn Universal Dynamic Binding cho Single Post & Detail Templates.
-2. [scaffold/.agent/rules/company-rules.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/scaffold/.agent/rules/company-rules.md):
-   - Thêm quy định cấm 100% sử dụng block mặc định `core/post-*`, bắt buộc dùng Skaaa Blocks kết hợp `skaaaDynamicBinding`.
-3. [skaaai.php](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/wp-content/plugins/skaaai/skaaai.php):
-   - Nâng phiên bản SemVer lên `1.6.4`.
+### C. Quản Trị Hệ Thống & Tài Liệu Kiến Trúc (`.skaaa-ai/`)
+1. [.skaaa-ai/1-overview/system_map.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/system_map.md):
+   - Cập nhật Module Registry (`Skaaa Logic Engine v1.3.3`, `Skaaa No-Code Design v2.5.5`) và Recent Logs chi tiết.
+2. [.skaaa-ai/2-memory/decision-log.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/2-memory/decision-log.md):
+   - Ghi nhận 2 quyết định kiến trúc: Responsive Col-Span Breakpoints (v2.5.5) và Elimination of Gutenberg Intermediate Block Wrappers via Display Contents & Flat DOM (v1.3.3).
+3. [.skaaa-ai/3-ecosystem/skaaa-logic-engine/logic-engine.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/3-ecosystem/skaaa-logic-engine/logic-engine.md):
+   - Bổ sung quy chuẩn thiết kế: Mục 5.1 "Gutenberg Editor Flat DOM & Zero-Wrapper Protocol (v1.3.3)".
+4. [.skaaa-ai/3-ecosystem/skaaa-no-code-design/design-engine.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/3-ecosystem/skaaa-no-code-design/design-engine.md):
+   - Ghi nhận cơ chế Col-Span Breakpoints và Container Wrapper Neutralization (v2.5.5).
 
 ---
 
-## 3. Tình Trạng Kiểm Thử & Xác Minh (Verification Log)
-- **Kiểm thử AST Parser & Direct Assignment:** Đã pass cả 2 trường hợp `data = [post.title]` và `var data = [post.title]`.
-- **Kiểm thử Database Real Post (Post ID 68):**
-  - Text Hydration: Thay thế placeholder `"Placeholder Text"` thành `"test trang chủ thiết ké từ stich"`.
-  - Image Hydration: Thay thế div placeholder tĩnh thành `<img class="w-full h-full object-cover" src="http://skaaa-no-code-ecosystem.local/wp-content/uploads/2026/03/avatar.jpg" alt="test trang chủ thiết ké từ stich" />`.
-  - Author Name & Date Hydration: Trả về chính xác thông tin tác giả và ngày đăng bài viết.
-- **Đóng gói ZIP (`zip-all.js`):**
-  - `skaaa-logic-engine-v1.3.2.zip` (0.37 MB)
-  - `skaaai-v1.6.4.zip` (0.16 MB)
-- **Đồng bộ Paired Site:**
-  - Sao chép toàn bộ mã nguồn plugin mới và cập nhật file `.agent/` sang `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/`.
+## 3. Danh Sách Lỗi Đã Giải Quyết (Resolved Issues Log)
+1. **Lỗi Selector Substring Bắt Nhầm Breakpoint (`*= vs ~=`):**
+   - *Triệu chứng:* Khối mang class `lg:col-span-7` bị selector `[class*="col-span-7"]` bắt trúng ngay trên màn hình nhỏ hoặc trong canvas editor hẹp (< 1024px), ép chiếm 7 cột trong lưới 1 cột khiến bề ngang co về 0px.
+   - *Giải pháp:* Đổi sang whole-word selector `[class~="col-span-*"]` và bao quanh bằng 5 tầng media queries (`@media (min-width: 640px/768px/1024px/1280px/1536px)`).
+2. **Lỗi Gutenberg InnerBlocks Layout Container Ngắt Kết Nối Grid:**
+   - *Triệu chứng:* Các thẻ `.block-editor-inner-blocks` và `.block-editor-block-list__layout` chen ngang giữa thẻ container Grid và các block con, khiến block con không nhận thuộc tính grid.
+   - *Giải pháp:* Áp dụng `display: contents;` để các thẻ bọc Gutenberg trở nên vô hình, khôi phục quyền tham gia grid trực tiếp cho block con.
+3. **Lỗi HOC Dynamic Binding Tự Động Sinh Thẻ Wrapper Inline Block:**
+   - *Triệu chứng:* HOC `withUniversalDynamicBinding` tự ý bọc mọi block `skaaaaa-builder/` vào `<div style="position: relative; display: block;">`. Khi nằm trong CSS Grid, thẻ bọc này bị tính là 1 Grid Item đơn lẻ không có `col-span`, bị ép về 1 cột mặc định (40px) khiến tiêu đề H1 rớt từng chữ cái thành dải dọc 1620px.
+   - *Giải pháp:* Trả về trực tiếp `<BlockEdit {...props} />` khi không có script (`!bindingData.script`). Dùng `display: contents` khi có script. Hoàn toàn không dùng cờ `!important`.
 
 ---
 
-## 4. Kế Hoạch Bàn Giao Phiên Kế Tiếp (Next Actions)
-1. **Kiểm tra giao diện trên site `lytatthanh`:**
-   - Mở template Single Post trên `l-tt-thnh-siu-c-nhn`, gán `data = [post.title]` trên `Skaaa Text` và `data = [post.featured_image]` trên `Skaaa Image` để xác nhận hiển thị hoàn hảo ở Frontend.
+## 4. Tình Trạng Kiểm Thử E2E (Verification Log)
+- **Kiểm thử trực tiếp trên Chrome DevTools (Post 17 - Home Page):**
+  - URL: `http://l-tt-thnh-siu-c-nhn.local/wp-admin/post.php?post=17&action=edit`
+  - Đã xác nhận qua console script: `intermediateDivsCount = 0` (sạch 100% thẻ bọc trung gian).
+  - Chiều rộng tiêu đề H1: bung chuẩn `698.65625px` (chiếm trọn 7/12 cột).
+  - Chiều cao tiêu đề H1: co từ `1620px` về `120px` (2 dòng cân đối chuẩn xác).
+  - Cột ảnh chân dung bên phải: chiếm trọn 5/12 cột.
+  - Giao diện Editor: Đạt **100% Visual & Responsive Layout Parity** so với Frontend.
+- **Đóng gói ZIP phân phối (`zip-all.js`):**
+  - `skaaa-no-code-design-v2.5.5.zip` (0.40 MB)
+  - `skaaa-logic-engine-v1.3.3.zip` (0.37 MB)
+- **Đồng bộ sang Paired Site (`l-tt-thnh-siu-c-nhn`):**
+  - Đã sao chép toàn bộ mã nguồn bundle mới và file PHP cập nhật.
+
+---
+
+## 5. Kế Hoạch Bàn Giao Phiên Kế Tiếp (Next Actions Checklist)
+1. **Kiểm tra trực quan phía User:**
+   - User mở trang Home (Post ID 17) trên trình duyệt cá nhân và nhấn `Ctrl + Shift + R` (hoặc `Cmd + Shift + R`) để xóa cache trình duyệt và xác nhận giao diện Editor hiển thị chuẩn xác.
 2. **Commit Git:**
-   - Tạo commit SemVer `feat(dynamic-content): add wordpress context and image hydration to skaaafx (logic-engine v1.3.2, skaaai v1.6.4)`.
+   - Thực hiện commit toàn bộ thay đổi trên nhánh `fix/no-code-design` theo chuẩn SemVer:
+     `fix(editor): responsive col-span parity & dynamic binding zero-wrapper flat DOM (design v2.5.5, logic-engine v1.3.3)`.
+3. **Mở rộng kiểm tra:**
+   - Kiểm tra thêm các trang/template khác có bố cục Grid phức tạp (Archive, Detail) để bảo đảm tính ổn định toàn diện.
