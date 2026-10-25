@@ -3,7 +3,7 @@
  * Skaaa Canvas Theme Functions
  * 
  * @package SkaaaCanvas
- * @version 1.0.1
+ * @version 1.0.2
  * 
  * ⚠️ RULES OF SKAAA CANVAS:
  * This theme must remain absolutely clean. 
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * 1. THEME SUPPORT SETUP
- * Turn on what we need (editor styles), turn off everything else that causes clutter.
+ * Turn on what we need (editor styles, featured images), turn off everything else that causes clutter.
  */
 function skaaa_canvas_setup() {
 	// Enable support for Editor Styles
@@ -25,6 +25,10 @@ function skaaa_canvas_setup() {
 	
 	// Add Editor-only CSS to fix "hugging the edges" UI
 	add_editor_style( 'editor-style.css' );
+
+	// Enable support for Featured Images (Post Thumbnails)
+	add_theme_support( 'post-thumbnails' );
+
 	// Disable Core Block Patterns (We don't want WP suggesting default layouts)
 	remove_theme_support( 'core-block-patterns' );
 	

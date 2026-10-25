@@ -3,6 +3,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, Button, Modal } from '@wordpress/components';
 import { Fragment, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import CodeMirrorEditor from './CodeMirrorEditor';
 
 // 1. Add Attribute skaaaDynamicBinding
@@ -32,11 +33,23 @@ const SkaaaFXEditorModal = ({ isOpen, onRequestClose, scriptData, onChange }) =>
 
     return (
         isOpen && (
-            <Modal title="🪄 SkaaaFX Universal Editor" onRequestClose={onRequestClose} style={{ minWidth: '700px', padding: '0' }}>
+            <Modal 
+                title={__( '🪄 SkaaaFX Universal Editor', 'skaaa-logic-engine' )} 
+                onRequestClose={onRequestClose} 
+                style={{ minWidth: '700px', padding: '0' }}
+            >
                 <div style={{ padding: '24px' }}>
                     <div style={{ marginBottom: '16px', fontSize: '13px', color: '#4b5563', lineHeight: '1.6' }}>
-                        <p style={{ margin: '0 0 8px 0' }}>Gõ <code>[</code> để hiện gợi ý Data. Bạn CÓ THỂ sử dụng <code>// Comment</code>.</p>
-                        <p style={{ margin: '0' }}>Gán giá trị vào biến <strong><code style={{color: '#2563eb'}}>data</code></strong> để nhét vào giao diện. Gán True/False vào <strong><code style={{color: '#16a34a'}}>visible</code></strong> để định đoạt ẩn/hiện.</p>
+                        <p style={{ margin: '0 0 8px 0' }}>
+                            {__( 'Type [ to show Data suggestions. You CAN use // comments.', 'skaaa-logic-engine' )}
+                        </p>
+                        <p style={{ margin: '0' }}>
+                            {__( 'Assign value to ', 'skaaa-logic-engine' )}
+                            <strong><code style={{color: '#2563eb'}}>data</code></strong>
+                            {__( ' to inject into UI. Assign true/false to ', 'skaaa-logic-engine' )}
+                            <strong><code style={{color: '#16a34a'}}>visible</code></strong>
+                            {__( ' to determine rendering.', 'skaaa-logic-engine' )}
+                        </p>
                     </div>
 
                     <CodeMirrorEditor 
@@ -45,11 +58,15 @@ const SkaaaFXEditorModal = ({ isOpen, onRequestClose, scriptData, onChange }) =>
                     />
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '24px' }}>
-                        <Button isSecondary onClick={onRequestClose}>Quay Lại</Button>
+                        <Button isSecondary onClick={onRequestClose}>
+                            {__( 'Cancel', 'skaaa-logic-engine' )}
+                        </Button>
                         <Button isPrimary onClick={() => { 
                             onChange(localScript); 
                             onRequestClose(); 
-                        }}>Phê Duyệt Kịch Bản</Button>
+                        }}>
+                            {__( 'Apply Script', 'skaaa-logic-engine' )}
+                        </Button>
                     </div>
                 </div>
             </Modal>
@@ -96,16 +113,16 @@ const withUniversalDynamicBinding = createHigherOrderComponent((BlockEdit) => {
                             alignItems: 'center',
                             gap: '4px'
                         }}>
-                            <span>🪄</span> Dynamic Data
+                            <span>🪄</span> {__( 'Dynamic Data', 'skaaa-logic-engine' )}
                         </div>
                     )}
                 </div>
                 {isSelected && (
                     <InspectorControls>
-                        <PanelBody title="🪄 Universal Dynamic Binding" initialOpen={false}>
+                        <PanelBody title={__( '🪄 Universal Dynamic Binding', 'skaaa-logic-engine' )} initialOpen={false}>
                             <div>
                                 <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
-                                    Hợp nhất liên kết nội dung và phán xử hiển thị khối bằng <strong>SkaaaFX Engine</strong>.
+                                    {__( 'Unify content binding and block visibility decision with SkaaaFX Engine.', 'skaaa-logic-engine' )}
                                 </p>
 
                                 {bindingData.script && (
@@ -121,7 +138,7 @@ const withUniversalDynamicBinding = createHigherOrderComponent((BlockEdit) => {
                                     style={{ width: '100%', justifyContent: 'center', borderColor: '#4f46e5', color: '#4f46e5' }}
                                     onClick={() => setIsEditorOpen(true)}
                                 >
-                                    Mở Cỗ Máy CodeMirror
+                                    {__( 'Open CodeMirror Engine', 'skaaa-logic-engine' )}
                                 </Button>
 
                                 <SkaaaFXEditorModal 

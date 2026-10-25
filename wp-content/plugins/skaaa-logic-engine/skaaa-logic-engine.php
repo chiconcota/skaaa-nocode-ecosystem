@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Skaaa Logic Engine
  * Description: The "Skaaa-cement" Logic Brain of the Skaaa Builder Ecosystem. Handles workflows, data routing, and node-based automation features.
- * Version: 1.3.0
+ * Version: 1.3.2
  * Author: Skaaa Ecosystem
  * Text Domain: skaaa-logic-engine
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit; // Bảo mật chuẩn WordPress
 
 // Khai báo Const
-define( 'SKAAA_LOGIC_ENGINE_VERSION', '1.3.0' );
+define( 'SKAAA_LOGIC_ENGINE_VERSION', '1.3.2' );
 define( 'SKAAA_LOGIC_ENGINE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAAA_LOGIC_ENGINE_URL', plugin_dir_url( __FILE__ ) ); // Phục vụ gọi JS UI nếu cần
 

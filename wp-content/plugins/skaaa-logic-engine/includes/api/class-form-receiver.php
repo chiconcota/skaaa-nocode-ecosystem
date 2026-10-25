@@ -238,9 +238,60 @@ class Skaaa_Form_Receiver
     public static function handle_schema(WP_REST_Request $request)
     {
         $dictionary = get_option('skaaa_data_dictionary', []);
-        $tribute_data = [];
         global $wpdb;
         $global_prefix = $wpdb->prefix . 'skaaa_data_';
+
+        // Khởi tạo nhóm biến WordPress Core chuẩn
+        $tribute_data = [
+            [
+                'key'   => 'post.title - ' . __( 'Current Post Title', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.title]'
+            ],
+            [
+                'key'   => 'post.featured_image - ' . __( 'Featured Image URL', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.featured_image]'
+            ],
+            [
+                'key'   => 'post.author - ' . __( 'Author Display Name', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.author]'
+            ],
+            [
+                'key'   => 'post.author_avatar - ' . __( 'Author Avatar URL', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.author_avatar]'
+            ],
+            [
+                'key'   => 'post.date - ' . __( 'Post Published Date', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.date]'
+            ],
+            [
+                'key'   => 'post.excerpt - ' . __( 'Post Excerpt', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.excerpt]'
+            ],
+            [
+                'key'   => 'post.permalink - ' . __( 'Post URL / Permalink', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.permalink]'
+            ],
+            [
+                'key'   => 'post.id - ' . __( 'Current Post ID', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Post', 'skaaa-logic-engine' ) . ')',
+                'value' => '[post.id]'
+            ],
+            [
+                'key'   => 'user.name - ' . __( 'Logged-in User Name', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress User', 'skaaa-logic-engine' ) . ')',
+                'value' => '[user.name]'
+            ],
+            [
+                'key'   => 'user.email - ' . __( 'Logged-in User Email', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress User', 'skaaa-logic-engine' ) . ')',
+                'value' => '[user.email]'
+            ],
+            [
+                'key'   => 'site.title - ' . __( 'Website Title', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Site', 'skaaa-logic-engine' ) . ')',
+                'value' => '[site.title]'
+            ],
+            [
+                'key'   => 'site.url - ' . __( 'Website Home URL', 'skaaa-logic-engine' ) . ' (' . __( 'WordPress Site', 'skaaa-logic-engine' ) . ')',
+                'value' => '[site.url]'
+            ],
+        ];
 
         foreach ($dictionary as $table_id => $table_config) {
             // Lấy App Slug từ __table_info

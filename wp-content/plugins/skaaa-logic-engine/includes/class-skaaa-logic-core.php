@@ -110,6 +110,10 @@ class Skaaa_Logic_Core {
                 $asset['version'],
                 true
             );
+
+            if ( function_exists( 'wp_set_script_translations' ) ) {
+                wp_set_script_translations( 'skaaa-editor-logic-js', 'skaaa-logic-engine', SKAAA_LOGIC_ENGINE_DIR . 'languages' );
+            }
         }
 
         // Truyền đường dẫn API Schema (Fallback cho trường hợp không dùng wp.apiFetch)

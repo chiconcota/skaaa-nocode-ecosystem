@@ -63,6 +63,12 @@ class SkaaaFX_Evaluator {
             if ( $lower_name === 'false' ) return false;
             if ( $lower_name === 'null' ) return null;
 
+            // Ưu tiên 0: Phân giải biến ngữ cảnh WordPress Core (post.*, wp.*, user.*, site.*)
+            $wp_val = $this->resolve_wp_variable( $var_name );
+            if ( $wp_val !== null ) {
+                return $wp_val;
+            }
+
             // UX Cải tiến: Nếu user gõ `payload.xyz`, ta tự động cắt bỏ chữ `payload.` đi
             // vì $this->row_context vốn dĩ chính là payload rồi.
             if ( strpos( $var_name, 'payload.' ) === 0 ) {
@@ -280,6 +286,132 @@ class SkaaaFX_Evaluator {
 
         throw new SkaaaFX_Runtime_Error(__( 'The machine cannot recognize the Node type: Breaking the AST architecture.', 'skaaa-logic-engine' ));
     }
+    /**
+     * Phân giải biến ngữ cảnh WordPress Core (post.*, wp.*, user.*, site.*)
+     * An toàn framework-agnostic: chỉ kích hoạt khi có môi trường WordPress.
+     */
+    private function resolve_wp_variable( $var_name ) {
+        if ( ! function_exists( 'get_the_ID' ) && ! function_exists( 'get_bloginfo' ) ) {
+            return null;
+        }
+
+        $lower = strtolower( $var_name );
+
+        // Chuẩn hóa tiền tố wp. thành post. (ví dụ: wp.title -> post.title)
+        if ( strpos( $lower, 'wp.' ) === 0 ) {
+            $lower = 'post.' . substr( $lower, 3 );
+        }
+
+        // 1. Ngữ cảnh Website (site.title, site.url, site.description)
+        if ( $lower === 'site.title' && function_exists( 'get_bloginfo' ) ) {
+            return get_bloginfo( 'name' );
+        }
+        if ( $lower === 'site.description' && function_exists( 'get_bloginfo' ) ) {
+            return get_bloginfo( 'description' );
+        }
+        if ( $lower === 'site.url' && function_exists( 'home_url' ) ) {
+            return home_url();
+        }
+
+        // 2. Ngữ cảnh Người dùng hiện tại (user.name, user.email, user.avatar, user.id)
+        if ( strpos( $lower, 'user.' ) === 0 && function_exists( 'wp_get_current_user' ) ) {
+            $current_user = wp_get_current_user();
+            if ( $lower === 'user.name' || $lower === 'user.display_name' ) {
+                return $current_user && $current_user->exists() ? $current_user->display_name : '';
+            }
+            if ( $lower === 'user.email' ) {
+                return $current_user && $current_user->exists() ? $current_user->user_email : '';
+            }
+            if ( $lower === 'user.id' ) {
+                return $current_user && $current_user->exists() ? $current_user->ID : 0;
+            }
+            if ( $lower === 'user.avatar' && function_exists( 'get_avatar_url' ) ) {
+                return $current_user && $current_user->exists() ? get_avatar_url( $current_user->ID ) : '';
+            }
+        }
+
+        // 3. Ngữ cảnh Bài viết WordPress (post.title, post.featured_image, post.author...)
+        if ( strpos( $lower, 'post.' ) === 0 ) {
+            $post_id = 0;
+            if ( ! empty( $this->row_context['WP_POST_ID'] ) ) {
+                $post_id = absint( $this->row_context['WP_POST_ID'] );
+            } elseif ( function_exists( 'get_the_ID' ) && get_the_ID() ) {
+                $post_id = get_the_ID();
+            } elseif ( isset( $GLOBALS['post']->ID ) ) {
+                $post_id = $GLOBALS['post']->ID;
+            } elseif ( ! empty( $this->row_context['GLOBAL_ID'] ) ) {
+                $post_id = absint( $this->row_context['GLOBAL_ID'] );
+            } elseif ( isset( $_GET['id'] ) ) {
+                $post_id = absint( $_GET['id'] );
+            }
+
+            if ( ! $post_id ) {
+                return '';
+            }
+
+            $post = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
+
+            switch ( $lower ) {
+                case 'post.title':
+                    return function_exists( 'get_the_title' ) ? get_the_title( $post_id ) : ( $post ? $post->post_title : '' );
+
+                case 'post.featured_image':
+                case 'post.thumbnail':
+                case 'post.image':
+                    return function_exists( 'get_the_post_thumbnail_url' ) ? ( get_the_post_thumbnail_url( $post_id, 'full' ) ?: '' ) : '';
+
+                case 'post.author':
+                    if ( $post && ! empty( $post->post_author ) && function_exists( 'get_the_author_meta' ) ) {
+                        return get_the_author_meta( 'display_name', $post->post_author );
+                    }
+                    return function_exists( 'get_the_author' ) ? get_the_author() : '';
+
+                case 'post.author_avatar':
+                    if ( $post && ! empty( $post->post_author ) && function_exists( 'get_avatar_url' ) ) {
+                        return get_avatar_url( $post->post_author );
+                    }
+                    return '';
+
+                case 'post.date':
+                    return function_exists( 'get_the_date' ) ? get_the_date( '', $post_id ) : ( $post ? $post->post_date : '' );
+
+                case 'post.modified_date':
+                    return function_exists( 'get_the_modified_date' ) ? get_the_modified_date( '', $post_id ) : ( $post ? $post->post_modified : '' );
+
+                case 'post.excerpt':
+                    return function_exists( 'get_the_excerpt' ) ? get_the_excerpt( $post_id ) : ( $post ? $post->post_excerpt : '' );
+
+                case 'post.permalink':
+                case 'post.url':
+                    return function_exists( 'get_permalink' ) ? get_permalink( $post_id ) : '';
+
+                case 'post.id':
+                    return $post_id;
+
+                case 'post.content':
+                    return $post ? $post->post_content : '';
+
+                default:
+                    // Custom fields: post.meta.<key>
+                    if ( strpos( $lower, 'post.meta.' ) === 0 && function_exists( 'get_post_meta' ) ) {
+                        $meta_key = substr( $var_name, 10 );
+                        return get_post_meta( $post_id, $meta_key, true );
+                    }
+                    // Fallback trực tiếp nếu gõ post.<meta_key>
+                    if ( function_exists( 'get_post_meta' ) ) {
+                        $meta_key = substr( $var_name, 5 );
+                        $val = get_post_meta( $post_id, $meta_key, true );
+                        if ( $val !== '' && $val !== false && $val !== null ) {
+                            return $val;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Lấy toàn bộ biến bộ nhớ ra ngoài (Ví dụ: `data`, `visible`)
      */

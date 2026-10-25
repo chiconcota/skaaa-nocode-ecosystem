@@ -1,6 +1,6 @@
 {
   "name": "skaaa-logic-engine",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "description": "The logic builder for Skaaa ecosystem",
   "main": "index.js",
   "scripts": {

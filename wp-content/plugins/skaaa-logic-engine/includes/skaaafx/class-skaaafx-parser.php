@@ -85,7 +85,7 @@ class SkaaaFX_Parser {
     }
 
     private function parse_statement() {
-        // Nêu gặp Keyword `var`, đây là dạng Gán Biến (Assignment statement)
+        // 1. Nếu gặp Keyword `var`, đây là dạng Gán Biến (Assignment statement): `var x = ...`
         if ( $this->match( SkaaaFX_Lexer::T_KW_VAR ) ) {
             $this->consume( SkaaaFX_Lexer::T_KW_VAR );
             
@@ -104,6 +104,17 @@ class SkaaaFX_Parser {
                 return new Node_Assign( $var_name_token['value'], $expr );
             } else {
                 throw new SkaaaFX_Syntax_Error(__( 'Declaration error: Need a valid variable name after `var`.', 'skaaa-logic-engine' ));
+            }
+        }
+
+        // 2. Dạng Gán Biến trực tiếp không cần `var`: `data = ...` hoặc `visible = ...` hoặc `x = ...`
+        if ( $this->match( SkaaaFX_Lexer::T_IDENT ) ) {
+            $next_tok = $this->peek_ahead( 1 );
+            if ( $next_tok && $next_tok['type'] === SkaaaFX_Lexer::T_OP && $next_tok['value'] === '=' ) {
+                $var_name_token = $this->consume( SkaaaFX_Lexer::T_IDENT );
+                $this->consume( SkaaaFX_Lexer::T_OP ); // Bỏ qua dấu '='
+                $expr = $this->parse_expression();
+                return new Node_Assign( $var_name_token['value'], $expr );
             }
         }
 
@@ -215,6 +226,13 @@ class SkaaaFX_Parser {
     // Các hàm trợ lý siêu tốc (Helpers)
     private function peek() {
         return $this->tokens[ $this->position ];
+    }
+
+    private function peek_ahead( $offset = 1 ) {
+        if ( $this->position + $offset < $this->length ) {
+            return $this->tokens[ $this->position + $offset ];
+        }
+        return null;
     }
 
     private function is_at_end() {

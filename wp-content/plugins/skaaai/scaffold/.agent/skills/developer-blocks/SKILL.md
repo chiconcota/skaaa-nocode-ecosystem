@@ -260,6 +260,59 @@ Thay vì hardcode dữ liệu tĩnh vào Post, Developer sử dụng khối `loo
 
 ---
 
+### 4.2. CƠ CHẾ UNIVERSAL DYNAMIC BINDING (SKAAAFX) CHO TEMPLATE BÀI VIẾT (SINGLE POST & DETAIL TEMPLATES)
+
+> **THIẾT QUÂN LUẬT NO-CORE-BLOCKS:** Khi tạo Single Post Template, Blog Detail, hay bất kỳ Template bài viết nào, **100% BẮT BUỘC dùng Atomic Blocks của Skaaa kết hợp thuộc tính `skaaaDynamicBinding`**. TUYỆT ĐỐI CẤM dùng các block mặc định của WordPress (`core/post-title`, `core/post-featured-image`, `core/post-author`, `core/post-date`) vì chúng phá vỡ hệ thống Design Tokens và trình biên dịch Tailwind JIT.
+
+#### A. Danh Mục Biến SkaaaFX WordPress Core:
+* `data = [post.title]` : Tiêu đề bài viết hiện tại.
+* `data = [post.featured_image]` (hoặc `[post.thumbnail]`) : URL ảnh đại diện (Featured Image).
+* `data = [post.author]` : Tên tác giả hiển thị.
+* `data = [post.author_avatar]` : URL ảnh đại diện (Avatar) của tác giả.
+* `data = [post.date]` : Ngày đăng bài viết.
+* `data = [post.excerpt]` : Tóm tắt bài viết.
+* `data = [post.permalink]` (hoặc `[post.url]`) : Đường dẫn URL của bài viết.
+* `data = [post.meta.<custom_field>]` : Dữ liệu trường tùy biến từ ACF/SCF/Postmeta.
+* `data = [user.name]` : Tên người dùng đang đăng nhập.
+* `data = [site.title]` / `data = [site.url]` : Thông tin website.
+
+#### B. Mẫu Code Gutenberg Chuẩn Cho Single Post Template:
+```html
+<!-- TIÊU ĐỀ BÀI VIẾT: Gán động data = [post.title] -->
+<!-- wp:skaaaaa-builder/text {
+  "tagName": "h1",
+  "content": "[Tiêu đề bài viết]",
+  "tailwindClasses": "text-3xl md:text-5xl font-black text-text dark:text-text tracking-tight mb-4",
+  "skaaaDynamicBinding": {"script": "data = [post.title]"}
+} /-->
+
+<!-- METADATA TÁC GIẢ & NGÀY ĐĂNG -->
+<!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"flex items-center gap-3 text-sm text-text/60 dark:text-text/60 mb-8"} -->
+  <!-- wp:skaaaaa-builder/text {
+    "tagName": "span",
+    "content": "Tác giả",
+    "tailwindClasses": "font-medium text-text dark:text-text",
+    "skaaaDynamicBinding": {"script": "data = [post.author]"}
+  } /-->
+  <!-- wp:skaaaaa-builder/text {"content":"•","tagName":"span"} /-->
+  <!-- wp:skaaaaa-builder/text {
+    "tagName": "span",
+    "content": "Ngày đăng",
+    "skaaaDynamicBinding": {"script": "data = [post.date]"}
+  } /-->
+<!-- /wp:skaaaaa-builder/container -->
+
+<!-- ẢNH ĐẠI DIỆN BÀI VIẾT (FEATURED IMAGE): Gán động data = [post.featured_image] -->
+<!-- wp:skaaaaa-builder/image {
+  "aspectRatio": "aspect-video",
+  "objectFit": "object-cover",
+  "tailwindClasses": "w-full rounded-2xl shadow-xl overflow-hidden mb-10 border border-border dark:border-border",
+  "skaaaDynamicBinding": {"script": "data = [post.featured_image]"}
+} /-->
+```
+
+---
+
 ## 5. MẪU PHP $WPDB TẠO BẢNG PHẲNG CHO FORM & DATA PRO
 
 Tuyệt đối không gõ CLI `mysql` trực tiếp. Tạo bảng phẳng an toàn bằng `$wpdb` và `dbDelta`:

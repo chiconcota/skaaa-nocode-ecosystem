@@ -1,5 +1,5 @@
 # SYSTEM MAP: SKAAA NO-CODE (v2.5.4)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: hotfix/sync-cache | @last_update: 2026-10-25
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: fix/no-code-design | @last_update: 2026-10-25
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -28,10 +28,11 @@ wp-content/
 ## 3. MODULE REGISTRY & STATUS
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
-| **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
+| **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch, hỗ trợ Featured Image. | 🟢 Stable (v1.0.2) |
 | **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.4) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.3) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.4) |
+| **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.2) |
 
 ---
 
@@ -40,7 +41,7 @@ wp-content/
 - **Zero-CDN Tailwind v4 JIT:** Bộ biên dịch JIT kép (PHP backend & SkaaaWind JS editor) chạy offline 100%, chuẩn hóa Single Source of Truth qua `tailwind-rules.json` với 100% Compiler Parity.
 - **Atomic Blocks & Skaaapine:** Hệ thống khối phẳng (`Container`, `Text`, `Button`, `SVG`, `Code`, `Loop`) kết hợp tương tác thời gian thực bằng Skaaapine (Alpine.js) không bị xung đột với WordPress.
 - **Decoupled Logic Workflows:** Đồ thị DAG kéo thả (React Flow v11) xử lý sự kiện qua biểu thức SkaaaFX AST, Pluggable Nodes Framework và Action Scheduler.
-- **Blank Canvas Host:** Theme `Skaaa Canvas (v1.0.1)` loại bỏ CSS rác của WordPress, tự động bù vị trí Admin Bar cho header cố định.
+- **Blank Canvas Host:** Theme `Skaaa Canvas (v1.0.2)` loại bỏ CSS rác của WordPress, hỗ trợ Featured Images bản địa và tự động bù vị trí Admin Bar cho header cố định.
 
 ---
 
@@ -53,6 +54,22 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-25 - 🟢 Done (Skaaa No-Code Ecosystem v2.5.6 - Universal WordPress Dynamic Content, Post Featured Image Support & Agent Kit Upgrade):**
+  - **Skaaa Canvas v1.0.2:**
+    1. **Bật Featured Image bản địa:** Bổ sung `add_theme_support( 'post-thumbnails' )` vào `functions.php` giúp khôi phục ô tải ảnh đại diện Featured Image trong thanh Sidebar khi soạn thảo Post của WordPress.
+    2. **Đồng bộ Paired Site:** Nâng phiên bản `style.css` lên `1.0.2` và đồng bộ tức thì sang site `l-tt-thnh-siu-c-nhn`.
+  - **Skaaa Logic Engine v1.3.2:**
+    1. **Bơm dữ liệu Image & Button (`class-dynamic-content.php`):** Kích hoạt nhánh `skaaaaa-builder/image` để nạp URL ảnh động vào thuộc tính `src="..."` hoặc thay thế placeholder rỗng thành thẻ responsive `<img>`. Hỗ trợ thêm cho `skaaaaa-builder/button`.
+    2. **WordPress Context Provider (`class-skaaafx-evaluator.php`):** Mở rộng `SkaaaFX_Evaluator` tự động phân giải các biến WordPress native: `[post.title]`, `[post.featured_image]`, `[post.author]`, `[post.date]`, `[post.excerpt]`, `[post.permalink]`, `[post.meta.*]`, `[user.name]`, `[site.title]`...
+    3. **Cú pháp gán biến linh hoạt (`class-skaaafx-parser.php`):** Cho phép gán trực tiếp không bắt buộc từ khóa `var` (như `data = [post.title]` và `visible = true`).
+    4. **REST API Autocomplete Schema (`class-form-receiver.php`):** Bổ sung nhóm biến WordPress Core vào endpoint `/skaaa-logic/v1/schema` để gợi ý tức thì khi gõ `[` trong CodeMirror Editor.
+  - **Skaaai v1.6.4 & Agent Kit:**
+    1. **Cập nhật `developer-blocks/SKILL.md`:** Thêm mục 4.2 hướng dẫn Universal Dynamic Binding (SkaaaFX) cho Single Post Template và blog detail với code mẫu chuẩn.
+    2. **Cập nhật `company-rules.md`:** Khẳng định thiết quân luật 100% template bài viết phải dùng Atomic Blocks kết hợp `skaaaDynamicBinding`, cấm dùng block mặc định `core/post-*`.
+    3. **Đóng gói & Đồng bộ:** Đóng gói `skaaa-logic-engine-v1.3.2.zip` (0.37 MB), `skaaai-v1.6.4.zip` (0.16 MB) và đồng bộ sang paired site `l-tt-thnh-siu-c-nhn`.
+- **2026-10-25 - 🟢 Done (Skaaa Logic Engine v1.3.1 - Khôi phục Panel Universal Dynamic Binding trên Gutenberg Inspector):** Khắc phục triệt để lỗi mất hoàn toàn Panel "🪄 Universal Dynamic Binding" trên Inspector của các block Skaaa:
+  - **Lỗi biên dịch lạc hậu:** Sau đợt rebrand sang prefix `skaaaaa-builder/`, gói bundle biên dịch `assets/js/dist/index.jsx.js` chưa được build lại, vẫn giữ prefix cũ `ska-builder/` và thuộc tính `skaDynamicBinding` khiến HOC `withUniversalDynamicBinding` bị bỏ qua.
+  - **Biên dịch & Đóng gói:** Đã chạy `npm run build` tạo lại `dist/index.jsx.js` và `index.jsx.asset.php` đồng bộ chuẩn 100% với `skaaaaa-builder/` và `skaaaDynamicBinding`. Nâng phiên bản lên `v1.3.1` và đóng gói `skaaa-logic-engine-v1.3.1.zip`. Đồng bộ sang paired site `l-tt-thnh-siu-c-nhn`.
 - **2026-10-25 - 🟢 Done (Skaaai Plugin v1.6.3 - Server-Level LiteSpeed Cache Purge & Organism Toolbar Push Integration):** Khắc phục triệt để hiện tượng sửa footer/header trên local nhưng đẩy lên hosting live phải đợi gần 1 ngày mới thay đổi:
   - **Lớp Chuyên Trách Xóa Cache (Sync_Cache):** Bổ sung class `Sync_Cache` phát lệnh xóa cache toàn năng. Gửi trực tiếp header máy chủ `X-LiteSpeed-Purge: *` và đính kèm vào phản hồi REST API (`WP_REST_Response`) cho cả `/push-post` và `/sync-ecosystem` để LiteSpeed Web Server xóa sạch 100% cache trên server ngay tức thì (0ms) mà không phụ thuộc vào việc có cài plugin LiteSpeed Cache hay không.
   - **Tái tạo File Cache Tĩnh Organisms (`organisms.json`):** Tự động gọi `Organisms_API::export_physical_cache()` ngay sau khi đồng bộ organisms vào CSDL Live.

@@ -39,6 +39,32 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-25 - 🟢 Hoàn thành: Universal WordPress Dynamic Content & Agent Kit Upgrade (Skaaa Logic Engine v1.3.2 & Skaaai v1.6.4)
+- **Decision (Universal WordPress Dynamic Content via SkaaaFX AST & Agent Kit Integration):**
+  - **Bối cảnh & Vấn đề:** Khi thiết kế giao diện Single Post hoặc Custom Post Type template, các khối của Skaaa (`Skaaa Text`, `Skaaa Image`, `Skaaa Button`) không có cách nào kéo dữ liệu động bản địa của WordPress (Tiêu đề, Ảnh đại diện/Featured Image, Tác giả, Ngày đăng, Trích dẫn, Permalink). Lõi `class-dynamic-content.php` bỏ ngỏ khối Image (chỉ có comment chờ phát triển). Đồng thời, bộ Agent Kit của Skaaai chưa hướng dẫn AI Agent cách dùng `skaaaDynamicBinding`, khiến AI khi dựng template tự ý lùi về dùng block mặc định của WordPress (`core/post-*`).
+  - **Nguyên nhân kỹ thuật sâu:**
+    1. Trong SkaaaFX AST Parser cũ, biểu thức không có từ khóa `var` (như `data = [post.title]`) bị parse nhầm thành phép so sánh bằng `Node_BinaryOp` (`data == [post.title]`). Khi `data` chưa có giá trị, phép so sánh trả về `false`, kích hoạt bộ lọc ẩn khối (`is_visible = false`) khiến block biến mất khỏi HTML render.
+    2. Khối Image chỉ có placeholder tĩnh, chưa có logic bóc tách `src` và thay thế ảnh động khi nhận URL ảnh hoặc Media Attachment ID.
+  - **Giải pháp kiến trúc:**
+    1. *Hydration Lõi Image & Button:* Mở rộng `class-dynamic-content.php` hỗ trợ thay thế linh hoạt `src` của thẻ `<img>` hoặc tự động tạo thẻ `<img>` responsive nếu khối Image là div rỗng. Nạp tự động `WP_POST_ID` từ ngữ cảnh truy vấn bài viết hiện tại.
+    2. *WordPress Context Provider:* Bổ sung hàm `resolve_wp_variable()` framework-agnostic trong `class-skaaafx-evaluator.php`, hỗ trợ đầy đủ `[post.title]`, `[post.featured_image]`, `[post.thumbnail]`, `[post.author]`, `[post.author_avatar]`, `[post.date]`, `[post.modified_date]`, `[post.excerpt]`, `[post.permalink]`, `[post.id]`, `[post.content]`, `[post.meta.*]`, `[user.name]`, `[user.email]`, `[user.avatar]`, `[site.title]`, `[site.url]`.
+    3. *Parser Direct Assignment:* Cập nhật `class-skaaafx-parser.php` với `peek_ahead()` nhận diện `T_IDENT = expr` là `Node_Assign` hợp lệ mà không bắt buộc phải có từ khóa `var`.
+    4. *Schema Autocomplete REST API:* Mở rộng `/skaaa-logic/v1/schema` trong `class-form-receiver.php` trả về gợi ý biến WordPress Core chuẩn i18n tiếng Anh cho CodeMirror Editor.
+    5. *Nâng Cấp Skaaai Agent Kit:* Bổ sung Mục 4.2 vào `developer-blocks/SKILL.md` và điều khoản bắt buộc vào `company-rules.md`, cấm triệt để AI dùng `core/post-*` và hướng dẫn dùng `skaaaDynamicBinding` cho mọi template động.
+    6. *Nâng SemVer & Đồng Bộ:* `skaaa-logic-engine` lên `v1.3.2`, `skaaai` lên `v1.6.4`, đóng gói ZIP, đồng bộ sang site paired `l-tt-thnh-siu-c-nhn` và kiểm thử tự động 100% pass trên dữ liệu bài viết thực tế.
+
+- **Decision (Recompile Universal Dynamic Binding Bundle for Gutenberg Inspector):**
+  - **Bối cảnh & Vấn đề:** Khi mở trình soạn thảo Gutenberg và chọn bất kỳ khối nào của Skaaa (ví dụ: `Skaaa Text`, `Skaaa Container`), người dùng nhận thấy panel "🪄 Universal Dynamic Binding" (CodeMirror Editor gán biến SkaaaFX AST) bị biến mất hoàn toàn khỏi thanh Inspector Sidebar.
+  - **Nguyên nhân gốc rễ:** 
+    1. Trong đợt rebrand sang `skaaaaa-builder/`, mã nguồn `assets/js/skaaafx-editor/src/index.jsx` đã được cập nhật nhưng tệp bundle biên dịch sẵn `assets/js/dist/index.jsx.js` chưa được build lại.
+    2. Bundle cũ vẫn kiểm tra tiền tố `r.startsWith("ska-builder/")` và thuộc tính `skaDynamicBinding`. Do block hiện tại là `skaaaaa-builder/*`, điều kiện trả về `false` và thoát sớm (`return <BlockEdit {...props} />`), ngăn cản việc render Panel và badge Dynamic Data.
+  - **Giải pháp kiến trúc:**
+    1. Chuẩn hóa 100% các chuỗi UI hiển thị (tiêu đề, nút bấm, hướng dẫn modal, gợi ý keyword) sang tiếng Anh mặc định và bọc trong hàm i18n `__( '...', 'skaaa-logic-engine' )` theo Rule #10.
+    2. Cài đặt dependencies và chạy `npm run build` (`wp-scripts build src/index.jsx --output-path=../dist`) trong `skaaa-logic-engine/assets/js/skaaafx-editor/` để sinh gói bundle `dist/index.jsx.js` và `index.jsx.asset.php` đồng bộ chuẩn 100% với namespace `skaaaaa-builder/` và `skaaaDynamicBinding`, tự động tích hợp dependency `wp-i18n`.
+    3. Đăng ký `wp_set_script_translations()` trong `class-skaaa-logic-core.php`.
+    4. Đồng bộ tệp phân phối sang paired site `l-tt-thnh-siu-c-nhn`.
+    5. Nâng phiên bản `Skaaa Logic Engine` lên `v1.3.1` (SemVer Patch) và đóng gói `skaaa-logic-engine-v1.3.1.zip`.
+
 ## 2026-10-25 - 🟢 Hoàn thành: Server-Level LiteSpeed Cache Purge & Organism Toolbar Push Integration (Skaaai v1.6.3)
 - **Decision (Server-Level LiteSpeed Cache Purge & Dedicated Sync_Cache Architecture):**
   - **Bối cảnh & Vấn đề:** Khi người dùng sửa nội dung Footer/Header ở Local và đẩy lên hosting Live (`lytatthanh.com`), nội dung mới không hiển thị ngay mà phải đợi gần 1 ngày (24 giờ) mới thấy thay đổi.

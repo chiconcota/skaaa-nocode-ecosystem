@@ -65,10 +65,16 @@ class Skaaa_Dynamic_Content {
             // Cho phép Frontend hiểu ngữ cảnh bảng hiện tại
             $table_alias = isset( $_GET['table'] ) ? sanitize_text_field( $_GET['table'] ) : '';
             
-            // Cung cấp GLOBAL_ID cho Phân giải AST
+            $wp_post_id = get_the_ID();
+            if ( ! $wp_post_id && isset( $GLOBALS['post']->ID ) ) {
+                $wp_post_id = $GLOBALS['post']->ID;
+            }
+
+            // Cung cấp GLOBAL_ID & WP_POST_ID cho Phân giải AST
             $context = [ 
-                'GLOBAL_ID' => $record_id,
-                'GLOBAL_TABLE' => $table_alias 
+                'GLOBAL_ID'    => $record_id,
+                'GLOBAL_TABLE' => $table_alias,
+                'WP_POST_ID'   => $wp_post_id ? absint( $wp_post_id ) : 0,
             ]; 
 
             if ( class_exists( '\Skaaa\Logic\SkaaaFX\SkaaaFX_Engine' ) ) {
@@ -102,13 +108,37 @@ class Skaaa_Dynamic_Content {
 
                 if ( $new_data !== null ) {
                     
-                    if ( $block['blockName'] === 'skaaaaa-builder/text' ) {
-                        // Regex cực mạnh thay thế nội dung TEXT nằm giữa 2 thẻ Wrapper rỗng lõi của Gutenberg (Tạm thời không hỗ trợ Nested bên trong)
+                    if ( $block['blockName'] === 'skaaaaa-builder/text' || $block['blockName'] === 'skaaaaa-builder/button' ) {
+                        // Regex cực mạnh thay thế nội dung TEXT nằm giữa 2 thẻ Wrapper của Gutenberg
                         $block_content = preg_replace( '/(<[a-zA-Z0-9]+[^>]*>)(.*?)(<\/[a-zA-Z0-9]+>\s*)$/s', '${1}' . esc_html( $new_data ) . '${3}', $block_content );
                     }
                     else if ( $block['blockName'] === 'skaaaaa-builder/image' ) {
-                         // Dự báo Logic tương lai: Thúc thẳng vảo thẻ <img src="...">
-                         // Tạm thời chưa build vì hệ thống SkaaaFX cần trả object cho Ảnh.
+                        // Xử lý nạp ảnh động: Chấp nhận URL chuỗi hoặc Media Attachment ID
+                        $img_url = '';
+                        if ( is_numeric( $new_data ) ) {
+                            $img_url = wp_get_attachment_image_url( intval( $new_data ), 'full' );
+                        } elseif ( is_string( $new_data ) ) {
+                            $img_url = trim( $new_data );
+                        }
+
+                        if ( ! empty( $img_url ) ) {
+                            if ( strpos( $block_content, '<img' ) !== false ) {
+                                // Nếu block đã có thẻ <img ...>: Thay thế thuộc tính src
+                                if ( preg_match( '/<img\b[^>]*?\bsrc="[^"]*"/i', $block_content ) ) {
+                                    $block_content = preg_replace( '/(<img\b[^>]*?\bsrc=")([^"]*)(")/i', '${1}' . esc_url( $img_url ) . '${3}', $block_content );
+                                } else {
+                                    $block_content = preg_replace( '/(<img\b)/i', '${1}src="' . esc_url( $img_url ) . '" ', $block_content );
+                                }
+                            } else {
+                                // Nếu block đang ở dạng placeholder rỗng (div Icon Image): Thay thế div rỗng thành thẻ <img>
+                                $aspect = isset( $block['attrs']['objectFit'] ) ? esc_attr( $block['attrs']['objectFit'] ) : 'object-cover';
+                                $block_content = preg_replace(
+                                    '/(<[a-zA-Z0-9]+[^>]*>)(.*?)(<\/[a-zA-Z0-9]+>\s*)$/s',
+                                    '${1}<img class="w-full h-full ' . $aspect . '" src="' . esc_url( $img_url ) . '" alt="" />${3}',
+                                    $block_content
+                                );
+                            }
+                        }
                     }
                 } else {
                     // CỘNG THÊM: Hỗ trợ vòng lặp {{#foreach schema.table_name.column_name}} để tự sinh Option Dropdown

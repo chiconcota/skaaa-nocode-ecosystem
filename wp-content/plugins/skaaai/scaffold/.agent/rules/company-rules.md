@@ -20,6 +20,7 @@
 - **Giao diện (Skaaa Design):** 100% dùng comment Gutenberg thuần của 15 khối Chuẩn (`container`, `text`, `image`, `button`, `icon`, `video`, `svg`, `list`, `list-item`, `input`, `select`, `form-rich-text`, `organism-ref`, `loop`, `code`). CẤM bọc thẻ HTML thô (`<div>`, `<main>`, `<section>`) bên ngoài comment block vì sẽ gây lỗi Invalid Content. 100% style quy về class Tailwind v4 trong thuộc tính `tailwindClasses` (cấm `classes`), cấm dùng inline `style="..."`.
 - **Dữ liệu (Skaaa Data Pro):** 100% dữ liệu ứng dụng lưu vào bảng phẳng MySQL `wp_skaaa_data_*`. Khai tử hoàn toàn `wp_postmeta`. CẤM gõ lệnh `mysql` trực tiếp trên terminal làm treo shell.
 - **Tương tác (Skaaapine / Alpine.js):** Mọi sự kiện click bắt buộc dùng `@click.prevent`. Giao tiếp qua `Alpine.store` toàn cục, không tiêm `x-data=""` vào block con gây scope shadowing.
+- **Template Bài Viết (Single Post / SkaaaFX Binding):** 100% template bài viết (Single Post, Detail, Archive) BẮT BUỘC dùng Atomic Blocks của Skaaa kết hợp thuộc tính `skaaaDynamicBinding` (`data = [post.title]`, `data = [post.featured_image]`, `data = [post.author]`). TUYỆT ĐỐI CẤM dùng các block mặc định của WordPress (`core/post-*`).
 
 ### Điều 4: Thiết Quân Luật Database-First (Tokens & Cấu Kiện Tái Sử Dụng)
 - **CẤM TUYỆT ĐỐI** chỉ viết tài liệu markdown chay mà bỏ qua việc nạp vào CSDL phẳng MySQL (`wp_skaaa_data_sys_presets`, `wp_skaaa_data_sys_organisms`). File markdown chỉ là bản ghi chép/bàn giao, hệ thống website không thể chạy bằng file `.md`.

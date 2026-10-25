@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { autocompletion } from '@codemirror/autocomplete';
+import { __ } from '@wordpress/i18n';
 
 export default function CodeMirrorEditor({ value, onChange }) {
     const completionsRef = useRef([]);
@@ -9,7 +10,7 @@ export default function CodeMirrorEditor({ value, onChange }) {
     useEffect(() => {
         const fetchSchema = window.wp?.apiFetch ? window.wp.apiFetch : null;
         if (!fetchSchema) {
-            console.error("Thiết lập wp.apiFetch không khả dụng. Schema Autocomplete bị vô hiệu.");
+            console.error("wp.apiFetch is not available. Schema Autocomplete is disabled.");
             return;
         }
 
@@ -25,11 +26,11 @@ export default function CodeMirrorEditor({ value, onChange }) {
                 }));
                 // Add default keywords so they get hinted
                 hints.push(
-                    { label: 'var ', type: 'keyword', info: 'Khai báo biến cục bộ' },
-                    { label: 'data', type: 'variable', info: 'Biến kết xuất Dữ Liệu Tĩnh' },
-                    { label: 'visible', type: 'variable', info: 'Biến kết xuất Ẩn Hiện (true/false)' },
-                    { label: 'CONCAT', type: 'function', info: 'Nối các chuỗi lại với nhau', detail: 'Hàm Chuỗi' },
-                    { label: 'IF', type: 'function', info: 'IF(điều_kiện, đúng, sai)', detail: 'Hàm Cấu Trúc' }
+                    { label: 'var ', type: 'keyword', info: __( 'Declare local variable', 'skaaa-logic-engine' ) },
+                    { label: 'data', type: 'variable', info: __( 'Output static/dynamic data variable', 'skaaa-logic-engine' ) },
+                    { label: 'visible', type: 'variable', info: __( 'Visibility control variable (true/false)', 'skaaa-logic-engine' ) },
+                    { label: 'CONCAT', type: 'function', info: __( 'Concatenate multiple strings', 'skaaa-logic-engine' ), detail: __( 'String Function', 'skaaa-logic-engine' ) },
+                    { label: 'IF', type: 'function', info: __( 'IF(condition, true_val, false_val)', 'skaaa-logic-engine' ), detail: __( 'Control Flow', 'skaaa-logic-engine' ) }
                 );
 
                 completionsRef.current = hints;
