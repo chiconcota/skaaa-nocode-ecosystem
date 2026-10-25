@@ -152,7 +152,12 @@ class Rest_Api {
         $result = Sync_Post::process_incoming_post( $params );
         $status = $result['success'] ? 200 : ( ! empty( $result['conflict'] ) ? 409 : 400 );
 
-        return new \WP_REST_Response( $result, $status );
+        $response = new \WP_REST_Response( $result, $status );
+        if ( ! empty( $result['success'] ) ) {
+            $response = Sync_Cache::attach_purge_header( $response, $result['post_id'] ?? null );
+        }
+
+        return $response;
     }
 
     /**
@@ -231,7 +236,12 @@ class Rest_Api {
         $result = Sync_Ecosystem::process_incoming_ecosystem( $params );
         $status = ! empty( $result['success'] ) ? 200 : 400;
 
-        return new \WP_REST_Response( $result, $status );
+        $response = new \WP_REST_Response( $result, $status );
+        if ( ! empty( $result['success'] ) && empty( $params['dry_run'] ) ) {
+            $response = Sync_Cache::attach_purge_header( $response );
+        }
+
+        return $response;
     }
 
     /**

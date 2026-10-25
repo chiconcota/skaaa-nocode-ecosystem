@@ -321,6 +321,7 @@ class Post_Sync_UI {
         $remote_token = Core::get_setting( 'skaaai_remote_token', '' );
         $is_paired    = ! empty( $remote_url ) && ! empty( $remote_token );
         $sync_data    = Sync_Post::get_sync_status( $post_id );
+        $organism_id  = isset( $_GET['edit_organism'] ) ? absint( $_GET['edit_organism'] ) : 0;
 
         wp_enqueue_style(
             'skaaai-editor-toolbar-css',
@@ -341,6 +342,7 @@ class Post_Sync_UI {
             'ajax_url'         => admin_url( 'admin-ajax.php' ),
             'nonce'            => wp_create_nonce( 'skaaai_post_sync_nonce' ),
             'post_id'          => $post_id,
+            'organism_id'      => $organism_id,
             'role'             => 'sender',
             'is_paired'        => $is_paired,
             'remote_url'       => $remote_url,
@@ -350,12 +352,12 @@ class Post_Sync_UI {
             'last_synced'      => $sync_data['last_synced'],
             'remote_permalink' => $sync_data['remote_permalink'],
             'i18n'             => [
-                'push_to_live'        => __( 'Push to Live', 'skaaai' ),
-                'pushing'             => __( 'Pushing to Live...', 'skaaai' ),
-                'push_success'        => __( 'Post pushed to Live webhost successfully!', 'skaaai' ),
-                'pull_from_live'      => __( 'Pull from Live', 'skaaai' ),
-                'pulling_from_live'   => __( 'Pulling from Live...', 'skaaai' ),
-                'pull_success'        => __( 'Post pulled from Live webhost successfully!', 'skaaai' ),
+                'push_to_live'        => $organism_id > 0 ? __( 'Push Symbol to Live', 'skaaai' ) : __( 'Push to Live', 'skaaai' ),
+                'pushing'             => $organism_id > 0 ? __( 'Pushing Symbol...', 'skaaai' ) : __( 'Pushing to Live...', 'skaaai' ),
+                'push_success'        => $organism_id > 0 ? __( 'Symbol/Organism pushed to Live and cache purged!', 'skaaai' ) : __( 'Post pushed to Live webhost successfully!', 'skaaai' ),
+                'pull_from_live'      => $organism_id > 0 ? __( 'Pull Symbol from Live', 'skaaai' ) : __( 'Pull from Live', 'skaaai' ),
+                'pulling_from_live'   => $organism_id > 0 ? __( 'Pulling Symbol...', 'skaaai' ) : __( 'Pulling from Live...', 'skaaai' ),
+                'pull_success'        => $organism_id > 0 ? __( 'Symbol/Organism pulled from Live successfully!', 'skaaai' ) : __( 'Post pulled from Live webhost successfully!', 'skaaai' ),
                 'confirm_pull_editor' => __( 'Pulling will overwrite your current local editor content with the latest version from Live. A revision backup will be created. Are you sure you want to proceed?', 'skaaai' ),
                 'view_live'           => __( 'View on Live', 'skaaai' ),
                 'conflict_detected'   => __( 'Conflict Detected: The live website has a newer revision of this post.', 'skaaai' ),
@@ -378,6 +380,24 @@ class Post_Sync_UI {
      */
     public static function ajax_push_post(): void {
         check_ajax_referer( 'skaaai_post_sync_nonce', 'nonce' );
+
+        $organism_id = isset( $_POST['organism_id'] ) ? absint( $_POST['organism_id'] ) : 0;
+        if ( $organism_id > 0 ) {
+            if ( ! current_user_can( 'edit_posts' ) ) {
+                wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+            }
+            $result = Sync_Ecosystem::push_ecosystem_to_remote( false, [ 'organisms', 'theme_templates' ] );
+            if ( ! empty( $result['success'] ) ) {
+                wp_send_json_success( [
+                    'success'   => true,
+                    'message'   => __( 'Symbol/Organism successfully pushed to Live webhost and cache purged!', 'skaaai' ),
+                    'permalink' => home_url( '/' ),
+                ] );
+            } else {
+                wp_send_json_error( $result, 400 );
+            }
+            return;
+        }
 
         $post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
         $force   = ! empty( $_POST['force'] );
@@ -404,6 +424,23 @@ class Post_Sync_UI {
      */
     public static function ajax_pull_post(): void {
         check_ajax_referer( 'skaaai_post_sync_nonce', 'nonce' );
+
+        $organism_id = isset( $_POST['organism_id'] ) ? absint( $_POST['organism_id'] ) : 0;
+        if ( $organism_id > 0 ) {
+            if ( ! current_user_can( 'edit_posts' ) ) {
+                wp_send_json_error( [ 'message' => __( 'Permission denied.', 'skaaai' ) ] );
+            }
+            $result = Sync_Ecosystem_Pull::pull_from_remote( false, [ 'organisms', 'theme_templates' ] );
+            if ( ! empty( $result['success'] ) ) {
+                wp_send_json_success( [
+                    'success' => true,
+                    'message' => __( 'Symbol/Organism successfully pulled from Live webhost!', 'skaaai' ),
+                ] );
+            } else {
+                wp_send_json_error( $result, 400 );
+            }
+            return;
+        }
 
         $post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
 

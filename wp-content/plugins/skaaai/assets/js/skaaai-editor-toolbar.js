@@ -67,6 +67,9 @@
             formData.append( 'action', 'skaaai_push_post' );
             formData.append( 'post_id', config.post_id );
             formData.append( 'nonce', config.nonce );
+            if ( config.organism_id ) {
+                formData.append( 'organism_id', config.organism_id );
+            }
             if ( force ) {
                 formData.append( 'force', '1' );
             }
@@ -202,6 +205,9 @@
             formData.append( 'action', 'skaaai_pull_post' );
             formData.append( 'post_id', config.post_id );
             formData.append( 'nonce', config.nonce );
+            if ( config.organism_id ) {
+                formData.append( 'organism_id', config.organism_id );
+            }
 
             try {
                 const response = await fetch( config.ajax_url, {

@@ -136,6 +136,9 @@ class Sync_Post {
         // 6. Kích hoạt biên dịch Tailwind JIT CSS trên hosting
         do_action( 'skaaa_after_post_synced', $post_id, $processed_content );
 
+        // 7. Tự động xóa sạch Cache hosting cho bài viết (Safeguard Layer 4)
+        Sync_Cache::invalidate( $post_id );
+
         return [
             'success'   => true,
             'message'   => __( 'Post successfully synchronized and published.', 'skaaai' ),

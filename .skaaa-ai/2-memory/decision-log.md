@@ -39,6 +39,19 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-25 - 🟢 Hoàn thành: Server-Level LiteSpeed Cache Purge & Organism Toolbar Push Integration (Skaaai v1.6.3)
+- **Decision (Server-Level LiteSpeed Cache Purge & Dedicated Sync_Cache Architecture):**
+  - **Bối cảnh & Vấn đề:** Khi người dùng sửa nội dung Footer/Header ở Local và đẩy lên hosting Live (`lytatthanh.com`), nội dung mới không hiển thị ngay mà phải đợi gần 1 ngày (24 giờ) mới thấy thay đổi.
+  - **Nguyên nhân gốc rễ:** 
+    1. *Lệch phạm vi Push:* Header/Footer là Organisms (`wp_skaaa_data_sys_organisms`), không nằm trong `post_content`. Nút "Push to Live" trên Gutenberg trước đây chỉ đẩy bài viết lẻ chứ không đẩy Organism.
+    2. *TTL Cache LiteSpeed:* Máy chủ Live chạy LiteSpeed Web Server, lưu cache trang công khai 24h. Endpoint REST API khi đồng bộ bài lẻ không hề gọi xóa cache, còn Full Sync chỉ gọi `do_action('litespeed_purge_all')` (không có tác dụng nếu không có plugin WP LiteSpeed Cache) và thiếu HTTP header cấp máy chủ `X-LiteSpeed-Purge: *`.
+  - **Giải pháp kiến trúc:**
+    1. **Lớp Chuyên Trách Xóa Cache (`Sync_Cache` - `class-skaaai-sync-cache.php`):** Đóng gói toàn bộ logic xóa cache đa tầng (LiteSpeed Server, LiteSpeed Plugin, WP Rocket, W3TC, Super Cache, Fastest Cache, Breeze, SG Optimizer, Autoptimize, Nginx Helper, Cloudflare).
+    2. **LiteSpeed Server-Level Purge:** Phát header native `header('X-LiteSpeed-Purge: ...')` và đính kèm vào `WP_REST_Response` cho cả `/push-post` (xóa theo URL bài viết + trang chủ) và `/sync-ecosystem` (xóa toàn site `*`), ép LiteSpeed Web Server xóa cache ngay lập tức (0ms).
+    3. **Tái tạo File Tĩnh `organisms.json`:** Tự động gọi `Organisms_API::export_physical_cache()` trong `Sync_Ecosystem::apply_organisms()` sau khi nạp CSDL để file tĩnh trên Live luôn khớp với MySQL.
+    4. **Đồng Bộ Nhanh Symbol/Organism:** Bổ sung `organism_id` vào `skaaaiEditorSync`. Khi đang mở Organism Editor, nút bấm trên Gutenberg Header Toolbar tự động nhận diện và đẩy thẳng Organisms + Theme Templates lên Live, xóa cache tức thì.
+    5. **Đóng gói & Phân phối:** Nâng Skaaai lên `v1.6.3`, đóng gói `skaaai-v1.6.3.zip`.
+
 ## 2026-10-24 - 🟢 Hoàn thành: Safeguard True Mirror Deletion & Type Safety Fix (Skaaai v1.6.2 & Ecosystem v2.5.5)
 - **Decision (Safeguard True Mirror Deletion & Type Safety in Ecosystem Sync):**
   - **Bối cảnh & Vấn đề:** Khi người dùng thực hiện đồng bộ Hệ sinh thái (Skaaa Sync / Push All to Live) từ Localhost lên hosting Live (`lytatthanh.com`), toàn bộ các trang trên Live (Liên Hệ, Privacy Policy, Trang Chủ) bị chuyển vào Thùng rác (`Trash (4)`).

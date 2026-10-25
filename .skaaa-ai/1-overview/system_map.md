@@ -1,5 +1,5 @@
 # SYSTEM MAP: SKAAA NO-CODE (v2.5.4)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: hotfix/logic-engine | @last_update: 2026-10-24
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: hotfix/sync-cache | @last_update: 2026-10-25
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -31,7 +31,7 @@ wp-content/
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch. | 🟢 Stable (v1.0.1) |
 | **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.4) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync & MD5 Hash Deduplication. | 🟢 Stable (v1.6.1) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.3) |
 
 ---
 
@@ -53,6 +53,10 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-25 - 🟢 Done (Skaaai Plugin v1.6.3 - Server-Level LiteSpeed Cache Purge & Organism Toolbar Push Integration):** Khắc phục triệt để hiện tượng sửa footer/header trên local nhưng đẩy lên hosting live phải đợi gần 1 ngày mới thay đổi:
+  - **Lớp Chuyên Trách Xóa Cache (Sync_Cache):** Bổ sung class `Sync_Cache` phát lệnh xóa cache toàn năng. Gửi trực tiếp header máy chủ `X-LiteSpeed-Purge: *` và đính kèm vào phản hồi REST API (`WP_REST_Response`) cho cả `/push-post` và `/sync-ecosystem` để LiteSpeed Web Server xóa sạch 100% cache trên server ngay tức thì (0ms) mà không phụ thuộc vào việc có cài plugin LiteSpeed Cache hay không.
+  - **Tái tạo File Cache Tĩnh Organisms (`organisms.json`):** Tự động gọi `Organisms_API::export_physical_cache()` ngay sau khi đồng bộ organisms vào CSDL Live.
+  - **Đồng Bộ Nhanh Symbol/Organism Trên Gutenberg:** Bổ sung tham số `organism_id` khi đang ở trong trình sửa Symbol/Organism, cho phép nút "Push to Live" trên Gutenberg Header Toolbar tự động nhận diện và đẩy thẳng Organisms/Theme Templates lên Live mà không cần mở Full Ecosystem Sync. Đóng gói `skaaai-v1.6.3.zip`.
 - **2026-10-24 - 🟢 Done (Skaaai Plugin v1.6.2 - Safeguard True Mirror Deletion & Type Safety Fix):** Khắc phục triệt để sự cố toàn bộ các trang trên site Live bị chuyển vào Thùng rác (Trash) sau khi Push đồng bộ Hệ sinh thái:
   - **Type Safety & Early Exit (`class-skaaai-sync-ecosystem.php`):** Hàm `apply_pages()` nhận tham số loại bài viết tường minh (`$target_type = 'page'` hoặc `'post'`) thay vì phỏng đoán qua `$pages[0]`. Bổ sung kiểm tra mảng rỗng `empty($pages)` để lập tức thoát an toàn (`return`), triệt tiêu hoàn toàn nguy cơ quét nhầm và xóa sạch nội dung khi mảng nguồn rỗng.
   - **Phân rã Scopes Độc Lập (`class-skaaai-sync-ecosystem-sender.php`):** Chỉ xuất `posts` khi scope `posts` được yêu cầu rõ ràng, loại bỏ việc tự động đính kèm mảng `posts` rỗng khi người dùng chỉ đồng bộ `pages`.

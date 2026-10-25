@@ -10,44 +10,22 @@ defined( 'ABSPATH' ) || exit;
 class Sync_Ecosystem {
     public const BLACKLISTED_OPTIONS = Sync_Config::BLACKLISTED_OPTIONS;
 
-    /**
-     * Ủy quyền trích xuất payload sang Sync_Ecosystem_Sender
-     *
-     * @param array $options
-     * @return array
-     */
+    /** Ủy quyền trích xuất payload sang Sync_Ecosystem_Sender */
     public static function export_ecosystem_payload( array $options = [] ): array {
         return Sync_Ecosystem_Sender::export_payload( $options );
     }
 
-    /**
-     * Ủy quyền đẩy payload sang Live Webhost
-     *
-     * @param bool  $dry_run
-     * @param array $scopes
-     * @return array
-     */
+    /** Ủy quyền đẩy payload sang Live Webhost */
     public static function push_ecosystem_to_remote( bool $dry_run = false, array $scopes = [] ): array {
         return Sync_Ecosystem_Sender::push_to_remote( $dry_run, $scopes );
     }
 
-    /**
-     * Ủy quyền kéo payload từ Live Webhost về Localhost
-     *
-     * @param bool  $dry_run
-     * @param array $scopes
-     * @return array
-     */
+    /** Ủy quyền kéo payload từ Live Webhost về Localhost */
     public static function pull_ecosystem_from_remote( bool $dry_run = false, array $scopes = [] ): array {
         return Sync_Ecosystem_Pull::pull_from_remote( $dry_run, $scopes );
     }
 
-    /**
-     * Ủy quyền tạo báo cáo đối soát sang Sync_Ecosystem_Diff
-     *
-     * @param array $payload
-     * @return array
-     */
+    /** Ủy quyền tạo báo cáo đối soát sang Sync_Ecosystem_Diff */
     public static function generate_diff_summary( array $payload ): array {
         return Sync_Ecosystem_Diff::generate( $payload );
     }
@@ -266,6 +244,9 @@ class Sync_Ecosystem {
             $placeholders = implode( ',', array_fill( 0, count( $valid_names ), '%s' ) );
             $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE `type` = 'organism' AND `name` NOT IN ($placeholders)", ...$valid_names ) );
         }
+
+        // Tái tạo file cache cấu kiện tĩnh (organisms.json)
+        Sync_Cache::refresh_organisms_cache();
 
         return [
             'summary' => [ 'count' => $count ],
@@ -707,12 +688,10 @@ class Sync_Ecosystem {
 
     /**
      * Tự động xóa sạch Cache hosting và làm mới Rewrite Rules (Safeguard Layer 4)
+     *
+     * @param int|string|null $target_post_id
      */
-    public static function invalidate_caches(): void {
-        do_action( 'litespeed_purge_all' );
-        wp_cache_flush();
-        if ( function_exists( 'rocket_clean_domain' ) ) { rocket_clean_domain(); }
-        if ( function_exists( 'w3tc_flush_all' ) ) { w3tc_flush_all(); }
-        flush_rewrite_rules( false );
+    public static function invalidate_caches( int|string|null $target_post_id = null ): void {
+        Sync_Cache::invalidate( $target_post_id );
     }
 }

@@ -53,6 +53,7 @@ class Core {
         require_once SKAAAI_DIR . 'inc/class-skaaai-export-service.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-pull.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-config.php';
+        require_once SKAAAI_DIR . 'inc/class-skaaai-sync-cache.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem-pull.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem-sender.php';
         require_once SKAAAI_DIR . 'inc/class-skaaai-sync-ecosystem-diff.php';
