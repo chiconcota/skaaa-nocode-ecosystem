@@ -1,5 +1,5 @@
 # SYSTEM MAP: SKAAA NO-CODE (v2.5.5)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: fix/no-code-design | @last_update: 2026-10-25
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-25
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)

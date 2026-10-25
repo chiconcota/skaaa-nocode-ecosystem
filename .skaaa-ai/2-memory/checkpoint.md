@@ -4,7 +4,7 @@
 ---
 
 ## 1. Thông Tin Môi Trường & Nhánh Git
-- **Git Branch:** `fix/no-code-design`
+- **Git Branch:** `main` (Đã trộn từ `fix/no-code-design`)
 - **Thư mục làm việc (Active Workspace):** `/home/chiconcota/Local Sites/skaaa-no-code-ecosystem/app/public/`
 - **Website Thử Nghiệm Kết Nối (Paired Site):** `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/`
 - **Phiên bản Hệ Sinh Thái Hiện Tại:**
