@@ -31,7 +31,7 @@ wp-content/
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch, hỗ trợ Featured Image. | 🟢 Stable (v1.0.2) |
 | **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.5) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
-| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.5) |
+| **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.6) |
 | **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.3) |
 
 ---
@@ -54,6 +54,11 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-26 - 🟢 Done (Skaaai Plugin v1.6.6 - Featured Image Sync & Reading Settings Parity):**
+  - **Featured Image Synchronization & Attachment Linking Parity:** Giải quyết triệt để lỗi mất ảnh đại diện (featured image) khi push bài viết/trang lên Live host (`lytatthanh.com`). Bổ sung cơ chế trích xuất `featured_image_url` từ Sender (`class-skaaai-sync-ecosystem-sender.php` và `class-skaaai-sync-post.php`), tự động đẩy tệp tin vật lý qua REST Media Upload, và trên Receiver (`class-skaaai-sync-media.php`, `class-skaaai-sync-ecosystem.php`) tự động đối soát attachment ID (`attachment_url_to_postid` + fallback `find_attachment_by_filename` + sideload) để thực thi `set_post_thumbnail( $post_id, $attach_id )`.
+  - **Reading Settings Synchronization Parity:** Mở rộng `Sync_Ecosystem_Sender` và `Sync_Ecosystem` tự động trích xuất và đối soát ánh xạ `page_for_posts` (qua UUID và Slug). Khắc phục triệt để sự cố trang `/blog/` trên hosting Live bị trống trơn do WordPress thiếu tùy chọn trang bài viết và không kích hoạt được Theme Template Archive (`ArchiveBlogEditorial`).
+  - **Zero-Freeform-Comment Guard (MISTAKE-024):** Nâng cấp cỗ máy tiền kiểm CLI `block-tool.php` (bộ lọc `preg_match_all` bẫy comment tự do) và siết chặt quy chuẩn Agent Kit (`company-rules.md`, `self-improve.md` với mã lỗi `MISTAKE-024`, `developer-blocks/SKILL.md`) trong thư mục phôi mẫu `scaffold/` phân phối. Triệt tiêu hoàn toàn nguy cơ xuất hiện lỗi "Attempt recovery" trên Gutenberg Editor cho mọi người dùng và AI trong tương lai.
+  - **Đóng gói & Phân phối:** Nâng phiên bản `skaaai` lên `v1.6.6`, đóng gói `skaaai-v1.6.6.zip` và đồng bộ trọn vẹn sang Paired Site `l-tt-thnh-siu-c-nhn`.
 - **2026-10-26 - 🟢 Done (Skaaai Plugin v1.6.5 - Singleton Organisms_API Parity & Zero-Crash Cache Safeguard):** Khắc phục triệt để lỗi Fatal Error làm sập tiến trình Push to Live khi đồng bộ Organisms:
   - **Singleton Parity (`Sync_Cache::refresh_organisms_cache`):** Thay thế toán tử `new \Skaaa\Design\Api\Organisms_API()` bằng `\Skaaa\Design\Api\Organisms_API::get_instance()`, loại bỏ hoàn toàn lỗi Uncaught Error do gọi constructor private.
   - **Decoupled Action Hook:** Kích hoạt `do_action( 'skaaa_refresh_organisms_cache' )` trước khi fallback vào Singleton, tuân thủ nguyên tắc Microservices Decoupling giữa các Plugin.

@@ -128,6 +128,10 @@ class Sync_Ecosystem_Sender {
             $front_uuid    = $front_page_id ? get_post_meta( $front_page_id, '_skaaa_uuid', true ) : '';
             $front_slug    = $front_page_id ? get_post_field( 'post_name', $front_page_id ) : '';
 
+            $posts_page_id = (int) get_option( 'page_for_posts' );
+            $posts_uuid    = $posts_page_id ? get_post_meta( $posts_page_id, '_skaaa_uuid', true ) : '';
+            $posts_slug    = $posts_page_id ? get_post_field( 'post_name', $posts_page_id ) : '';
+
             $payload['settings'] = [
                 'general' => [
                     'blogname'        => get_option( 'blogname' ),
@@ -139,9 +143,11 @@ class Sync_Ecosystem_Sender {
                     'start_of_week'   => get_option( 'start_of_week' ),
                 ],
                 'reading' => [
-                    'show_on_front'      => get_option( 'show_on_front', 'posts' ),
-                    'page_on_front_uuid' => $front_uuid,
-                    'page_on_front_slug' => $front_slug,
+                    'show_on_front'       => get_option( 'show_on_front', 'posts' ),
+                    'page_on_front_uuid'  => $front_uuid,
+                    'page_on_front_slug'  => $front_slug,
+                    'page_for_posts_uuid' => $posts_uuid,
+                    'page_for_posts_slug' => $posts_slug,
                 ],
                 'permalink' => [
                     'permalink_structure' => get_option( 'permalink_structure' ),
@@ -222,19 +228,23 @@ class Sync_Ecosystem_Sender {
                 update_post_meta( $post->ID, '_skaaa_uuid', $uuid );
             }
 
+            $thumb_id   = get_post_thumbnail_id( $post->ID );
+            $thumb_url  = $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'full' ) : '';
+
             $pages[] = [
-                'id'            => $post->ID,
-                'uuid'          => $uuid,
-                'title'         => $post->post_title,
-                'slug'          => $post->post_name,
-                'content'       => $post->post_content,
-                'post_type'     => $post->post_type,
-                'post_status'   => $post->post_status,
-                'menu_order'    => $post->menu_order,
-                'is_front_page' => ( $post->ID === $front_page_id ),
-                'last_modified' => get_post_modified_time( 'U', true, $post->ID ),
-                'modified_gmt'  => $post->post_modified_gmt,
-                'content_hash'  => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
+                'id'                 => $post->ID,
+                'uuid'               => $uuid,
+                'title'              => $post->post_title,
+                'slug'               => $post->post_name,
+                'content'            => $post->post_content,
+                'featured_image_url' => $thumb_url ?: '',
+                'post_type'          => $post->post_type,
+                'post_status'        => $post->post_status,
+                'menu_order'         => $post->menu_order,
+                'is_front_page'      => ( $post->ID === $front_page_id ),
+                'last_modified'      => get_post_modified_time( 'U', true, $post->ID ),
+                'modified_gmt'       => $post->post_modified_gmt,
+                'content_hash'       => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
             ];
         }
 
@@ -263,19 +273,23 @@ class Sync_Ecosystem_Sender {
                 update_post_meta( $post->ID, '_skaaa_uuid', $uuid );
             }
 
+            $thumb_id   = get_post_thumbnail_id( $post->ID );
+            $thumb_url  = $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'full' ) : '';
+
             $items[] = [
-                'id'            => $post->ID,
-                'uuid'          => $uuid,
-                'title'         => $post->post_title,
+                'id'                 => $post->ID,
+                'uuid'               => $uuid,
+                'title'              => $post->post_title,
                 'slug'          => $post->post_name,
-                'content'       => $post->post_content,
-                'post_type'     => $post->post_type,
-                'post_status'   => $post->post_status,
-                'menu_order'    => $post->menu_order,
-                'is_front_page' => false,
-                'last_modified' => get_post_modified_time( 'U', true, $post->ID ),
-                'modified_gmt'  => $post->post_modified_gmt,
-                'content_hash'  => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
+                'content'            => $post->post_content,
+                'featured_image_url' => $thumb_url ?: '',
+                'post_type'          => $post->post_type,
+                'post_status'        => $post->post_status,
+                'menu_order'         => $post->menu_order,
+                'is_front_page'      => false,
+                'last_modified'      => get_post_modified_time( 'U', true, $post->ID ),
+                'modified_gmt'       => $post->post_modified_gmt,
+                'content_hash'       => md5( ( $post->post_title ?? '' ) . '|' . ( $post->post_content ?? '' ) ),
             ];
         }
 
@@ -311,18 +325,24 @@ class Sync_Ecosystem_Sender {
             // Xóa cache phiên làm việc cũ để nạp mới hoàn toàn
             Sync_Media::clear_session_cache();
 
-            // A. Đẩy ảnh nhúng cho các Trang tĩnh (Pages)
+            // A. Đẩy ảnh nhúng & Featured Image cho các Trang tĩnh (Pages)
             if ( ! empty( $payload['pages'] ) && is_array( $payload['pages'] ) ) {
                 foreach ( $payload['pages'] as &$page ) {
                     $page['content'] = Sync_Media::prepare_and_sync_local_media( $page['content'], $remote_url, $remote_token );
+                    if ( ! empty( $page['featured_image_url'] ) ) {
+                        $page['featured_image_url'] = Sync_Media::prepare_and_sync_local_media( $page['featured_image_url'], $remote_url, $remote_token );
+                    }
                 }
                 unset( $page );
             }
 
-            // B. Đẩy ảnh nhúng cho các Bài viết blog (Posts)
+            // B. Đẩy ảnh nhúng & Featured Image cho các Bài viết blog (Posts)
             if ( ! empty( $payload['posts'] ) && is_array( $payload['posts'] ) ) {
                 foreach ( $payload['posts'] as &$post ) {
                     $post['content'] = Sync_Media::prepare_and_sync_local_media( $post['content'], $remote_url, $remote_token );
+                    if ( ! empty( $post['featured_image_url'] ) ) {
+                        $post['featured_image_url'] = Sync_Media::prepare_and_sync_local_media( $post['featured_image_url'], $remote_url, $remote_token );
+                    }
                 }
                 unset( $post );
             }

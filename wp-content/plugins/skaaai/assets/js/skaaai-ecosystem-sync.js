@@ -6,7 +6,7 @@
 (function($) {
     'use strict';
 
-    var currentScopes = ['presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'media', 'settings'];
+    var currentScopes = ['presets', 'organisms', 'theme_templates', 'workflows', 'custom_tables', 'pages', 'posts', 'media', 'settings'];
     var currentMode   = 'push'; // 'push' hoặc 'pull'
 
     function getSelectedScopes() {

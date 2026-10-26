@@ -39,6 +39,34 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-26 - 🟢 Hoàn thành: Featured Image Synchronization & Attachment Linking Parity (Skaaai v1.6.6)
+- **Decision (Root Elimination of Missing Featured Images on Live Host & Blog Card Loop):**
+  - **Bối cảnh & Vấn đề:** Khi người dùng đẩy bài viết và trang sang Live host (`lytatthanh.com`), các file ảnh đại diện đã được tải lên Thư viện Media (`wp-content/uploads/`), nhưng khi vào xem bài viết hoặc trang `/blog/`, các thẻ bài viết hiển thị placeholder "Icon Image" thay vì hình ảnh đại diện thực tế.
+  - **Nguyên nhân kỹ thuật sâu (Root Cause):**
+    1. *Sender Truncation:* Trong `class-skaaai-sync-ecosystem-sender.php` (`export_published_posts`) và `class-skaaai-sync-post.php` (`push_post_to_remote`), payload đồng bộ chỉ trích xuất tiêu đề, nội dung, slug, status mà bỏ qua URL ảnh đại diện (`get_post_thumbnail_id()` / `featured_image_url`).
+    2. *Receiver Thumbnail Unlinked:* Trong `class-skaaai-sync-ecosystem.php` (`apply_pages`) và `class-skaaai-sync-post.php` (`process_incoming_post`), khi nhận dữ liệu bài viết/trang, chỉ thực thi `wp_insert_post` / `wp_update_post` mà không hề gọi `set_post_thumbnail()`. Do đó, metadata `_thumbnail_id` trên bài viết ở Live không được gán, dẫn đến việc SkaaaFX biểu thức `[post.featured_image]` trả về rỗng và block ảnh kích hoạt fallback placeholder mặc định.
+  - **Giải pháp kiến trúc sạch:**
+    1. *Sender Media Extraction & Upload:* Mở rộng `export_published_pages` và `export_published_posts` trích xuất `featured_image_url` qua `wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' )`. Khi push, Sender chủ động đẩy tệp tin vật lý sang Live thông qua `Sync_Media::prepare_and_sync_local_media()`, đảm bảo tệp ảnh luôn tồn tại trên hosting Live.
+    2. *Receiver Resilient Linking (`Sync_Media::attach_featured_image`):* Xây dựng phương thức gán ảnh đại diện đa tầng:
+       - Tầng 1: Phân giải trực tiếp Attachment ID qua `attachment_url_to_postid( $featured_image_url )`.
+       - Tầng 2: Fallback tra cứu attachment theo tên tệp (`find_attachment_by_filename`) đề phòng sai khác protocol (HTTP/HTTPS) hoặc đường dẫn tương đối.
+       - Tầng 3: Fallback sideload (`media_handle_sideload`) nếu tệp ảnh chưa tồn tại trong Media Library trên Live.
+       - Tầng 4: Thực thi `set_post_thumbnail( $post_id, $attach_id )` (hoặc `delete_post_thumbnail` nếu rỗng).
+    3. *Đóng gói & Phân phối:* Nâng SemVer `skaaai` lên `v1.6.6`, đóng gói `skaaai-v1.6.6.zip` và đồng bộ tức thì sang Paired Site `l-tt-thnh-siu-c-nhn`.
+
+## 2026-10-26 - 🟢 Hoàn thành: Reading Settings Synchronization Parity & Zero-Freeform-Comment Guard (Skaaai v1.6.6)
+- **Decision (Root Elimination of Blank Archive Blog on Live Host & Gutenberg Attempt Recovery Guard):**
+  - **Bối cảnh & Vấn đề:**
+    1. Khi người dùng thiết kế xong trang Blog trên Localhost và thực hiện 1-Click Push Hệ sinh thái lên Live host, trang `https://lytatthanh.com/blog/` hiển thị Header và Footer nhưng phần thân hoàn toàn trống trơn (`<div class="skaaa-default-content w-full"></div>`). Mặc dù Theme Template `ArchiveBlogEditorial` (ID: 5) đã có sẵn trên CSDL Live.
+    2. Trong Gutenberg Editor, khi viết mã template xen kẽ các comment chú thích tự do (`<!-- 1. HEADER... -->`), Gutenberg Parser đánh dấu block bị Invalid và hiển thị nút "Attempt recovery".
+  - **Nguyên nhân kỹ thuật sâu (Root Cause):**
+    1. *Lỗi trang Blog trống:* Cỗ máy `Sync_Ecosystem_Sender` và `Sync_Ecosystem` chỉ đồng bộ `page_on_front` (Trang chủ tĩnh) mà bỏ sót `page_for_posts` (Trang bài viết). Trên Live host, `page_for_posts` bằng `0`, khiến WordPress nhận diện `/blog/` là một Trang đơn (`is_page() = true`) thay vì trang lưu trữ (`is_home() = true`). Template `SinglePostEditorial` không khớp (do chỉ áp dụng cho `post_type = 'post'`), fallback in `the_content()` của trang `blog` (vốn có độ dài 0 byte) dẫn đến trang bị rỗng.
+    2. *Lỗi Attempt recovery:* Gutenberg chỉ chấp nhận comment token block (`<!-- wp:... -->` và `<!-- /wp:... -->`). Comment HTML tự do bị coi là Freeform node lạ, làm đối soát `save()` thất bại. Công cụ `block-tool.php` cũ chỉ kiểm tra thẻ HTML tag (`<div>`, `<main>`) nên bị mù trước comment tự do.
+  - **Giải pháp kiến trúc sạch:**
+    1. *Reading Settings Parity:* Mở rộng `Sync_Ecosystem_Sender` trích xuất `page_for_posts_uuid` và `page_for_posts_slug`. Phương thức `Sync_Ecosystem::apply_settings()` phân giải UUID/Slug thành Post ID thực tế trên Live và tự động cập nhật `update_option( 'page_for_posts', $target_posts_id )`, kích hoạt tức thì template `ArchiveBlogEditorial`.
+    2. *Tri-Layer Comment Guard:* Nâng cấp bộ lọc `block-tool.php` với regex bẫy comment `<!--(?!\s*\/?wp:).*?-->/s` đánh thẻ đỏ FAILED ngay từ CLI; siết chặt `company-rules.md` (Điều 3), `developer-blocks/SKILL.md` và nạp mã lỗi `MISTAKE-024` vào `self-improve.md` trong thư mục phôi mẫu `scaffold/` của plugin `skaaai` để bảo vệ toàn bộ người dùng và AI trong tương lai.
+    3. *Đóng gói & Phân phối:* Nâng SemVer lên `v1.6.6`, đóng gói `skaaai-v1.6.6.zip` (0.16 MB) và đồng bộ sang Paired Site `l-tt-thnh-siu-c-nhn`.
+
 ## 2026-10-26 - 🟢 Hoàn thành: Singleton Instantiation & Zero-Crash Safeguard for Organism Cache Invalidation (Skaaai v1.6.5)
 - **Decision (Root Elimination of Private Constructor Fatal Error & Complete Cache Shield):**
   - **Bối cảnh & Vấn đề:** Khi người dùng bấm "1-Click Full Ecosystem Push to Live" trong modal Ecosystem Sync của Skaaai (hoặc đồng bộ cấu kiện Organisms), giao diện lập tức báo lỗi đỏ: `<p>There has been a critical error on this website.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>`.

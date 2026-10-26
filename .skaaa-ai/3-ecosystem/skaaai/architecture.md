@@ -1,8 +1,8 @@
 # MODULE: Skaaai (AI Copilot & Bidirectional Sync Bridge)
 *Plugin độc lập cung cấp tính năng AI Copilot, Context Manifest tự chủ và Cầu nối đồng bộ bài viết 2 chiều trong hệ sinh thái SKAAA.*
 
-**Status:** 🟢 Stable (v1.6.5)  
-**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization with Safeguard), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync, Server-Level LiteSpeed Cache Purge (`Sync_Cache`) & Gutenberg Organism Sync.  
+**Status:** 🟢 Stable (v1.6.6)  
+**Role:** [BRIDGE, DEPLOYER & HARNESS] Bidirectional Sync Bridge (Local ⟷ Host: Push & Safe Pull, True Mirror Synchronization with Safeguard, Full Posts & Featured Image Parity, Reading Settings Parity), Persistent Storage Remote Code Deployer via WP_Filesystem, 1-Click Local Agent Harness Initializer (Lean Rules, Skills, Workflows, 4-Drawer Architecture & Developer/Designer CLI Tools with Zero-Freeform-Comment Guard), 1-Click Push & Pull UI (Gutenberg Header Toolbar, Document Status Panel & Post List Management with Deep Pre-flight Diff Checker & Mirror Parity), Skaaa System Dashboard Module Integration, Centralized Sync Configuration, Standalone Media Library Sync, Server-Level LiteSpeed Cache Purge (`Sync_Cache`) & Gutenberg Organism Sync.  
 **Dependency:** Hoạt động độc lập hoặc kết hợp với `skaaa-logic-engine`, `skaaa-data-pro`, `skaaa-no-code-design`.
 
 ---
@@ -86,6 +86,12 @@ Skaaai tuân thủ triệt để nguyên tắc Decoupled Architecture, giao ti�
   - Đồng bộ trọn gói: `sys_presets` (Design Tokens), `sys_organisms` (HeaderBar/FooterBar), `sys_theme_templates` (Theme Locations), `sys_workflows` (Skaaa Logic Engine DAG Graphs) và All Pages kèm Media.
   - Thiết quân luật bảo vệ Live: Blacklist tên miền (`siteurl`, `home`), tài khoản (`admin_email`), plugin (`active_plugins`) và dữ liệu thực của khách (`*_submissions`).
   - Tự động Purge LiteSpeed Cache & WordPress Object Cache ngay sau khi hoàn tất.
+- **Đồng Bộ Ảnh Đại Diện & Bổ Sung Phân Vùng Blog Posts (Featured Image Sync & Posts Scope Parity - v1.6.6):**
+  - **Trích Xuất Phía Gửi (Sender):** `Sync_Ecosystem_Sender` và `Sync_Post` tự động trích xuất `featured_image_url` qua `wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' )` cho cả Pages và Posts. Khi Push, tự động chuyển tải file ảnh nhị phân sang Live host qua `Sync_Media::prepare_and_sync_local_media()`.
+  - **Liên Kết Phía Nhận (Receiver):** `Sync_Media::attach_featured_image()` đảm bảo liên kết `_thumbnail_id` vào bài viết trên Live qua cơ chế phòng thủ 4 tầng: `attachment_url_to_postid` ➔ `find_attachment_by_filename` ➔ `media_handle_sideload` ➔ `set_post_thumbnail()`.
+  - **Phân Vùng Bài Viết Trong Ecosystem Sync:** Đưa scope `'posts'` vào mảng `currentScopes` và bổ sung checkbox `📝 All Published Blog Posts & Featured Images` trong modal Push/Pull Hệ sinh thái.
+  - **Reading Settings Parity (`page_for_posts`):** Tự động đồng bộ và phân giải UUID/Slug của trang bài viết, kích hoạt chính xác Theme Template Blog Archive (`ArchiveBlogEditorial`) trên Live.
+  - **Tri-Layer Freeform Comment Guard (MISTAKE-024):** Nâng cấp cỗ máy tiền kiểm `block-tool.php` chặn đứng các comment HTML tự do làm hỏng cấu trúc Gutenberg Block.
 
 ### Trụ cột 3: Kiến Trúc Atomic Design 5 Tầng, Theme Builder Integration & Anti-Runaway Harness (v1.2.6)
 - **Mục tiêu:** Thiết lập chuẩn mực kiến trúc Atomic Design 5 tầng (Design Tokens ➔ Atoms ➔ Molecules ➔ Organisms ➔ Templates ➔ Pages). Triệt tiêu hoàn toàn lối làm việc tạo trang tĩnh mì ăn liền (Monolithic HTML 100+ blocks), phân rã cấu kiện độc lập tái sử dụng (`HeaderBar`, `FooterBar`), tự động kích hoạt Theme Template toàn site trên Skaaa Theme Builder qua CSDL phẳng MySQL `skaaa_data_sys_theme_templates`, và kết nối dữ liệu động qua khối `loop` với bảng phẳng `skaaa_data_*` (Skaaa Data Pro).

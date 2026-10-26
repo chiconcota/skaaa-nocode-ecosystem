@@ -36,7 +36,7 @@ Trước khi Code, Agent BẮT BUỘC nhận diện code mình viết sẽ rơi 
 - Ở ngoài Editor (Backend JSX), hạn chế hardcode CSS, bắt mọi thuộc tính phải quy về class Tailwind (Nguồn gốc: Single Source Of Truth). Không được tự ý nhúng mã `<style>` nội tuyến nếu không có sự phê duyệt.
 - Tránh ghi đè global nếu không có phạm vi cách ly (scoped). Dùng `.skaaaaa-builder [class*='wp-block-skaaaaa-builder']`. Tránh làm gãy Theme khác.
 - **Hash-less Event Handler Protocol (Alpine.js):** Tất cả handler sự kiện click trong Alpine.js bắt buộc dùng modifier `@click.prevent` để ngăn chặn hành vi đính `#` vào URL và tự ý nhảy cuộn trang lên đầu.
-- **Clean Dynamic Block Comment Protocol:** Dynamic Blocks bắt buộc lưu đúng chuẩn comment Gutenberg thuần (`Container` chỉ chứa inner blocks, `Text`/`Loop` dùng dạng tự đóng `<!-- wp:... {...} /-->`). Tuyệt đối KHÔNG chèn thẻ HTML tĩnh thô (`<main>`, `<div>`) lồng bên trong comment block khiến Gutenberg Validation báo lỗi Invalid Content.
+- **Clean Dynamic Block Comment Protocol:** Dynamic Blocks bắt buộc lưu đúng chuẩn comment Gutenberg thuần (`Container` chỉ chứa inner blocks, `Text`/`Loop` dùng dạng tự đóng `<!-- wp:... {...} /-->`). Tuyệt đối KHÔNG chèn thẻ HTML tĩnh thô (`<main>`, `<div>`) VÀ KHÔNG chèn bất kỳ dòng comment chú thích HTML tự do nào (`<!-- Ghi chú -->`, `<!-- 1. HEADER... -->`, `<!-- ARTICLE CARD -->`) lồng bên trong hoặc giữa các comment block khiến Gutenberg Validation báo lỗi Invalid Content / Attempt Recovery.
 
 ## 5. VERSIONING RULES (QUY TẮC ĐÁNH DẤU PHIÊN BẢN)
 - **Chuẩn Semantic Versioning (SemVer):** Tất cả Plugin/Theme trong hệ sinh thái Skaaa bắt buộc tuân thủ định dạng `MAJOR.MINOR.PATCH` (Ví dụ: `1.0.0`).

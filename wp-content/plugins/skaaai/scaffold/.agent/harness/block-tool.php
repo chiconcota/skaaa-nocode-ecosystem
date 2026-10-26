@@ -266,6 +266,22 @@ class Skaaa_Block_Tool {
             }
         }
 
+        // 1.1 Kiểm tra Freeform HTML Comments: Bắt lỗi chú thích HTML tự do gây lỗi Attempt recovery trong Gutenberg
+        if ( preg_match_all( '/<!--(?!\s*\/?wp:).*?-->/s', $content, $free_comment_matches ) ) {
+            foreach ( $free_comment_matches[0] as $raw_comment ) {
+                $preview = trim( $raw_comment );
+                if ( strlen( $preview ) > 60 ) {
+                    $preview = substr( $preview, 0, 57 ) . '...-->';
+                }
+                $issues[] = [
+                    'severity' => 'ERROR',
+                    'rule'     => 'Freeform Comment Violation (Attempt Recovery Hazard)',
+                    'message'  => "Freeform HTML comment '{$preview}' detected. Gutenberg parser strictly forbids raw comments inside block structures, which triggers 'Block validation failed: Expected end of content, instead saw Comment node' and the blue 'Attempt recovery' button.",
+                    'fix'      => "Remove all freeform comments '<!-- ... -->'. Only use official Gutenberg block tokens '<!-- wp:... -->' and '<!-- /wp:... -->'.",
+                ];
+            }
+        }
+
         // 2. Kiểm tra cú pháp comment của các khối Skaaa Atomic Blocks
         $self_closing_types = [ 'text', 'button', 'image', 'icon', 'video', 'svg', 'code', 'input', 'select', 'form-rich-text', 'organism-ref', 'html2tailwind' ];
         $open_close_types   = [ 'container', 'loop', 'list', 'list-item' ];

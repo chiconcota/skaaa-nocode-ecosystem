@@ -133,6 +133,10 @@ class Sync_Post {
         update_post_meta( $post_id, '_skaaa_uuid', $uuid );
         update_post_meta( $post_id, '_skaaa_last_synced', current_time( 'mysql' ) );
 
+        // Xử lý và đồng bộ ảnh đại diện (Featured Image)
+        $featured_image_url = $payload['featured_image_url'] ?? '';
+        Sync_Media::attach_featured_image( $post_id, $featured_image_url, $origin_url );
+
         // 6. Kích hoạt biên dịch Tailwind JIT CSS trên hosting
         do_action( 'skaaa_after_post_synced', $post_id, $processed_content );
 
@@ -387,16 +391,24 @@ class Sync_Post {
         Sync_Media::clear_session_cache();
         $synced_content = self::prepare_and_sync_local_media( $post->post_content, $remote_url, $remote_token );
 
+        $thumb_id         = get_post_thumbnail_id( $post_id );
+        $thumb_url        = $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'full' ) : '';
+        $synced_thumb_url = '';
+        if ( ! empty( $thumb_url ) ) {
+            $synced_thumb_url = Sync_Media::prepare_and_sync_local_media( $thumb_url, $remote_url, $remote_token );
+        }
+
         $payload = [
-            'uuid'          => $uuid,
-            'title'         => $post->post_title,
-            'content'       => $synced_content,
-            'post_type'     => $post->post_type,
-            'post_status'   => $post->post_status,
-            'slug'          => $post->post_name,
-            'origin_url'    => site_url(),
-            'last_modified' => get_post_modified_time( 'U', true, $post_id ),
-            'force'         => $force,
+            'uuid'               => $uuid,
+            'title'              => $post->post_title,
+            'content'            => $synced_content,
+            'featured_image_url' => $synced_thumb_url,
+            'post_type'          => $post->post_type,
+            'post_status'        => $post->post_status,
+            'slug'               => $post->post_name,
+            'origin_url'         => site_url(),
+            'last_modified'      => get_post_modified_time( 'U', true, $post_id ),
+            'force'              => $force,
         ];
 
         $endpoint = rtrim( $remote_url, '/' ) . '/wp-json/skaaai/v1/push-post';

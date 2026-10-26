@@ -11,6 +11,7 @@ description: Tra cứu cú pháp chuẩn 15 Atomic & Functional Blocks, CSDL B�
 > 1. **No-Postmeta Rule:** Skaaa hoạt động trên nền tảng Bảng Phẳng (Flat Tables `skaaa_data_*`), TUYỆT ĐỐI KHÔNG dùng `wp_postmeta` để lưu trữ dữ liệu ứng dụng.
 > 2. **Native Blocks First (Cấm Inline Code):** Hệ thống đã có đầy đủ 15 khối nguyên tử (`container`, `text`, `image`, `button`, `icon`, `video`, `svg`, `list`, `list-item`, `input`, `select`, `form-rich-text`, `organism-ref`, `loop`, `code`). TUYỆT ĐỐI CẤM dùng `wp:skaaaaa-builder/code` để nhét mã HTML/JS của Button, Form, SVG Logo, Hình ảnh `<img>`, Video `<video>`/`<iframe>` hoặc Dark Mode Switch.
 > 3. **Form Engine 3 Chân Vạc:** Tận dụng sự hiệp đồng hoàn hảo giữa: **Skaaa No-Code Design** (Form UI + Alpine Controller `skaaaForm`) ➔ **Skaaa Logic Engine** (REST API `/submit` + Auto-DAG Workflow) ➔ **Skaaa Data Pro** (Lưu Flat Tables MySQL `wp_skaaa_data_*`).
+> 4. **Clean Gutenberg Comments Only (Cấm Freeform HTML Comments):** 100% sử dụng token block chuẩn Gutenberg (`<!-- wp:... -->` và `<!-- /wp:... -->`). TUYỆT ĐỐI CẤM chèn các comment HTML tự do (`<!-- 1. HEADER... -->`, `<!-- ARTICLE CARD -->`) bên trong hoặc giữa các khối. Gutenberg Parser sẽ xem đó là Comment/Freeform Node lạ, gây lỗi 'Block validation failed: Expected end of content, instead saw Comment node' và kích hoạt nút 'Attempt recovery'.
 
 ---
 

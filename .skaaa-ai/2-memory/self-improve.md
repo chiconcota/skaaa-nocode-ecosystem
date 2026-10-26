@@ -36,6 +36,10 @@
 - **Lỗi:** Xuất file Release Notes dạng bullet list trích xuất thô từ `system_map.md` thay vì định dạng chuẩn **Keep a Changelog** của `fcitx5-lilypad`.
 - **Sửa đổi:** Khi đóng gói và phát hành (`/release-github`), luôn phân loại và định dạng changelog theo 3 phân mục chuẩn Keep a Changelog: `🚀 Added / Improved`, `🐛 Fixed`, `🧹 Refactored / Clean Code`.
 
+### MISTAKE-024: Freeform HTML Comments trong cấu trúc Gutenberg Blocks gây Attempt Recovery
+- **Lỗi:** Tự ý chèn các dòng comment HTML thông thường (`<!-- 1. HEADER... -->`, `<!-- Top Row... -->`, `<!-- ARTICLE CARD -->`) vào trong file template/organism để phân chia vùng code. Gutenberg Parser đọc các comment này thành Text/Comment Node lạ, gây lỗi `Block validation failed` và kích hoạt nút `Attempt recovery`.
+- **Sửa đổi:** 100% dùng comment token chuẩn Gutenberg (`<!-- wp:... -->` và `<!-- /wp:... -->`), TUYỆT ĐỐI KHÔNG chèn comment HTML tự do. BẮT BUỘC chạy `php .agent/harness/block-tool.php --validate` để kiểm định tự động trước khi nạp vào CSDL.
+
 ---
 
 ## 🟢 LỊCH SỬ LỖI ĐÃ KHẮC PHỤC (RESOLVED)

@@ -561,6 +561,10 @@ class Sync_Ecosystem {
                 update_post_meta( $post_id, '_skaaa_uuid', $uuid );
                 update_post_meta( $post_id, '_skaaa_last_synced', current_time( 'mysql' ) );
 
+                // Xử lý và đồng bộ ảnh đại diện (Featured Image)
+                $featured_image_url = $page['featured_image_url'] ?? '';
+                Sync_Media::attach_featured_image( $post_id, $featured_image_url, $origin_url );
+
                 do_action( 'skaaa_after_post_synced', $post_id, $processed_content );
 
                 $map[ $uuid ] = $post_id;
@@ -642,7 +646,7 @@ class Sync_Ecosystem {
             }
         }
 
-        // 2. Reading Settings (Trang Chủ Tĩnh)
+        // 2. Reading Settings (Trang Chủ Tĩnh & Trang Bài Viết Blog)
         if ( ! empty( $settings['reading'] ) && is_array( $settings['reading'] ) ) {
             $show_on_front = $settings['reading']['show_on_front'] ?? 'page';
             if ( 'page' === $show_on_front ) {
@@ -666,11 +670,36 @@ class Sync_Ecosystem {
                     $applied['show_on_front'] = 'page';
                     $applied['page_on_front'] = $target_front_id;
                 }
+
+                // Đồng bộ Trang Bài Viết (page_for_posts) để kích hoạt Theme Template Archive
+                $posts_uuid = $settings['reading']['page_for_posts_uuid'] ?? '';
+                $posts_slug = $settings['reading']['page_for_posts_slug'] ?? '';
+
+                $target_posts_id = 0;
+                if ( ! empty( $posts_uuid ) && isset( $page_map[ $posts_uuid ] ) ) {
+                    $target_posts_id = (int) $page_map[ $posts_uuid ];
+                } elseif ( ! empty( $posts_slug ) && isset( $page_map[ 'slug:' . $posts_slug ] ) ) {
+                    $target_posts_id = (int) $page_map[ 'slug:' . $posts_slug ];
+                } elseif ( ! empty( $posts_uuid ) ) {
+                    $target_posts_id = (int) Sync_Post::get_post_id_by_uuid( $posts_uuid );
+                } elseif ( ! empty( $posts_slug ) ) {
+                    $target_posts_id = (int) Sync_Post::get_post_id_by_slug( $posts_slug, 'page' );
+                }
+
+                if ( $target_posts_id > 0 ) {
+                    update_option( 'page_for_posts', $target_posts_id );
+                    $applied['page_for_posts'] = $target_posts_id;
+                } else {
+                    update_option( 'page_for_posts', 0 );
+                    $applied['page_for_posts'] = 0;
+                }
             } elseif ( 'posts' === $show_on_front ) {
                 update_option( 'show_on_front', 'posts' );
                 update_option( 'page_on_front', 0 );
-                $applied['show_on_front'] = 'posts';
-                $applied['page_on_front'] = 0;
+                update_option( 'page_for_posts', 0 );
+                $applied['show_on_front']  = 'posts';
+                $applied['page_on_front']  = 0;
+                $applied['page_for_posts'] = 0;
             }
         }
 

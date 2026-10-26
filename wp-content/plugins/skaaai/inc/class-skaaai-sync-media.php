@@ -618,4 +618,75 @@ class Sync_Media {
             'message'       => sprintf( __( 'Cleaned up %d duplicate media attachments.', 'skaaai' ), count( $deleted_ids ) ),
         ];
     }
+
+    /**
+     * Gán hoặc cập nhật featured image cho bài viết/trang dựa trên URL
+     *
+     * @param int    $post_id            ID bài viết/trang
+     * @param string $featured_image_url URL ảnh đại diện
+     * @param string $origin_url         URL trang nguồn (dùng fallback sideload)
+     * @return int ID của attachment (hoặc 0 nếu không tìm thấy/xóa)
+     */
+    public static function attach_featured_image( int $post_id, string $featured_image_url, string $origin_url = '' ): int {
+        if ( empty( $featured_image_url ) ) {
+            delete_post_thumbnail( $post_id );
+            return 0;
+        }
+
+        $clean_url = str_replace( [ '\/', '\\' ], '/', $featured_image_url );
+
+        // 1. Thử tìm attachment theo URL trực tiếp
+        $attach_id = attachment_url_to_postid( $clean_url );
+
+        // 2. Nếu không tìm thấy, thử tìm theo tên file trong Media Library
+        if ( ! $attach_id ) {
+            $filename = basename( wp_parse_url( $clean_url, PHP_URL_PATH ) );
+            if ( ! empty( $filename ) ) {
+                $attach_post = self::find_attachment_by_filename( $filename );
+                if ( $attach_post ) {
+                    $attach_id = (int) $attach_post->ID;
+                }
+            }
+        }
+
+        // 3. Nếu vẫn chưa có và có origin_url, thực hiện nạp vào Media Library (Sideload)
+        if ( ! $attach_id && ! empty( $origin_url ) ) {
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+
+            $origin_clean = rtrim( $origin_url, '/' );
+            if ( str_starts_with( $clean_url, '/' ) ) {
+                $download_url = $origin_clean . $clean_url;
+            } else {
+                $download_url = $clean_url;
+            }
+
+            if ( function_exists( 'download_url' ) && ( str_starts_with( $download_url, 'http://' ) || str_starts_with( $download_url, 'https://' ) ) ) {
+                $tmp_file = download_url( $download_url );
+                if ( ! is_wp_error( $tmp_file ) ) {
+                    $filename   = basename( wp_parse_url( $download_url, PHP_URL_PATH ) );
+                    $file_array = [
+                        'name'     => $filename,
+                        'tmp_name' => $tmp_file,
+                    ];
+                    $sideload_id = media_handle_sideload( $file_array, $post_id );
+                    if ( ! is_wp_error( $sideload_id ) ) {
+                        $attach_id = (int) $sideload_id;
+                    } else {
+                        @unlink( $tmp_file );
+                    }
+                }
+            }
+        }
+
+        // 4. Gán ảnh đại diện nếu tìm thấy attachment
+        if ( $attach_id > 0 ) {
+            set_post_thumbnail( $post_id, $attach_id );
+            return $attach_id;
+        }
+
+        delete_post_thumbnail( $post_id );
+        return 0;
+    }
 }

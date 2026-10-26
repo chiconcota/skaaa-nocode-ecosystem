@@ -239,6 +239,14 @@ class Ecosystem_Sync_UI {
                     </label>
 
                     <label class="skaaai-scope-item">
+                        <input type="checkbox" name="ecosystem_scope[]" value="posts" checked>
+                        <div>
+                            <strong>📝 <?php esc_html_e( 'All Published Blog Posts & Featured Images', 'skaaai' ); ?></strong>
+                            <span><?php esc_html_e( 'Sync article contents, post thumbnails & dynamic bindings', 'skaaai' ); ?></span>
+                        </div>
+                    </label>
+
+                    <label class="skaaai-scope-item">
                         <input type="checkbox" name="ecosystem_scope[]" value="media" checked>
                         <div>
                             <strong>🖼️ <?php esc_html_e( 'Standalone Media Library', 'skaaai' ); ?></strong>
