@@ -1,5 +1,5 @@
 # SYSTEM MAP: SKAAA NO-CODE (v2.5.5)
-@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: main | @last_update: 2026-10-26
+@status: MILESTONE 2 (DEVELOPMENT) | @git_branch: alpine-ajax | @last_update: 2026-10-27
 
 ## 1. TECH STACK (APP BUILDER ARCHITECTURE)
 - **Backend:** WP Core 6.x + PHP 8.2+ (Host & API)
@@ -54,6 +54,7 @@ wp-content/
 ---
 
 ## 6. RECENT LOGS
+- **2026-10-27 - 🟡 In Progress (Alpine-AJAX Integration & Universal Query Loop Roadmap):** Hoàn tất phân tích kiến trúc loại bỏ khối Gutenberg `core/query` và lên kế hoạch Project Manager chi tiết tại [pm_alpine_ajax_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_alpine_ajax_integration.md) (6 Phases: Runtime Enqueue, Inspector UI Controls, Universal Loop WP Posts Adapter, Flat DOM Pagination, Agent Kit Upgrade, E2E Verification). Khởi tạo nhánh Git `alpine-ajax` sẵn sàng cho phiên thực thi kế tiếp.
 - **2026-10-26 - 🟢 Done (Skaaai Plugin v1.6.6 - Featured Image Sync & Reading Settings Parity):**
   - **Featured Image Synchronization & Attachment Linking Parity:** Giải quyết triệt để lỗi mất ảnh đại diện (featured image) khi push bài viết/trang lên Live host (`lytatthanh.com`). Bổ sung cơ chế trích xuất `featured_image_url` từ Sender (`class-skaaai-sync-ecosystem-sender.php` và `class-skaaai-sync-post.php`), tự động đẩy tệp tin vật lý qua REST Media Upload, và trên Receiver (`class-skaaai-sync-media.php`, `class-skaaai-sync-ecosystem.php`) tự động đối soát attachment ID (`attachment_url_to_postid` + fallback `find_attachment_by_filename` + sideload) để thực thi `set_post_thumbnail( $post_id, $attach_id )`.
   - **Reading Settings Synchronization Parity:** Mở rộng `Sync_Ecosystem_Sender` và `Sync_Ecosystem` tự động trích xuất và đối soát ánh xạ `page_for_posts` (qua UUID và Slug). Khắc phục triệt để sự cố trang `/blog/` trên hosting Live bị trống trơn do WordPress thiếu tùy chọn trang bài viết và không kích hoạt được Theme Template Archive (`ArchiveBlogEditorial`).

@@ -1,0 +1,106 @@
+# PROJECT MANAGER: TÍCH HỢP ALPINE-AJAX & UNIVERSAL QUERY LOOP
+@status: 🟡 Draft / Pending Review | @owner: Antigravity AI & Giám Đốc | @target_plugins: skaaa-no-code-design | @last_update: 2026-10-27
+
+> [!NOTE]
+> Tài liệu này quản lý kế hoạch thiết kế, tích hợp và nghiệm thu thư viện **Alpine AJAX (`x-target`)** vào plugin **Skaaa No-Code Design**.
+> **Mục tiêu tối thượng:** Khai tử hoàn toàn sự phụ thuộc vào các khối mặc định của WordPress (`core/query`, `core/query-pagination`), giải quyết triệt để vấn đề "Div Soup" (lồng 5-6 tầng container) và mang lại trải nghiệm điều hướng tức thì (Instant AJAX Navigation / 0ms SPA) cho các trang Blog, Tin tức, Danh mục và Lọc sản phẩm mà vẫn bảo toàn 100% SEO.
+
+---
+
+## 1. MỤC TIÊU CỐT LÕI (CORE OBJECTIVES)
+
+1. **Tích hợp Runtime Siêu Nhẹ (`alpine-ajax` ~3.5 KB):**
+   - Đóng gói thư viện `alpine-ajax.min.js` vào `assets/js/vendor/` của `skaaa-no-code-design`.
+   - Đăng ký và nạp tự động qua WordPress Enqueue API (`wp_enqueue_script`), đảm bảo nạp liền mạch cùng hệ sinh thái `skaaa-alpine`.
+2. **Giao Diện Điều Khiển No-Code Trên Gutenberg Inspector:**
+   - Bổ sung panel **"⚡ Instant AJAX Navigation"** trên Inspector của các khối `Container`, `Button` và `Text (Link)`.
+   - Người dùng chỉ cần nhập ID mục tiêu (ví dụ: `blog-grid`) hoặc tick chọn `Enable AJAX Pagination`, hệ thống tự động inject thuộc tính `x-target="blog-grid"` và modifier `x-target.push="blog-grid"`.
+3. **Mở Rộng Skaaa Loop thành Universal Query Loop:**
+   - Nâng cấp `src/skaaa-loop/render.php` để hỗ trợ nguồn dữ liệu:
+     - `Skaaa Data Pro Flat Tables` (`wp_skaaa_data_*`).
+     - **`WordPress Native Posts`** (`post_type = 'post'`, `'page'`, Custom Post Types).
+   - Hỗ trợ kế thừa ngữ cảnh Archive tự nhiên của WordPress (`is_home()`, `is_archive()`, `is_category()`).
+4. **Cấu Kiện Phân Trang Chuẩn Flat DOM (Skaaa Pagination):**
+   - Tạo khuôn phân trang nguyên tử thuần HTML + Tailwind v4 (không sinh thẻ `<ul>`, `<li>` rác).
+   - Tự động gắn `x-target.push` vào các nút trang (1, 2, 3... Trang sau / Trang trước).
+   - Chuyển trang mượt mà không tải lại màn hình, đồng thời tự động cập nhật URL `/blog/page/2/` trên thanh địa chỉ.
+5. **Cách Ly An Toàn với Skaaapine Trên Editor:**
+   - Giữ nguyên `Skaaapine` trong Gutenberg Editor để chuyên trách animation cục bộ (Tabs, Accordions, Transitions).
+   - Vô hiệu hóa hành vi fetch AJAX ngầm khi đang soạn thảo trong Gutenberg để bảo vệ React Fiber không bị desync trạng thái block.
+6. **Chuẩn Hóa Agent Kit & Nâng Cấp Harness Validator:**
+   - Nâng cấp cỗ máy CLI `block-tool.php` tự động bẫy lỗi và chặn đứng các trường hợp AI lạm dụng block mặc định `core/query` của WordPress.
+   - Bổ sung tài liệu chuẩn và code mẫu vào `developer-blocks/SKILL.md` và `company-rules.md`.
+   - Đồng bộ hóa 2 chiều sang cả `.agent/` và `scaffold/.agent/` của plugin `skaaai`.
+
+---
+
+## 2. MA TRẬN PHÂN CHIA CÔNG VIỆC (PHASED ACTION PLAN)
+
+### 🟡 Phase 1: Tích hợp Thư viện Runtime & Đăng ký Enqueue
+- [ ] Tải bản phân phối tĩnh `alpine-ajax.min.js` (v0.11.x) lưu tại `assets/js/vendor/alpine-ajax.min.js`.
+- [ ] Trong `inc/design-engine/class-core.php`:
+  - Đăng ký handle script `'skaaa-alpine-ajax'`.
+  - Thiết lập phụ thuộc chặt chẽ: nạp ngay sau `skaaa-frontend.js` và đồng bộ cùng `skaaa-alpine`.
+- [ ] Kiểm thử nạp script ngoài Frontend: Xác nhận trình duyệt nhận diện directive `window.Alpine` có extension AJAX.
+
+### 🟡 Phase 2: Nâng cấp Gutenberg Inspector (No-Code Controls)
+- [ ] Mở rộng `src/extensions/html-attributes.js`:
+  - Thêm section chuyên dụng trong Sidebar Inspector: **"⚡ Instant AJAX Navigation (Alpine-AJAX)"**.
+  - Các trường cấu hình:
+    - **Toggle:** `Kích hoạt AJAX Target (x-target)`.
+    - **Target Element ID:** Gõ ID container đích cần tráo (VD: `blog-grid` hoặc `posts-container`).
+    - **Toggle Update Browser URL (`.push`):** Tự động đẩy URL mới lên thanh địa chỉ trình duyệt khi chuyển trang.
+    - **Scroll to Top Toggle:** Tự động cuộn nhẹ về đầu danh sách sau khi tráo nội dung.
+- [ ] Tự động đồng bộ các thuộc tính này vào mảng `htmlAttributes` của block mà không cần can thiệp thủ công.
+
+### 🟡 Phase 3: Nâng cấp Lõi Skaaa Loop (WordPress Posts Adapter)
+- [ ] Trong `src/skaaa-loop/render.php`:
+  - Bổ sung tùy chọn `sourceType: "flat_table" | "wp_posts"`.
+  - Khi `sourceType === 'wp_posts'`:
+    - Tự động gọi `WP_Query` lấy danh sách bài viết theo `post_type`, `category`, `posts_per_page`, `paged`.
+    - Trích xuất dữ liệu chuẩn hóa: `title`, `permalink`, `date`, `excerpt`, `author`, `featured_image_url`, `categories`.
+    - Tương thích 100% với SkaaaFX Dynamic Binding (`[post.title]`, `[post.featured_image]`).
+- [ ] Triệt tiêu 100% thẻ `<ul>`, `<li>` rác; render trực tiếp thẻ cha Grid/Flex Flat DOM mang class Tailwind.
+
+### 🟡 Phase 4: Thiết kế Cấu Kiện Phân Trang Nguyên Tử (Flat DOM Pagination)
+- [ ] Xây dựng template phân trang bản địa:
+  - Nút Trang Trước (`Previous`), Danh sách số trang (`1`, `2`, `3`...), Nút Trang Kế (`Next`).
+  - Style 100% bằng Design Tokens (`bg-surface`, `text-primary`, `hover:bg-primary/10`, `rounded-lg`).
+  - Tự động gắn thuộc tính `x-target.push="{target_id}"` vào từng thẻ `<a>`.
+- [ ] Kiểm thử trạng thái Active của trang hiện tại (nút số trang đang xem được tô màu nhận diện).
+
+### 🟡 Phase 5: Chuẩn Hóa Agent Kit & Nâng Cấp Công Cụ Kiểm Tra (Harness CLI & Rules)
+- [ ] **Nâng cấp CLI Tool `block-tool.php`:**
+  - Bổ sung bộ kiểm định (Validator) cho cấu trúc `skaaaaa-builder/loop` với `sourceType="wp_posts"`.
+  - Đánh thẻ đỏ cảnh báo nếu phát hiện AI sử dụng khối cũ của WordPress Core (`core/query`, `core/post-template`, `core/query-pagination`).
+  - Hỗ trợ cờ kiểm tra thuộc tính `x-target` và `x-target.push` trên các container/link phân trang để bảo đảm tính hợp lệ trước khi lưu vào CSDL.
+- [ ] **Cập nhật Hướng Dẫn Kỹ Năng AI (`developer-blocks/SKILL.md`):**
+  - Soạn thảo tài liệu và code mẫu Gutenberg chuẩn cho:
+    1. Universal Loop danh sách bài viết (`sourceType="wp_posts"`).
+    2. Cụm phân trang chuẩn tích hợp `x-target.push`.
+  - Hướng dẫn chi tiết cách dựng trang Blog / Archive Flat DOM 0ms hoàn toàn không sinh thẻ `<ul>`, `<li>` rác.
+- [ ] **Cập nhật Quy Chế Doanh Nghiệp (`company-rules.md`):**
+  - Bổ sung thiết quân luật: Cấm tuyệt đối nhân viên AI sử dụng `core/query` và `core/query-pagination` của WordPress.
+  - Bắt buộc 100% danh sách bài viết và phân trang phải dùng `skaaaaa-builder/loop` kết hợp `x-target.push`.
+- [ ] **Đồng bộ hóa Agent Kit Hai Chiều (Two-Way Parity):**
+  - Đồng bộ các cập nhật của `block-tool.php`, `developer-blocks/SKILL.md` và `company-rules.md` vào cả `.agent/` (Root) và `scaffold/.agent/` (Plugin `skaaai`).
+
+### 🟡 Phase 6: Đóng Gói, Nâng Cấp Phiên Bản & Kiểm Thử E2E
+- [ ] Chạy `npm run build` trong `skaaa-no-code-design` để biên dịch lại toàn bộ bundle JavaScript.
+- [ ] Tăng phiên bản Minor theo chuẩn SemVer:
+  - `Skaaa No-Code Design: v2.6.0`
+  - `Skaaai: v1.7.0` (Đồng bộ bộ gen Agent Kit mới).
+- [ ] Kiểm thử E2E trên trang Blog thực tế:
+  - [ ] Click chuyển trang không reload màn hình (0ms).
+  - [ ] URL trên trình duyệt cập nhật chính xác `/page/2/`.
+  - [ ] Nút Back/Forward của trình duyệt hoạt động bình thường.
+  - [ ] Ảnh đại diện (Featured Image) hiển thị sắc nét, không bị icon placeholder.
+  - [ ] Điểm số Google Lighthouse và Core Web Vitals (LCP, CLS) đạt mức tối đa.
+
+---
+
+## 3. NGUYÊN TẮC KIẾN TRÚC BẤT BIẾN (ARCHITECTURAL CONSTRAINTS)
+1. **Zero-API Backend:** Không viết thêm REST API endpoint cồng kềnh cho phân trang. Tận dụng 100% SSR HTML của WordPress.
+2. **SEO-First Directive:** Trang HTML gốc khi mở trực tiếp bằng URL `/blog/page/2/` phải chứa đầy đủ nội dung bài viết để Google Bot đọc được 100%.
+3. **Editor Safety:** Tuyệt đối không kích hoạt AJAX fetch thật trong canvas Gutenberg Editor.
+4. **SemVer Rule:** Tự động tăng phiên bản lên `v2.6.0` khi triển khai nhánh tính năng mới này.

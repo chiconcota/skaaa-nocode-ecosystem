@@ -39,6 +39,17 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
+## 2026-10-27 - 🟡 Quyết định Kiến trúc: Alpine AJAX Integration & Universal Query Loop Roadmap (pm_alpine_ajax_integration.md)
+- **Decision (Khai tử hoàn toàn block core/query của WordPress và chuẩn hóa phân trang Flat DOM):**
+  - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, khi tạo trang Blog hoặc danh sách tin tức có phân trang, AI đang phải sử dụng các block mặc định của WordPress (`core/query`, `core/post-template`, `core/query-pagination`). Điều này sinh ra các thẻ HTML rác (`<ul>`, `<li>`), tạo ra cấu trúc "Div Soup" lồng 5-6 tầng container, gây hiện tượng placeholder rỗng cho ảnh đại diện, và phá vỡ kiến trúc Flat DOM sạch của Skaaa. Khối `skaaaaa-builder/loop` hiện tại chỉ mới query bảng phẳng `skaaa_data_*` và chưa hề có tính năng phân trang (Pagination).
+  - **Quyết định Chiến lược:**
+    1. *Tích hợp Alpine AJAX (`x-target`):* Đóng gói thư viện `alpine-ajax.min.js` (~3.5 KB) vào plugin `skaaa-no-code-design`. Tận dụng triết lý HTML-over-the-wire để biến mọi liên kết phân trang thành điều hướng tức thì 0ms SPA mà không cần viết REST API và không ảnh hưởng đến SEO.
+    2. *Mở rộng Universal Query Loop:* Nâng cấp `render.php` của `skaaaaa-builder/loop` hỗ trợ nguồn dữ liệu `WordPress Posts` (`post_type = 'post'`).
+    3. *Thiết kế cấu kiện Phân trang Flat DOM:* Xây dựng cụm phân trang nguyên tử mang class Tailwind chuẩn Design Tokens và tự động gắn `x-target.push`.
+    4. *Bảo toàn Skaaapine Editor:* Giữ nguyên React HOC `withSkaaapine` trong Gutenberg Editor để giả lập animation cục bộ; vô hiệu hóa AJAX fetch ngầm trên canvas để bảo vệ React Fiber.
+    5. *Nâng cấp Agent Kit & Validator:* Cập nhật cỗ máy tiền kiểm `block-tool.php`, cấm tuyệt đối AI dùng `core/query` và chuẩn hóa hướng dẫn trong `developer-blocks/SKILL.md`.
+    6. *Lộ trình triển khai:* Đã lập Project Manager chi tiết [pm_alpine_ajax_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_alpine_ajax_integration.md) gồm 6 Phases, sẵn sàng thực thi ở nhánh Git `alpine-ajax` trong phiên làm việc kế tiếp.
+
 ## 2026-10-26 - 🟢 Hoàn thành: Featured Image Synchronization & Attachment Linking Parity (Skaaai v1.6.6)
 - **Decision (Root Elimination of Missing Featured Images on Live Host & Blog Card Loop):**
   - **Bối cảnh & Vấn đề:** Khi người dùng đẩy bài viết và trang sang Live host (`lytatthanh.com`), các file ảnh đại diện đã được tải lên Thư viện Media (`wp-content/uploads/`), nhưng khi vào xem bài viết hoặc trang `/blog/`, các thẻ bài viết hiển thị placeholder "Icon Image" thay vì hình ảnh đại diện thực tế.
