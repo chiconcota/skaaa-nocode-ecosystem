@@ -1,44 +1,44 @@
 {
-    "$schema": "https://schemas.wp.org/trunk/block.json",
-    "apiVersion": 3,
-    "name": "skaaaaa-builder/svg",
-    "version": "1.0.0",
-    "title": "Skaaa SVG",
-    "category": "skaaa-atomic",
-    "icon": "art",
-    "description": "An inline SVG icon and vector graphic block with JIT Tailwind support.",
-    "attributes": {
-        "svgCode": {
-            "type": "string",
-            "default": ""
-        },
-        "tailwindClasses": {
-            "type": "string",
-            "default": "w-6 h-6 text-current"
-        },
-        "className": {
-            "type": "string",
-            "default": ""
-        },
-        "customStyle": {
-            "type": "string",
-            "default": ""
-        },
-        "logic": {
-            "type": "object",
-            "default": {
-                "enabled": false,
-                "key": "",
-                "operator": "==",
-                "value": ""
-            }
-        }
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "skaaaaa-builder/svg",
+  "version": "1.0.0",
+  "title": "Skaaa SVG",
+  "category": "skaaa-atomic",
+  "icon": "art",
+  "description": "An inline SVG icon and vector graphic block with JIT Tailwind support.",
+  "attributes": {
+    "svgCode": {
+      "type": "string",
+      "default": ""
     },
-    "supports": {
-        "html": false,
-        "customClassName": false
+    "tailwindClasses": {
+      "type": "string",
+      "default": "w-6 h-6 text-current"
     },
-    "textdomain": "skaaa-no-code-design",
-    "editorScript": "file:./index.js",
-    "render": "file:./render.php"
+    "className": {
+      "type": "string",
+      "default": ""
+    },
+    "customStyle": {
+      "type": "string",
+      "default": ""
+    },
+    "logic": {
+      "type": "object",
+      "default": {
+        "enabled": false,
+        "key": "",
+        "operator": "==",
+        "value": ""
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "customClassName": false
+  },
+  "textdomain": "skaaa-no-code-design",
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
 }

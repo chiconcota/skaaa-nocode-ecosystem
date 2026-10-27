@@ -36,38 +36,39 @@
 
 ## 2. MA TRẬN PHÂN CHIA CÔNG VIỆC (PHASED ACTION PLAN)
 
-### 🟡 Phase 1: Tích hợp Thư viện Runtime & Đăng ký Enqueue
-- [ ] Tải bản phân phối tĩnh `alpine-ajax.min.js` (v0.11.x) lưu tại `assets/js/vendor/alpine-ajax.min.js`.
-- [ ] Trong `inc/design-engine/class-core.php`:
+### 🟢 Phase 1: Tích hợp Thư viện Runtime & Đăng ký Enqueue
+- [x] Tải bản phân phối tĩnh `alpine-ajax.min.js` (v0.12.7) lưu tại `assets/js/vendor/alpine-ajax.min.js` (Offline 100%, Zero-CDN).
+- [x] Trong `inc/design-engine/class-core.php` & `blocks/init.php`:
   - Đăng ký handle script `'skaaa-alpine-ajax'`.
-  - Thiết lập phụ thuộc chặt chẽ: nạp ngay sau `skaaa-frontend.js` và đồng bộ cùng `skaaa-alpine`.
-- [ ] Kiểm thử nạp script ngoài Frontend: Xác nhận trình duyệt nhận diện directive `window.Alpine` có extension AJAX.
+  - Thiết lập chuỗi phụ thuộc chặt chẽ: `skaaa-frontend` -> `skaaa-alpine-ajax` -> `skaaa-alpine`.
+- [x] Kiểm thử nạp script ngoài Frontend: Xác nhận trình duyệt nhận diện directive `window.Alpine` có extension AJAX (`Alpine.ajax: true`, `x-target: REGISTERED`, `x-merge: REGISTERED`).
 
-### 🟡 Phase 2: Nâng cấp Gutenberg Inspector (No-Code Controls)
-- [ ] Mở rộng `src/extensions/html-attributes.js`:
-  - Thêm section chuyên dụng trong Sidebar Inspector: **"⚡ Instant AJAX Navigation (Alpine-AJAX)"**.
+### 🟢 Phase 2: Nâng cấp Gutenberg Inspector (No-Code Controls)
+- [x] Mở rộng `src/extensions/html-attributes.js`:
+  - Thêm section chuyên dụng trong Sidebar Inspector: **"⚡ Instant AJAX Navigation"** với badge nhận diện Active màu xanh.
   - Các trường cấu hình:
-    - **Toggle:** `Kích hoạt AJAX Target (x-target)`.
+    - **Toggle:** `Enable AJAX Target (x-target)`.
     - **Target Element ID:** Gõ ID container đích cần tráo (VD: `blog-grid` hoặc `posts-container`).
-    - **Toggle Update Browser URL (`.push`):** Tự động đẩy URL mới lên thanh địa chỉ trình duyệt khi chuyển trang.
-    - **Scroll to Top Toggle:** Tự động cuộn nhẹ về đầu danh sách sau khi tráo nội dung.
-- [ ] Tự động đồng bộ các thuộc tính này vào mảng `htmlAttributes` của block mà không cần can thiệp thủ công.
+    - **Toggle Update Browser URL (`.push`):** Tự động đẩy URL mới lên thanh địa chỉ trình duyệt khi chuyển trang (lưu giữ lịch sử Back/Forward).
+    - **Auto-Focus & Scroll to Target Toggle:** Tự động cuộn nhẹ và focus vào container đích (bỏ chọn sẽ gắn `.nofocus`).
+- [x] Tự động đồng bộ các thuộc tính này vào mảng `htmlAttributes` của block hai chiều (Two-Way Sync), hiển thị live code directive `x-target.push="..."`.
+- [x] Chạy `npm run build` biên dịch lại toàn bộ bundle `build/extensions.js` thành công 100%.
 
-### 🟡 Phase 3: Nâng cấp Lõi Skaaa Loop (WordPress Posts Adapter)
-- [ ] Trong `src/skaaa-loop/render.php`:
+### 🟢 Phase 3: Nâng cấp Lõi Skaaa Loop (WordPress Posts Adapter)
+- [x] Trong `src/skaaa-loop/render.php`:
   - Bổ sung tùy chọn `sourceType: "flat_table" | "wp_posts"`.
   - Khi `sourceType === 'wp_posts'`:
     - Tự động gọi `WP_Query` lấy danh sách bài viết theo `post_type`, `category`, `posts_per_page`, `paged`.
     - Trích xuất dữ liệu chuẩn hóa: `title`, `permalink`, `date`, `excerpt`, `author`, `featured_image_url`, `categories`.
     - Tương thích 100% với SkaaaFX Dynamic Binding (`[post.title]`, `[post.featured_image]`).
-- [ ] Triệt tiêu 100% thẻ `<ul>`, `<li>` rác; render trực tiếp thẻ cha Grid/Flex Flat DOM mang class Tailwind.
+- [x] Triệt tiêu 100% thẻ `<ul>`, `<li>` rác; render trực tiếp thẻ cha Grid/Flex Flat DOM mang class Tailwind.
 
-### 🟡 Phase 4: Thiết kế Cấu Kiện Phân Trang Nguyên Tử (Flat DOM Pagination)
-- [ ] Xây dựng template phân trang bản địa:
+### 🟢 Phase 4: Thiết kế Cấu Kiện Phân Trang Nguyên Tử (Flat DOM Pagination)
+- [x] Xây dựng template phân trang bản địa:
   - Nút Trang Trước (`Previous`), Danh sách số trang (`1`, `2`, `3`...), Nút Trang Kế (`Next`).
   - Style 100% bằng Design Tokens (`bg-surface`, `text-primary`, `hover:bg-primary/10`, `rounded-lg`).
   - Tự động gắn thuộc tính `x-target.push="{target_id}"` vào từng thẻ `<a>`.
-- [ ] Kiểm thử trạng thái Active của trang hiện tại (nút số trang đang xem được tô màu nhận diện).
+- [x] Kiểm thử trạng thái Active của trang hiện tại (nút số trang đang xem được tô màu nhận diện).
 
 ### 🟡 Phase 5: Chuẩn Hóa Agent Kit & Nâng Cấp Công Cụ Kiểm Tra (Harness CLI & Rules)
 - [ ] **Nâng cấp CLI Tool `block-tool.php`:**

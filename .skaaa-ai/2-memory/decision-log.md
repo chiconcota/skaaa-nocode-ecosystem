@@ -39,16 +39,16 @@
 
 ## NHẬT KÝ QUYẾT ĐỊNH MỚI NHẤT (ACTIVE LOGS - THÁNG 10/2026)
 
-## 2026-10-27 - 🟡 Quyết định Kiến trúc: Alpine AJAX Integration & Universal Query Loop Roadmap (pm_alpine_ajax_integration.md)
-- **Decision (Khai tử hoàn toàn block core/query của WordPress và chuẩn hóa phân trang Flat DOM):**
-  - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, khi tạo trang Blog hoặc danh sách tin tức có phân trang, AI đang phải sử dụng các block mặc định của WordPress (`core/query`, `core/post-template`, `core/query-pagination`). Điều này sinh ra các thẻ HTML rác (`<ul>`, `<li>`), tạo ra cấu trúc "Div Soup" lồng 5-6 tầng container, gây hiện tượng placeholder rỗng cho ảnh đại diện, và phá vỡ kiến trúc Flat DOM sạch của Skaaa. Khối `skaaaaa-builder/loop` hiện tại chỉ mới query bảng phẳng `skaaa_data_*` và chưa hề có tính năng phân trang (Pagination).
-  - **Quyết định Chiến lược:**
-    1. *Tích hợp Alpine AJAX (`x-target`):* Đóng gói thư viện `alpine-ajax.min.js` (~3.5 KB) vào plugin `skaaa-no-code-design`. Tận dụng triết lý HTML-over-the-wire để biến mọi liên kết phân trang thành điều hướng tức thì 0ms SPA mà không cần viết REST API và không ảnh hưởng đến SEO.
-    2. *Mở rộng Universal Query Loop:* Nâng cấp `render.php` của `skaaaaa-builder/loop` hỗ trợ nguồn dữ liệu `WordPress Posts` (`post_type = 'post'`).
-    3. *Thiết kế cấu kiện Phân trang Flat DOM:* Xây dựng cụm phân trang nguyên tử mang class Tailwind chuẩn Design Tokens và tự động gắn `x-target.push`.
-    4. *Bảo toàn Skaaapine Editor:* Giữ nguyên React HOC `withSkaaapine` trong Gutenberg Editor để giả lập animation cục bộ; vô hiệu hóa AJAX fetch ngầm trên canvas để bảo vệ React Fiber.
-    5. *Nâng cấp Agent Kit & Validator:* Cập nhật cỗ máy tiền kiểm `block-tool.php`, cấm tuyệt đối AI dùng `core/query` và chuẩn hóa hướng dẫn trong `developer-blocks/SKILL.md`.
-    6. *Lộ trình triển khai:* Đã lập Project Manager chi tiết [pm_alpine_ajax_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_alpine_ajax_integration.md) gồm 6 Phases, sẵn sàng thực thi ở nhánh Git `alpine-ajax` trong phiên làm việc kế tiếp.
+## 2026-10-27 - 🟢 Hoàn thành: Alpine AJAX Runtime, Inspector No-Code Controls, Universal Loop & Flat DOM Pagination (Phase 1, 2, 3 & 4)
+- **Decision (Khai tử hoàn toàn block core/query của WordPress và chuẩn hóa phân trang Flat DOM 0ms):**
+  - **Bối cảnh & Vấn đề:** Trong Gutenberg Editor, khi tạo trang Blog hoặc danh sách tin tức có phân trang, AI đang phải sử dụng các block mặc định của WordPress (`core/query`, `core/post-template`, `core/query-pagination`). Điều này sinh ra các thẻ HTML rác (`<ul>`, `<li>`), tạo ra cấu trúc "Div Soup" lồng 5-6 tầng container, gây hiện tượng placeholder rỗng cho ảnh đại diện, và phá vỡ kiến trúc Flat DOM sạch của Skaaa. Khối `skaaaaa-builder/loop` cũ chỉ mới query bảng phẳng `skaaa_data_*` và chưa hề có tính năng phân trang (Pagination).
+  - **Quyết định Chiến lược & Kết quả Triển khai:**
+    1. *Phase 1 (Offline Alpine AJAX v0.12.7):* Tải và đóng gói tệp tĩnh `assets/js/vendor/alpine-ajax.min.js` (~3.5 KB) chạy offline 100% (Zero-CDN). Đăng ký và nạp theo thứ tự nghiêm ngặt `skaaa-frontend` -> `skaaa-alpine-ajax` -> `skaaa-alpine`.
+    2. *Phase 2 (Gutenberg Inspector Controls):* Bổ sung mục *"⚡ Instant AJAX Navigation"* trong `html-attributes.js` với các toggle trực quan (`Enable x-target`, `Target Element ID`, `.push` URL sync, `.nofocus` scroll) kèm live code preview. Biên dịch lại toàn bộ bundle `build/extensions.js`.
+    3. *Phase 3 (Universal Query Loop Adapter):* Nâng cấp `render.php` của `skaaaaa-builder/loop` hỗ trợ nguồn dữ liệu `WordPress Posts` (`sourceType="wp_posts"`). Tự động gọi `WP_Query`, hydrat hóa sạch sẽ các token `{{post.title}}`, `[post.title]`, `[post.permalink]`, `[post.date]`, `[post.excerpt]`, và tự động fallback ảnh đại diện sang SVG placeholder sắc nét. Triệt tiêu hoàn toàn các thẻ `<ul>`, `<li>` rác.
+    4. *Phase 4 (Flat DOM Pagination & Alpine-AJAX):* Triển khai hàm `skaaa_render_flat_pagination()` xuất thẻ `<nav class="skaaa-pagination col-span-full ...">` mang class Design Tokens và tự động gắn thuộc tính `x-target.push="{target_id}"`. Khởi tạo container ID đích tất định để tráo đổi nội dung tại chỗ 0ms mà không gây reload trang.
+    5. *Xác thực E2E & Kịch bản Test Tay:* Đã chạy automated E2E test đạt 100% PASS trên WordPress runtime. Dựng sẵn trang demo hoàn chỉnh tại `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/` và soạn thảo tài liệu kịch bản test bằng tay [e2e_alpine_ajax_manual_test.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/e2e_alpine_ajax_manual_test.md).
+    6. *Kế hoạch kế tiếp:* Thực hiện Phase 5 (Harness CLI & Rules Validator) và Phase 6 (Đóng gói nâng SemVer v2.6.0) ở phiên tiếp theo.
 
 ## 2026-10-26 - 🟢 Hoàn thành: Featured Image Synchronization & Attachment Linking Parity (Skaaai v1.6.6)
 - **Decision (Root Elimination of Missing Featured Images on Live Host & Blog Card Loop):**

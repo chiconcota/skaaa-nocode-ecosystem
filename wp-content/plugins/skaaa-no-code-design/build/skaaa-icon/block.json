@@ -1,40 +1,40 @@
 {
-    "$schema": "https://schemas.wp.org/trunk/block.json",
-    "apiVersion": 3,
-    "name": "skaaaaa-builder/icon",
-    "version": "1.0.1",
-    "title": "Skaaa Icon",
-    "category": "skaaa-atomic",
-    "icon": "star-filled",
-    "description": "A Material Icon block with JIT Tailwind support.",
-    "attributes": {
-        "iconName": {
-            "type": "string",
-            "default": "star"
-        },
-        "tailwindClasses": {
-            "type": "string",
-            "default": "material-icons-outlined"
-        },
-        "className": {
-            "type": "string",
-            "default": ""
-        },
-        "logic": {
-            "type": "object",
-            "default": {
-                "enabled": false,
-                "key": "",
-                "operator": "==",
-                "value": ""
-            }
-        }
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "skaaaaa-builder/icon",
+  "version": "1.0.1",
+  "title": "Skaaa Icon",
+  "category": "skaaa-atomic",
+  "icon": "star-filled",
+  "description": "A Material Icon block with JIT Tailwind support.",
+  "attributes": {
+    "iconName": {
+      "type": "string",
+      "default": "star"
     },
-    "supports": {
-        "html": false,
-        "customClassName": false
+    "tailwindClasses": {
+      "type": "string",
+      "default": "material-icons-outlined"
     },
-    "textdomain": "skaaaaa-builder-core",
-    "editorScript": "file:./index.js",
-    "render": "file:./render.php"
+    "className": {
+      "type": "string",
+      "default": ""
+    },
+    "logic": {
+      "type": "object",
+      "default": {
+        "enabled": false,
+        "key": "",
+        "operator": "==",
+        "value": ""
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "customClassName": false
+  },
+  "textdomain": "skaaaaa-builder-core",
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
 }

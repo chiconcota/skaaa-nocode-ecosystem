@@ -133,13 +133,23 @@ function skaaa_builder_core_enqueue_extensions() {
 add_action( 'enqueue_block_editor_assets', 'skaaa_builder_core_enqueue_extensions' );
 
 /**
- * Register Alpine.js script (Local file)
+ * Register Alpine.js and Alpine AJAX scripts (Local files)
  */
 function skaaa_builder_core_register_alpine() {
+    $ajax_js  = SKAAA_DESIGN_PATH . 'assets/js/vendor/alpine-ajax.min.js';
+    $ajax_ver = file_exists( $ajax_js ) ? filemtime( $ajax_js ) : '0.12.7';
+    wp_register_script(
+        'skaaa-alpine-ajax',
+        SKAAA_DESIGN_URL . 'assets/js/vendor/alpine-ajax.min.js',
+        array( 'skaaa-frontend' ),
+        $ajax_ver,
+        true
+    );
+
     wp_register_script(
         'skaaa-alpine',
         SKAAA_DESIGN_URL . 'assets/js/alpine.min.js',
-        array( 'skaaa-frontend' ),
+        array( 'skaaa-alpine-ajax' ),
         '3.13.3',
         true
     );

@@ -29,7 +29,7 @@ wp-content/
 | Module Name | Path | Core Function | Status |
 | :--- | :--- | :--- | :--- |
 | **Skaaa Canvas (Theme)** | `themes/skaaa-canvas/` | Loại bỏ CSS/JS rác của WP, tạo khung canvas sạch, hỗ trợ Featured Image. | 🟢 Stable (v1.0.2) |
-| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Editor Dark Mode. | 🟢 Stable (v2.5.5) |
+| **Skaaa No-Code Design** | `plugins/skaaa-no-code-design/` | Custom Blocks, Tailwind JIT, Skaaapine, Molecules, Alpine-AJAX Universal Loop. | 🟡 In Progress (v2.5.5 -> v2.6.0) |
 | **Skaaa Data Pro** | `plugins/skaaa-data-pro/` | Quản lý bảng phẳng MySQL, Schema, Smart Objects. | 🟢 Stable (v1.3.3) |
 | **Skaaai (Bridge, Deployer & Harness)** | `plugins/skaaai/` | Cầu nối đồng bộ 1-Click (Local ⟷ Host), Remote Code Deployer, Local Agent Harness Initializer, Standalone Media Library Sync, Server-Level Cache Purge & Organisms Push. | 🟢 Stable (v1.6.6) |
 | **Skaaa Logic Engine** | `plugins/skaaa-logic-engine/` | DAG Workflow Builder, SkaaaFX AST, Pluggable Nodes, Universal Dynamic Binding, WP Dynamic Content. | 🟢 Stable (v1.3.3) |
@@ -53,8 +53,7 @@ wp-content/
 
 ---
 
-## 6. RECENT LOGS
-- **2026-10-27 - 🟡 In Progress (Alpine-AJAX Integration & Universal Query Loop Roadmap):** Hoàn tất phân tích kiến trúc loại bỏ khối Gutenberg `core/query` và lên kế hoạch Project Manager chi tiết tại [pm_alpine_ajax_integration.md](file:///home/chiconcota/Local%20Sites/skaaa-no-code-ecosystem/app/public/.skaaa-ai/1-overview/project-managers/pm_alpine_ajax_integration.md) (6 Phases: Runtime Enqueue, Inspector UI Controls, Universal Loop WP Posts Adapter, Flat DOM Pagination, Agent Kit Upgrade, E2E Verification). Khởi tạo nhánh Git `alpine-ajax` sẵn sàng cho phiên thực thi kế tiếp.
+- **2026-10-27 - 🟡 In Progress (Alpine-AJAX Integration & Universal Query Loop - Phase 1, 2, 3 & 4 Done):** Hoàn thành xuất sắc 4 phase đầu tiên trên nhánh Git `alpine-ajax`: (1) Đóng gói runtime Alpine AJAX v0.12.7 offline 100%; (2) Xây dựng bộ điều khiển No-Code "⚡ Instant AJAX Navigation" trong Gutenberg Inspector; (3) Nâng cấp lõi `skaaaaa-builder/loop` hỗ trợ nguồn dữ liệu `wp_posts`, hydration chuẩn hóa và fallback ảnh đại diện SVG; (4) Triển khai phân trang Flat DOM nguyên tử mang `x-target.push` chuyển trang 0ms. Đã vượt qua 100% các ca kiểm thử E2E tự động và dựng trang demo test tay tại `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/`. Sẵn sàng cho Phase 5 & 6.
 - **2026-10-26 - 🟢 Done (Skaaai Plugin v1.6.6 - Featured Image Sync & Reading Settings Parity):**
   - **Featured Image Synchronization & Attachment Linking Parity:** Giải quyết triệt để lỗi mất ảnh đại diện (featured image) khi push bài viết/trang lên Live host (`lytatthanh.com`). Bổ sung cơ chế trích xuất `featured_image_url` từ Sender (`class-skaaai-sync-ecosystem-sender.php` và `class-skaaai-sync-post.php`), tự động đẩy tệp tin vật lý qua REST Media Upload, và trên Receiver (`class-skaaai-sync-media.php`, `class-skaaai-sync-ecosystem.php`) tự động đối soát attachment ID (`attachment_url_to_postid` + fallback `find_attachment_by_filename` + sideload) để thực thi `set_post_thumbnail( $post_id, $attach_id )`.
   - **Reading Settings Synchronization Parity:** Mở rộng `Sync_Ecosystem_Sender` và `Sync_Ecosystem` tự động trích xuất và đối soát ánh xạ `page_for_posts` (qua UUID và Slug). Khắc phục triệt để sự cố trang `/blog/` trên hosting Live bị trống trơn do WordPress thiếu tùy chọn trang bài viết và không kích hoạt được Theme Template Archive (`ArchiveBlogEditorial`).

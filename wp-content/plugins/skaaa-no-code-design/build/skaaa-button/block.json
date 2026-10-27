@@ -1,100 +1,100 @@
 {
-    "$schema": "https://schemas.wp.org/trunk/block.json",
-    "apiVersion": 3,
-    "name": "skaaaaa-builder/button",
-    "version": "1.0.0",
-    "title": "Skaaa Button",
-    "category": "skaaa-atomic",
-    "description": "Atomic button block with Tailwind and Dynamic support.",
-    "attributes": {
-        "text": {
-            "type": "string",
-            "default": "[Skaaa Button]"
-        },
-        "url": {
-            "type": "string",
-            "default": "#"
-        },
-        "target": {
-            "type": "string",
-            "default": "_self"
-        },
-        "tagName": {
-            "type": "string",
-            "default": "a"
-        },
-        "hasIcon": {
-            "type": "boolean",
-            "default": false
-        },
-        "iconName": {
-            "type": "string",
-            "default": ""
-        },
-        "iconPosition": {
-            "type": "string",
-            "default": "left"
-        },
-        "iconClasses": {
-            "type": "string",
-            "default": ""
-        },
-        "actionType": {
-            "type": "string",
-            "default": "link"
-        },
-        "fieldName": {
-            "type": "string",
-            "default": ""
-        },
-        "fieldValue": {
-            "type": "string",
-            "default": ""
-        },
-        "tailwindClasses": {
-            "type": "string",
-            "default": ""
-        },
-        "className": {
-            "type": "string",
-            "default": ""
-        },
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "skaaaaa-builder/button",
+  "version": "1.0.0",
+  "title": "Skaaa Button",
+  "category": "skaaa-atomic",
+  "description": "Atomic button block with Tailwind and Dynamic support.",
+  "attributes": {
+    "text": {
+      "type": "string",
+      "default": "[Skaaa Button]"
+    },
+    "url": {
+      "type": "string",
+      "default": "#"
+    },
+    "target": {
+      "type": "string",
+      "default": "_self"
+    },
+    "tagName": {
+      "type": "string",
+      "default": "a"
+    },
+    "hasIcon": {
+      "type": "boolean",
+      "default": false
+    },
+    "iconName": {
+      "type": "string",
+      "default": ""
+    },
+    "iconPosition": {
+      "type": "string",
+      "default": "left"
+    },
+    "iconClasses": {
+      "type": "string",
+      "default": ""
+    },
+    "actionType": {
+      "type": "string",
+      "default": "link"
+    },
+    "fieldName": {
+      "type": "string",
+      "default": ""
+    },
+    "fieldValue": {
+      "type": "string",
+      "default": ""
+    },
+    "tailwindClasses": {
+      "type": "string",
+      "default": ""
+    },
+    "className": {
+      "type": "string",
+      "default": ""
+    },
+    "dynamic": {
+      "type": "object",
+      "default": {
+        "text_source": "static",
+        "text_key": "",
+        "url_source": "static",
+        "url_key": ""
+      }
+    },
+    "logic": {
+      "type": "object",
+      "default": {
+        "enabled": false,
+        "key": "",
+        "operator": "==",
+        "value": ""
+      }
+    },
+    "link": {
+      "type": "object",
+      "default": {
+        "url": "",
+        "target": "_self",
         "dynamic": {
-            "type": "object",
-            "default": {
-                "text_source": "static",
-                "text_key": "",
-                "url_source": "static",
-                "url_key": ""
-            }
-        },
-        "logic": {
-            "type": "object",
-            "default": {
-                "enabled": false,
-                "key": "",
-                "operator": "==",
-                "value": ""
-            }
-        },
-        "link": {
-            "type": "object",
-            "default": {
-                "url": "",
-                "target": "_self",
-                "dynamic": {
-                    "source": "static",
-                    "key": ""
-                }
-            }
+          "source": "static",
+          "key": ""
         }
-    },
-    "supports": {
-        "html": false,
-        "customClassName": false
-    },
-    "textdomain": "skaaaaa-builder-core",
-    "editorScript": "file:./index.js",
-    "style": "file:./index.css",
-    "render": "file:./render.php"
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "customClassName": false
+  },
+  "textdomain": "skaaaaa-builder-core",
+  "editorScript": "file:./index.js",
+  "style": "file:./index.css",
+  "render": "file:./render.php"
 }

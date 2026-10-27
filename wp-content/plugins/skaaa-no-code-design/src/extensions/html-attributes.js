@@ -1,5 +1,5 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { PanelBody, TextControl, SelectControl, TextareaControl, Button, Icon } from '@wordpress/components';
+import { PanelBody, TextControl, SelectControl, TextareaControl, ToggleControl, Button, Icon } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
@@ -66,18 +66,170 @@ const withHTMLAttributesPanel = createHigherOrderComponent((BlockEdit) => {
         // Detect if any key is Alpine.js
         const hasAlpine = htmlAttributes.some(attr => attr.key.startsWith('x-') || attr.key.startsWith('@'));
 
+        // --- Alpine AJAX Navigation State Extraction ---
+        const ajaxAttrIndex = htmlAttributes.findIndex(attr => attr && attr.key && /^x-target(\.|$)/.test(attr.key));
+        const ajaxAttr = ajaxAttrIndex !== -1 ? htmlAttributes[ajaxAttrIndex] : null;
+        const isAjaxActive = Boolean(ajaxAttr);
+        const ajaxTargetId = ajaxAttr ? (ajaxAttr.value || '') : '';
+        const ajaxKey = ajaxAttr ? ajaxAttr.key : '';
+        const ajaxPushUrl = ajaxAttr ? ajaxKey.includes('.push') : true;
+        const ajaxAutoFocus = ajaxAttr ? !ajaxKey.includes('.nofocus') : true;
+
+        const buildAjaxKey = (push, autoFocus) => {
+            let key = 'x-target';
+            if (push) key += '.push';
+            if (!autoFocus) key += '.nofocus';
+            return key;
+        };
+
+        const computedDirective = buildAjaxKey(ajaxPushUrl, ajaxAutoFocus);
+
+        const handleAjaxToggle = (enabled) => {
+            if (enabled) {
+                const newKey = buildAjaxKey(ajaxPushUrl, ajaxAutoFocus);
+                if (ajaxAttrIndex !== -1) {
+                    updateAttribute(ajaxAttrIndex, 'key', newKey);
+                } else {
+                    setAttributes({
+                        htmlAttributes: [...htmlAttributes, { key: newKey, value: ajaxTargetId || 'blog-grid' }]
+                    });
+                }
+            } else {
+                if (ajaxAttrIndex !== -1) {
+                    removeAttribute(ajaxAttrIndex);
+                }
+            }
+        };
+
+        const handleTargetIdChange = (newId) => {
+            const cleanId = (newId || '').replace(/^#/, '').trim();
+            if (ajaxAttrIndex !== -1) {
+                updateAttribute(ajaxAttrIndex, 'value', cleanId);
+            } else {
+                setAttributes({
+                    htmlAttributes: [...htmlAttributes, { key: buildAjaxKey(ajaxPushUrl, ajaxAutoFocus), value: cleanId }]
+                });
+            }
+        };
+
+        const handlePushUrlToggle = (push) => {
+            const newKey = buildAjaxKey(push, ajaxAutoFocus);
+            if (ajaxAttrIndex !== -1) {
+                updateAttribute(ajaxAttrIndex, 'key', newKey);
+            }
+        };
+
+        const handleAutoFocusToggle = (focus) => {
+            const newKey = buildAjaxKey(ajaxPushUrl, focus);
+            if (ajaxAttrIndex !== -1) {
+                updateAttribute(ajaxAttrIndex, 'key', newKey);
+            }
+        };
+
         return (
             <>
                 <BlockEdit {...props} />
                 <InspectorControls>
+                    {/* ⚡ Instant AJAX Navigation Panel (Alpine-AJAX) */}
                     <PanelBody 
                         title={(
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {__('Skaaa HTML Attributes', 'skaaa-no-code-design')}
+                                <span>⚡ {__( 'Instant AJAX Navigation', 'skaaa-no-code-design' )}</span>
+                                {isAjaxActive && (
+                                    <span 
+                                        style={{ 
+                                            display: 'inline-block',
+                                            padding: '1px 6px', 
+                                            fontSize: '10px', 
+                                            fontWeight: '700', 
+                                            color: '#059669', 
+                                            backgroundColor: '#d1fae5', 
+                                            borderRadius: '4px',
+                                            letterSpacing: '0.05em',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {__( 'Active', 'skaaa-no-code-design' )}
+                                    </span>
+                                )}
+                            </div>
+                        )} 
+                        initialOpen={isAjaxActive}
+                    >
+                        <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '14px', lineHeight: '1.4' }}>
+                            {__( 'Enable 0ms SPA navigation (HTML-over-the-wire) using Alpine AJAX. Seamlessly replace content containers without full page reloads.', 'skaaa-no-code-design' )}
+                        </p>
+
+                        <ToggleControl
+                            label={__( 'Enable AJAX Target (x-target)', 'skaaa-no-code-design' )}
+                            help={isAjaxActive 
+                                ? __( 'This block will perform seamless AJAX swaps on navigation/interaction.', 'skaaa-no-code-design' )
+                                : __( 'Enable to swap target container content via AJAX without page reload.', 'skaaa-no-code-design' )
+                            }
+                            checked={isAjaxActive}
+                            onChange={(enabled) => handleAjaxToggle(enabled)}
+                        />
+
+                        {isAjaxActive && (
+                            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+                                <TextControl
+                                    label={__( 'Target Element ID', 'skaaa-no-code-design' )}
+                                    value={ajaxTargetId}
+                                    placeholder={__( 'e.g. blog-grid or posts-container', 'skaaa-no-code-design' )}
+                                    help={__( 'The HTML ID of the container to be swapped (without # symbol).', 'skaaa-no-code-design' )}
+                                    onChange={(newId) => handleTargetIdChange(newId)}
+                                    autoComplete="off"
+                                />
+
+                                <ToggleControl
+                                    label={__( 'Update Browser URL (.push)', 'skaaa-no-code-design' )}
+                                    help={ajaxPushUrl
+                                        ? __( 'Updates address bar URL and browser history (Back/Forward supported). Recommended for pagination.', 'skaaa-no-code-design' )
+                                        : __( 'In-place content swap without changing browser URL. Ideal for tabs/filters.', 'skaaa-no-code-design' )
+                                    }
+                                    checked={ajaxPushUrl}
+                                    onChange={(push) => handlePushUrlToggle(push)}
+                                />
+
+                                <ToggleControl
+                                    label={__( 'Auto-Focus & Scroll to Target', 'skaaa-no-code-design' )}
+                                    help={ajaxAutoFocus
+                                        ? __( 'Automatically moves focus and scrolls to the updated container.', 'skaaa-no-code-design' )
+                                        : __( 'Prevents focus jump (appends .nofocus modifier).', 'skaaa-no-code-design' )
+                                    }
+                                    checked={ajaxAutoFocus}
+                                    onChange={(focus) => handleAutoFocusToggle(focus)}
+                                />
+
+                                <div style={{ 
+                                    marginTop: '12px', 
+                                    padding: '8px 10px', 
+                                    backgroundColor: '#f1f5f9', 
+                                    borderRadius: '6px', 
+                                    fontSize: '11px',
+                                    fontFamily: 'monospace',
+                                    color: '#334155',
+                                    border: '1px solid #e2e8f0'
+                                }}>
+                                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#475569' }}>
+                                        {__( 'Generated Directive: ', 'skaaa-no-code-design' )}
+                                    </div>
+                                    <code style={{ color: '#0f766e', fontWeight: 'bold' }}>
+                                        {computedDirective}="{ajaxTargetId || 'container-id'}"
+                                    </code>
+                                </div>
+                            </div>
+                        )}
+                    </PanelBody>
+
+                    <PanelBody 
+                        title={(
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {__( 'Skaaa HTML Attributes', 'skaaa-no-code-design' )}
                                 {hasAlpine && (
                                     <span 
                                         className="material-symbols-outlined" 
-                                        title={__('Alpine.js Active', 'skaaa-no-code-design')}
+                                        title={__( 'Alpine.js Active', 'skaaa-no-code-design' )}
                                         style={{ 
                                             fontSize: '14px', 
                                             color: '#3490dc', // Alpine logo blue
@@ -148,6 +300,14 @@ const withHTMLAttributesPanel = createHigherOrderComponent((BlockEdit) => {
                                         );
                                     }
 
+                                    // 🌟 NHÓM 3: ĐIỀU HƯỚNG TỨC THÌ (Alpine AJAX)
+                                    COMMON_KEYS.push(
+                                        { label: __( '--- ⚡ INSTANT AJAX (ALPINE AJAX) ---', 'skaaa-no-code-design' ), value: 'opt-group-ajax', disabled: true },
+                                        { label: __( '⚡ x-target.push (AJAX Swap + URL update)', 'skaaa-no-code-design' ), value: 'x-target.push' },
+                                        { label: __( '⚡ x-target (AJAX Swap in-place)', 'skaaa-no-code-design' ), value: 'x-target' },
+                                        { label: __( '🔄 x-sync (Global Sync Container)', 'skaaa-no-code-design' ), value: 'x-sync' }
+                                    );
+
                                     // Form-specific properties
                                     if (isFormContext) {
                                         COMMON_KEYS.push(
@@ -191,6 +351,8 @@ const withHTMLAttributesPanel = createHigherOrderComponent((BlockEdit) => {
                                                             if (val.startsWith('@mouseleave')) defaultValue = 'hover = false';
                                                             if (val === 'x-show') defaultValue = 'open || hover';
                                                             if (val.includes('transition')) defaultValue = 'transition ease-in duration-300';
+                                                            if (val.startsWith('x-target')) defaultValue = 'blog-grid';
+                                                            if (val === 'x-sync') defaultValue = '';
                                                         }
 
                                                         const newAttributes = [...htmlAttributes];

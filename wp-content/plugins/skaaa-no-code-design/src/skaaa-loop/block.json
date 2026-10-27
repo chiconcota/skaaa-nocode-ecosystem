@@ -12,9 +12,33 @@
 			"type": "string",
 			"default": ""
 		},
+		"sourceType": {
+			"type": "string",
+			"default": "flat_table"
+		},
 		"sourceTable": {
 			"type": "string",
 			"default": ""
+		},
+		"postType": {
+			"type": "string",
+			"default": "post"
+		},
+		"category": {
+			"type": "string",
+			"default": ""
+		},
+		"enablePagination": {
+			"type": "boolean",
+			"default": false
+		},
+		"paginationTargetId": {
+			"type": "string",
+			"default": ""
+		},
+		"inheritQuery": {
+			"type": "boolean",
+			"default": false
 		},
 		"limit": {
 			"type": "number",
@@ -63,7 +87,8 @@
 	},
 	"supports": {
 		"html": false,
-		"customClassName": false
+		"customClassName": false,
+		"anchor": true
 	},
 	"textdomain": "skaaa-no-code-design",
 	"editorScript": "file:./index.js",
