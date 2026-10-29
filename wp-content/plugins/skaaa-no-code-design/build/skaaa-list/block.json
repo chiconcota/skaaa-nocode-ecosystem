@@ -1,48 +1,48 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/list",
-  "version": "1.0.0",
-  "title": "Skaaa List",
-  "category": "skaaa-atomic",
-  "icon": "editor-ul",
-  "description": "Create an ordered or unordered list container.",
-  "attributes": {
-    "listType": {
-      "type": "string",
-      "default": "ul"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/list",
+    "version": "1.0.0",
+    "title": "Skaaa List",
+    "category": "skaaa-atomic",
+    "icon": "editor-ul",
+    "description": "Create an ordered or unordered list container.",
+    "attributes": {
+        "listType": {
+            "type": "string",
+            "default": "ul"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "logic": {
+            "type": "object",
+            "default": {
+                "enabled": false,
+                "key": "",
+                "operator": "==",
+                "value": ""
+            }
+        }
     },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
+    "supports": {
+        "html": false,
+        "className": false,
+        "customClassName": false,
+        "align": [
+            "wide",
+            "full"
+        ]
     },
-    "className": {
-      "type": "string",
-      "default": ""
-    },
-    "logic": {
-      "type": "object",
-      "default": {
-        "enabled": false,
-        "key": "",
-        "operator": "==",
-        "value": ""
-      }
-    }
-  },
-  "supports": {
-    "html": false,
-    "className": false,
-    "customClassName": false,
-    "align": [
-      "wide",
-      "full"
-    ]
-  },
-  "allowedBlocks": [
-    "skaaaaa-builder/list-item"
-  ],
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "allowedBlocks": [
+        "skaaaaa-builder/list-item"
+    ],
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

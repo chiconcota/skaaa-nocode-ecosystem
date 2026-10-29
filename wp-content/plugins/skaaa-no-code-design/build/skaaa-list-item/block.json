@@ -1,40 +1,40 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/list-item",
-  "version": "1.0.0",
-  "title": "Skaaa List Item",
-  "category": "skaaa-atomic",
-  "icon": "minus",
-  "description": "A single list item (li).",
-  "parent": [
-    "skaaaaa-builder/list"
-  ],
-  "attributes": {
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/list-item",
+    "version": "1.0.0",
+    "title": "Skaaa List Item",
+    "category": "skaaa-atomic",
+    "icon": "minus",
+    "description": "A single list item (li).",
+    "parent": [
+        "skaaaaa-builder/list"
+    ],
+    "attributes": {
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "logic": {
+            "type": "object",
+            "default": {
+                "enabled": false,
+                "key": "",
+                "operator": "==",
+                "value": ""
+            }
+        }
     },
-    "className": {
-      "type": "string",
-      "default": ""
+    "supports": {
+        "html": false,
+        "className": false,
+        "customClassName": false
     },
-    "logic": {
-      "type": "object",
-      "default": {
-        "enabled": false,
-        "key": "",
-        "operator": "==",
-        "value": ""
-      }
-    }
-  },
-  "supports": {
-    "html": false,
-    "className": false,
-    "customClassName": false
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

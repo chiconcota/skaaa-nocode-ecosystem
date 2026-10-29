@@ -314,6 +314,72 @@ Thay vì hardcode dữ liệu tĩnh vào Post, Developer sử dụng khối `loo
 
 ---
 
+### 4.3. HƯỚNG DẪN DỰNG TRANG BLOG / ARCHIVE FLAT DOM 0MS THEO MÔ HÌNH TƯƠNG TÁC PHẲNG A ⟷ B (ALPINE-AJAX DIRECTIVE)
+
+> **MỤC TIÊU CỐT LÕI:** Khai tử hoàn toàn `core/query` và `core/query-pagination`. Tách rời 100% Bộ điều khiển (Part A - Search & Pagination) và Vùng hiển thị (Part B - Loop Posts Grid). Toàn bộ thao tác Tìm kiếm, Lọc và Chuyển trang diễn ra tức thì trong 0ms (SPA) nhờ thư viện siêu nhẹ `alpine-ajax` (~3.5 KB) mà vẫn bảo toàn 100% SEO, SSR và URL History (`/page/2/`, `?s=...`).
+
+#### A. Kiến Trúc Decoupled Reactive Model (A ⟷ B):
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│ PHẦN A1: BỘ ĐIỀU KHIỂN TÌM KIẾM & BỘ LỌC (CONTROLLERS)                 │
+│ Form GET: x-target="blog-posts-grid blog-pagination" x-target.push     │
+│ Input: @input.debounce.300ms="$el.form.requestSubmit()"                │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ AJAX Swap (0ms)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ PHẦN B: MỤC TIÊU HIỂN THỊ LƯỚI BÀI VIẾT (TARGET VIEW)                  │
+│ id="blog-posts-grid" (wp:skaaaaa-builder/loop, sourceType="wp_posts")  │
+└───────────────────────────────────▲────────────────────────────────────┘
+                                    │ AJAX Swap (0ms)
+┌───────────────────────────────────┴────────────────────────────────────┐
+│ PHẦN A2: CỤM PHÂN TRANG ĐỘNG (PAGINATION CONTROLLER)                   │
+│ id="blog-pagination" (wp:skaaaaa-builder/loop, sourceType="pagination")│
+│ paginationTargetId="blog-posts-grid blog-pagination"                  │
+│ Tự động sinh nút: Trang 1 (Active) ➔ Trang 2 ➔ Trang 3...              │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+#### B. Quy Chuẩn Thuộc Tính Bắt Buộc:
+1. **Multi-Target Swap (`x-target.push="ID1 ID2"`):**
+   Luôn khai báo đồng thời 2 target ID: ID của Lưới bài viết (`blog-posts-grid`) và ID của Cụm phân trang (`blog-pagination`) để khi chuyển trang hoặc search thì cả danh sách bài viết lẫn trạng thái Active của nút trang đều được cập nhật đồng bộ!
+2. **Naked ID Tokens (Cấm dấu `#`):**
+   `x-target="blog-posts-grid"` (ĐÚNG) | `x-target="#blog-posts-grid"` (SAI - Lỗi đỏ Harness).
+3. **Loop Tự Đóng Chuẩn Slot Conditional:**
+   Khối `skaaaaa-builder/loop` dạng tự đóng `<!-- wp:skaaaaa-builder/loop {...} /-->` tự động biên dịch các Organisms mẫu:
+   - Khi `sourceType: "wp_posts"`: Lặp qua danh sách bài viết WP và render thẻ Card nguyên tử.
+   - Khi `sourceType: "pagination"`: Khớp AST điều kiện (`item.is_active` -> Nút cam active; `item.is_dots` -> Dấu ba chấm; `default` -> Nút link trang thường).
+
+#### C. Mẫu Code Gutenberg Hoàn Chỉnh Cho Trang Blog Flat DOM 0ms:
+```html
+<!-- BỘ ĐIỀU KHIỂN A1: FORM TÌM KIẾM TỨC THÌ (INSTANT SEARCH) -->
+<!-- wp:skaaaaa-builder/container {"tagName":"form","htmlAttributes":[{"key":"method","value":"get"},{"key":"action","value":""},{"key":"x-target.push","value":"blog-posts-grid blog-pagination"}],"tailwindClasses":"mb-10 flex flex-col md:flex-row gap-4 items-center justify-between"} -->
+  <!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"relative w-full max-w-md"} -->
+    <!-- wp:skaaaaa-builder/input {"fieldName":"s","inputType":"text","placeholder":"Tìm kiếm bài viết...","htmlAttributes":[{"key":"@input.debounce.300ms","value":"$el.form.requestSubmit()"}],"tailwindClasses":"w-full pl-11 pr-4 py-3 bg-surface dark:bg-surface border border-border dark:border-border rounded-xl text-text dark:text-text text-sm focus:outline-none focus:border-primary transition-all shadow-sm"} /-->
+  <!-- /wp:skaaaaa-builder/container -->
+  <!-- wp:skaaaaa-builder/text {"content":"Điều hướng 0ms tức thì qua Alpine-AJAX","tagName":"span","tailwindClasses":"text-xs font-mono text-text/50 dark:text-text/50"} /-->
+<!-- /wp:skaaaaa-builder/container -->
+
+<!-- MỤC TIÊU B: LƯỚI BÀI VIẾT NATIVE (UNIVERSAL WP_POSTS LOOP) -->
+<!-- wp:skaaaaa-builder/loop {
+  "sourceType": "wp_posts",
+  "postsPerPage": 6,
+  "targetId": "blog-posts-grid",
+  "tailwindClasses": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+} /-->
+
+<!-- BỘ ĐIỀU KHIỂN A2: CỤM PHÂN TRANG ĐỘNG NATIVE (UNIVERSAL PAGINATION LOOP) -->
+<!-- wp:skaaaaa-builder/loop {
+  "sourceType": "pagination",
+  "paginationTargetId": "blog-posts-grid blog-pagination",
+  "paginationRange": 2,
+  "includePrevNext": true,
+  "tailwindClasses": "flex items-center justify-center gap-2 mt-12"
+} /-->
+```
+
+---
+
 ## 5. MẪU PHP $WPDB TẠO BẢNG PHẲNG CHO FORM & DATA PRO
 
 Tuyệt đối không gõ CLI `mysql` trực tiếp. Tạo bảng phẳng an toàn bằng `$wpdb` và `dbDelta`:

@@ -1,51 +1,51 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/select",
-  "version": "1.0.0",
-  "title": "Skaaa Select",
-  "category": "skaaa-atomic",
-  "icon": "menu",
-  "description": "Atomic select (dropdown) block for Skaaa Forms.",
-  "attributes": {
-    "fieldName": {
-      "type": "string",
-      "default": "my_select"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/select",
+    "version": "1.0.0",
+    "title": "Skaaa Select",
+    "category": "skaaa-atomic",
+    "icon": "menu",
+    "description": "Atomic select (dropdown) block for Skaaa Forms.",
+    "attributes": {
+        "fieldName": {
+            "type": "string",
+            "default": "my_select"
+        },
+        "optionsText": {
+            "type": "string",
+            "default": "Option 1:opt1\nOption 2:opt2"
+        },
+        "isRequired": {
+            "type": "boolean",
+            "default": false
+        },
+        "isMultiple": {
+            "type": "boolean",
+            "default": false
+        },
+        "displayStyle": {
+            "type": "string",
+            "default": "dropdown"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "skaaaDynamicBinding": {
+            "type": "string",
+            "default": ""
+        }
     },
-    "optionsText": {
-      "type": "string",
-      "default": "Option 1:opt1\nOption 2:opt2"
+    "supports": {
+        "html": false,
+        "customClassName": true
     },
-    "isRequired": {
-      "type": "boolean",
-      "default": false
-    },
-    "isMultiple": {
-      "type": "boolean",
-      "default": false
-    },
-    "displayStyle": {
-      "type": "string",
-      "default": "dropdown"
-    },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    },
-    "skaaaDynamicBinding": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": true
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

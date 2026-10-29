@@ -1,17 +1,17 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/html2tailwind",
-  "version": "1.0.0",
-  "title": "Skaaa html2tailwind",
-  "category": "skaaa-atomic",
-  "icon": "cloud-upload",
-  "description": "Dán mã HTML/Tailwind để chuyển đổi sang Skaaa Blocks.",
-  "supports": {
-    "html": false,
-    "anchor": true
-  },
-  "textdomain": "skaaa-bridge",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/html2tailwind",
+    "version": "1.0.0",
+    "title": "Skaaa html2tailwind",
+    "category": "skaaa-atomic",
+    "icon": "cloud-upload",
+    "description": "Dán mã HTML/Tailwind để chuyển đổi sang Skaaa Blocks.",
+    "supports": {
+        "html": false,
+        "anchor": true
+    },
+    "textdomain": "skaaa-bridge",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css"
 }

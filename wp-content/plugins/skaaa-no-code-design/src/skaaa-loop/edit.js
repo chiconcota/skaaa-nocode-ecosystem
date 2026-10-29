@@ -12,6 +12,8 @@ export default function Edit( { attributes, setAttributes } ) {
         category = '',
         enablePagination = false,
         paginationTargetId = '',
+        paginationRange = 2,
+        includePrevNext = true,
         inheritQuery = false,
         limit = 10, 
         slots = [], 
@@ -103,7 +105,7 @@ export default function Edit( { attributes, setAttributes } ) {
         setAttributes({ filters: newFilters });
     };
 
-    const hasValidConfig = (sourceType === 'wp_posts' || sourceTable) && slots && slots.length > 0 && slots.some(s => s.organismId);
+    const hasValidConfig = (sourceType === 'pagination' || sourceType === 'wp_posts' || sourceTable) && slots && slots.length > 0 && slots.some(s => s.organismId);
 
     return (
         <div { ...blockProps }>
@@ -114,12 +116,38 @@ export default function Edit( { attributes, setAttributes } ) {
                         value={sourceType}
                         options={[
                             { label: __( '📦 Flat Table (Skaaa Data Pro)', 'skaaa-no-code-design' ), value: 'flat_table' },
-                            { label: __( '📰 WordPress Posts (wp_posts)', 'skaaa-no-code-design' ), value: 'wp_posts' }
+                            { label: __( '📰 WordPress Posts (wp_posts)', 'skaaa-no-code-design' ), value: 'wp_posts' },
+                            { label: __( '🔢 Pagination Loop (Pages)', 'skaaa-no-code-design' ), value: 'pagination' }
                         ]}
                         onChange={(val) => setAttributes({ sourceType: val })}
                     />
 
-                    {sourceType === 'wp_posts' ? (
+                    {sourceType === 'pagination' ? (
+                        <>
+                            <TextControl
+                                label={__( 'Target Query Container ID', 'skaaa-no-code-design' )}
+                                value={paginationTargetId}
+                                placeholder="blog-posts-grid"
+                                onChange={(val) => setAttributes({ paginationTargetId: (val || '').replace(/^#/, '').trim() })}
+                                help={__( 'Target loop container ID to paginate (e.g. blog-posts-grid).', 'skaaa-no-code-design' )}
+                            />
+                            <TextControl
+                                label={__( 'Page Range (Sliding Window)', 'skaaa-no-code-design' )}
+                                type="number"
+                                value={paginationRange}
+                                onChange={(val) => setAttributes({ paginationRange: parseInt(val, 10) || 2 })}
+                                help={__( 'Number of pages around the current page.', 'skaaa-no-code-design' )}
+                                min={1}
+                                max={10}
+                            />
+                            <ToggleControl
+                                label={__( 'Include Previous / Next Buttons', 'skaaa-no-code-design' )}
+                                help={__( 'Add Previous and Next items into the loop rows.', 'skaaa-no-code-design' )}
+                                checked={includePrevNext !== false}
+                                onChange={(val) => setAttributes({ includePrevNext: val })}
+                            />
+                        </>
+                    ) : sourceType === 'wp_posts' ? (
                         <>
                             <SelectControl
                                 label={__( 'Post Type', 'skaaa-no-code-design' )}
@@ -143,21 +171,6 @@ export default function Edit( { attributes, setAttributes } ) {
                                 checked={inheritQuery}
                                 onChange={(val) => setAttributes({ inheritQuery: val })}
                             />
-                            <ToggleControl
-                                label={__( 'Enable Flat DOM Pagination', 'skaaa-no-code-design' )}
-                                help={__( 'Renders clean, atomic pagination controls powered by Alpine AJAX.', 'skaaa-no-code-design' )}
-                                checked={enablePagination}
-                                onChange={(val) => setAttributes({ enablePagination: val })}
-                            />
-                            {enablePagination && (
-                                <TextControl
-                                    label={__( 'Pagination Target ID', 'skaaa-no-code-design' )}
-                                    value={paginationTargetId}
-                                    placeholder={__( 'e.g. blog-grid', 'skaaa-no-code-design' )}
-                                    help={__( 'Target container ID to swap via Alpine AJAX (x-target.push).', 'skaaa-no-code-design' )}
-                                    onChange={(val) => setAttributes({ paginationTargetId: (val || '').replace(/^#/, '').trim() })}
-                                />
-                            )}
                         </>
                     ) : (
                         window.skaaaDataDictionary ? (
@@ -186,14 +199,16 @@ export default function Edit( { attributes, setAttributes } ) {
                         )
                     )}
 
-                    <TextControl
-                        label={sourceType === 'wp_posts' ? __( 'Posts per Page (Limit)', 'skaaa-no-code-design' ) : __( 'Limit', 'skaaa-no-code-design' )}
-                        type="number"
-                        value={limit}
-                        onChange={(val) => setAttributes({ limit: parseInt(val, 10) || 10 })}
-                        min={1}
-                        max={100}
-                    />
+                    {sourceType !== 'pagination' && (
+                        <TextControl
+                            label={sourceType === 'wp_posts' ? __( 'Posts per Page (Limit)', 'skaaa-no-code-design' ) : __( 'Limit', 'skaaa-no-code-design' )}
+                            type="number"
+                            value={limit}
+                            onChange={(val) => setAttributes({ limit: parseInt(val, 10) || 10 })}
+                            min={1}
+                            max={100}
+                        />
+                    )}
                 </PanelBody>
 
                 {sourceType === 'flat_table' && (
@@ -303,7 +318,7 @@ export default function Edit( { attributes, setAttributes } ) {
                 <div className="skaaa-loop-editor-wrapper" style={{ pointerEvents: 'none', display: 'contents' }}>
                     <ServerSideRender
                         block="skaaaaa-builder/loop"
-                        attributes={{ sourceType, sourceTable, postType, category, limit, enablePagination, paginationTargetId, inheritQuery, slots, tailwindClasses }}
+                        attributes={{ sourceType, sourceTable, postType, category, limit, enablePagination, paginationTargetId, paginationRange, includePrevNext, inheritQuery, slots, tailwindClasses }}
                         httpMethod="POST"
                     />
                 </div>
@@ -315,11 +330,8 @@ export default function Edit( { attributes, setAttributes } ) {
                 >
                     <div style={{ textAlign: 'left', width: '100%', marginTop: '16px' }}>
                         <ul style={{ listStyle: 'disc', paddingLeft: '20px', fontSize: '13px', color: '#475569' }}>
-                            <li>{__( 'Data Source: ', 'skaaa-no-code-design' )}<strong>{sourceType === 'wp_posts' ? `WordPress Posts (${postType})` : (sourceTable || __( 'Not configured', 'skaaa-no-code-design' ))}</strong></li>
+                            <li>{__( 'Data Source: ', 'skaaa-no-code-design' )}<strong>{sourceType === 'pagination' ? `Pagination Loop (${paginationTargetId || 'blog-posts-grid'})` : (sourceType === 'wp_posts' ? `WordPress Posts (${postType})` : (sourceTable || __( 'Not configured', 'skaaa-no-code-design' )))}</strong></li>
                             <li>{__( 'Slots Count: ', 'skaaa-no-code-design' )}<strong>{slots ? slots.length : 0}</strong></li>
-                            {enablePagination && (
-                                <li>{__( 'AJAX Pagination: ', 'skaaa-no-code-design' )}<strong>{__( 'Active', 'skaaa-no-code-design' )} ({paginationTargetId || 'skaaa-posts-grid'})</strong></li>
-                            )}
                         </ul>
                     </div>
                 </Placeholder>

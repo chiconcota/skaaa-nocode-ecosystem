@@ -149,3 +149,15 @@ Hệ thống Blocks (Gutenberg) cốt lõi của Skaaa Builder. Cung cấp các 
   - Liên kết decoupled với **Skaaa Scripts Library** bằng cách gọi action hook `skaaa_enqueue_custom_script` thay vì gọi trực tiếp class.
   - Tích hợp giao diện dark editor monospace cho code inline và modal Quick Save trực tiếp vào thư viện trong Editor.
   - **Nesting Support (2026-06-25):** Được phép chèn lồng bên trong block `Skaaa Container` để dựng giao diện phức hợp (ví dụ: bọc thẻ canvas biểu đồ trong khung kính glassmorphism).
+
+#### 14. Skaaa Loop & Universal Query Loop (`skaaaaa-builder/loop`)
+- **Attributes:** `sourceType` ('flat_table' | 'wp_posts' | 'pagination'), `sourceTable`, `postType`, `category`, `limit`, `slots`, `paginationTargetId`, `paginationRange`, `includePrevNext`, `inheritQuery`, `"anchor": true`.
+- **Render Architecture (v2.5.9 - 2026-10-29 - Modular Divide & Conquer):**
+  - **Tách 3 Module Chuyên Trách (Zero File Bloat):** Bóc tách hoàn toàn tệp `render.php` khổng lồ thành 3 thành phần độc lập:
+    1. `class-loop-compiler.php` (121 lines): Chuyên trách tải bulk HTML và biên dịch Organisms thành khuôn mẫu Mustache.
+    2. `class-loop-query.php` (361 lines): Chuyên trách chuẩn bị dữ liệu (Universal Search/Filter cho `wp_posts`, dải số trang động cho `pagination`, và MySQL Data Fetcher cho `flat_table`).
+    3. `render.php` (269 lines): Đóng vai trò Orchestrator điều phối và Hydration dữ liệu vào khuôn.
+  - **Mô Hình Phân Trang Độc Lập (Decoupled Reactive Loop):** Nguồn `sourceType: "pagination"` tái sử dụng 100% cỗ máy lặp, liên kết qua `paginationTargetId`, điều phối 3 conditional slots: `PageBtnActive` (`item.is_active`), `PageBtnDots` (`item.is_dots`), và `PageBtnNormal` (`default`).
+  - **Multi-Target 0ms Swap:** Tráo đổi đồng thời cả lưới bài viết lẫn thanh phân trang qua Alpine-AJAX `x-target.push="blog-posts-grid blog-pagination"`.
+  - **Flat DOM Hydration:** Tự động thế chỗ sạch sẽ các token `{{post.title}}`, `[post.title]`, `{{page.number}}`, `{{page.url}}` và SVG fallback thumbnail sắc nét (0ms).
+  - **Safe Empty State Container:** Luôn bảo toàn thẻ bọc mang ID đích để Alpine-AJAX không bị gãy target khi tráo đổi dữ liệu rỗng.

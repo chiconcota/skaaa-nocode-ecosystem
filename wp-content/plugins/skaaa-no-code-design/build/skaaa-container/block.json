@@ -1,71 +1,71 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/container",
-  "version": "1.0.0",
-  "title": "Skaaa Container",
-  "category": "skaaa-atomic",
-  "icon": "layout",
-  "description": "A div/section wrapper that supports Tailwind classes and nested blocks.",
-  "attributes": {
-    "tagName": {
-      "type": "string",
-      "default": "div"
-    },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    },
-    "logic": {
-      "type": "object",
-      "default": {
-        "enabled": false,
-        "key": "",
-        "operator": "==",
-        "value": ""
-      }
-    },
-    "link": {
-      "type": "object",
-      "default": {
-        "url": "",
-        "target": "_self",
-        "dynamic": {
-          "source": "static",
-          "key": ""
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/container",
+    "version": "1.0.0",
+    "title": "Skaaa Container",
+    "category": "skaaa-atomic",
+    "icon": "layout",
+    "description": "A div/section wrapper that supports Tailwind classes and nested blocks.",
+    "attributes": {
+        "tagName": {
+            "type": "string",
+            "default": "div"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "logic": {
+            "type": "object",
+            "default": {
+                "enabled": false,
+                "key": "",
+                "operator": "==",
+                "value": ""
+            }
+        },
+        "link": {
+            "type": "object",
+            "default": {
+                "url": "",
+                "target": "_self",
+                "dynamic": {
+                    "source": "static",
+                    "key": ""
+                }
+            }
+        },
+        "isSkaaaForm": {
+            "type": "boolean",
+            "default": false
+        },
+        "formActionId": {
+            "type": "string",
+            "default": ""
+        },
+        "usePersist": {
+            "type": "boolean",
+            "default": false
+        },
+        "templateLock": {
+            "type": "string",
+            "default": "false"
         }
-      }
     },
-    "isSkaaaForm": {
-      "type": "boolean",
-      "default": false
+    "supports": {
+        "html": false,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full"
+        ]
     },
-    "formActionId": {
-      "type": "string",
-      "default": ""
-    },
-    "usePersist": {
-      "type": "boolean",
-      "default": false
-    },
-    "templateLock": {
-      "type": "string",
-      "default": "false"
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": true,
-    "align": [
-      "wide",
-      "full"
-    ]
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

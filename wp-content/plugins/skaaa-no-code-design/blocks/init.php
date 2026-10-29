@@ -220,11 +220,12 @@ function skaaa_builder_render_html_attributes( $block_content, $block ) {
             wp_enqueue_script( 'skaaa-alpine' );
         }
 
-        // Inject into the very first HTML opening tag
+        // Inject into the very first HTML opening tag (preserving self-closing slash if present)
         if ( ! empty( $html_attrs ) ) {
-            $block_content = preg_replace( '/^<([a-zA-Z0-9\-]+)([^>]*?)>/', '<$1$2' . $html_attrs . '>', $block_content, 1 );
+            $block_content = preg_replace( '/^<([a-zA-Z0-9\-]+)(.*?)(\s*\/)?>/s', '<$1$2' . $html_attrs . '$3>', $block_content, 1 );
         }
     }
     return $block_content;
 }
 add_filter( 'render_block', 'skaaa_builder_render_html_attributes', 10, 2 );
+

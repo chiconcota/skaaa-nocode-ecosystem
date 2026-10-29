@@ -1,0 +1,18 @@
+/* 
+ * Reset WordPress default link styles for Skaaa Button 
+ * WordPress core uses `a:where(:not(.wp-element-button))` which adds an underline.
+ */
+a.skaaa-button-block {
+    text-decoration: none;
+}
+
+/* 
+ * Because a.skaaa-button-block (Specificity 0,1,1) overrides Tailwind's .underline (Specificity 0,1,0),
+ * we manually restore the Tailwind underline utilities here to ensure they always win.
+ */
+a.skaaa-button-block.underline {
+    text-decoration: underline;
+}
+a.skaaa-button-block.hover\:underline:hover {
+    text-decoration: underline;
+}

@@ -1,55 +1,55 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/input",
-  "version": "1.0.0",
-  "title": "Skaaa Input",
-  "category": "skaaa-atomic",
-  "icon": "edit",
-  "description": "Atomic text/number input block for Skaaa Forms.",
-  "attributes": {
-    "fieldName": {
-      "type": "string",
-      "default": "my_field"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/input",
+    "version": "1.0.0",
+    "title": "Skaaa Input",
+    "category": "skaaa-atomic",
+    "icon": "edit",
+    "description": "Atomic text/number input block for Skaaa Forms.",
+    "attributes": {
+        "fieldName": {
+            "type": "string",
+            "default": "my_field"
+        },
+        "fieldId": {
+            "type": "string",
+            "default": ""
+        },
+        "isChecked": {
+            "type": "boolean",
+            "default": false
+        },
+        "inputType": {
+            "type": "string",
+            "default": "text"
+        },
+        "fieldValue": {
+            "type": "string",
+            "default": ""
+        },
+        "placeholder": {
+            "type": "string",
+            "default": "Enter text..."
+        },
+        "isRequired": {
+            "type": "boolean",
+            "default": false
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
     },
-    "fieldId": {
-      "type": "string",
-      "default": ""
+    "supports": {
+        "html": false,
+        "customClassName": true
     },
-    "isChecked": {
-      "type": "boolean",
-      "default": false
-    },
-    "inputType": {
-      "type": "string",
-      "default": "text"
-    },
-    "fieldValue": {
-      "type": "string",
-      "default": ""
-    },
-    "placeholder": {
-      "type": "string",
-      "default": "Enter text..."
-    },
-    "isRequired": {
-      "type": "boolean",
-      "default": false
-    },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": true
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

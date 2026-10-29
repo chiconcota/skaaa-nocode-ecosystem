@@ -25,12 +25,12 @@ File cài đặt bản cập nhật chính thức đã được đóng gói sẵ
 ### Ca 1: Cập Nhật Plugin Skaaai Lên v1.3.0
 *Mục tiêu: Đưa mã nguồn Phase 3 chính thức vào website Localhost.*
 
-- [ ] **Bước 1.1:** Mở trang quản trị WordPress Admin của website Localhost (`/wp-admin/plugins.php`).
-- [ ] **Bước 1.2:** Bấm **Add New Plugin** (Thêm plugin mới) ➔ **Upload Plugin** (Tải plugin lên).
-- [ ] **Bước 1.3:** Chọn file `wp-content/plugins/skaaai-v1.3.0.zip` và bấm **Install Now** (Cài đặt ngay).
-- [ ] **Bước 1.4:** Bấm **Replace current with uploaded** (Ghi đè phiên bản hiện tại).
-- [ ] **Bước 1.5:** Kiểm tra danh sách Plugins: xác nhận phiên bản hiển thị là **`Skaaai: 1.3.0`**.
-- [ ] **Bước 1.6:** Vào menu **Skaaa Ecosystem ➔ Bridge & Sync** (hoặc **Skaaa Bridge**):
+- [x] **Bước 1.1:** Mở trang quản trị WordPress Admin của website Localhost (`/wp-admin/plugins.php`).
+- [x] **Bước 1.2:** Bấm **Add New Plugin** (Thêm plugin mới) ➔ **Upload Plugin** (Tải plugin lên).
+- [x] **Bước 1.3:** Chọn file `wp-content/plugins/skaaai-v1.3.0.zip` và bấm **Install Now** (Cài đặt ngay).
+- [x] **Bước 1.4:** Bấm **Replace current with uploaded** (Ghi đè phiên bản hiện tại).
+- [x] **Bước 1.5:** Kiểm tra danh sách Plugins: xác nhận phiên bản hiển thị là **`Skaaai: 1.3.0`**.
+- [x] **Bước 1.6:** Vào menu **Skaaa Ecosystem ➔ Bridge & Sync** (hoặc **Skaaa Bridge**):
   - Đảm bảo **Site Role** đang chọn là **`Sender (Localhost Dev / PC)`**.
   - Kiểm tra trạng thái kết nối với Remote Host đã báo xanh (Connected). Nếu chưa kết nối, thực hiện dán Pairing Key từ site Receiver và bấm **Save Configuration**.
 

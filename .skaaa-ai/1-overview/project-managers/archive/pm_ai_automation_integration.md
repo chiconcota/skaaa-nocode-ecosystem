@@ -73,18 +73,6 @@
   - Hỗ trợ chọn nhiều bài để Push hàng loạt (Bulk Push to Live `skaaai_bulk_push`) kèm báo cáo tổng kết.
 - [x] **Tự động gán `_skaaa_uuid` khi tạo bài viết mới ở Localhost thông qua hook `wp_insert_post`.**
 
-### ⚪ Phase 4: Tích hợp AI Logic Nodes (Milestone 2 DAG Automation)
-- [ ] Class `Skaaai_Node_Prompt`: Node gọi Gemini / OpenAI API hỗ trợ nội suy biến `{{ ... }}` trong đồ thị Logic Engine.
-- [ ] Class `Skaaai_Node_Parser`: Node trích xuất dữ liệu JSON từ văn bản phi cấu trúc vào bảng phẳng MySQL `skaaa_data_*`.
-- [ ] Đăng ký nodes vào filter `skaaa_logic_registered_nodes` của `Skaaa Logic Engine`.
-
-### ⚪ Phase 5: Kiểm thử E2E & Đóng gói Hệ sinh thái
-- [ ] Kiểm thử E2E toàn diện bộ công cụ Local Agent Harness (sinh block, validate, inspect DB).
-- [ ] Kiểm thử E2E quy trình 1-Click Push to Live từ Localhost sang Live Webhost.
-- [ ] Cập nhật `zip-all.js` đóng gói tự động `skaaai-v...zip` cùng hệ sinh thái.
-
----
-
 ## 3. TIÊU CHÍ NGHIỆM THU (ACCEPTANCE CRITERIA)
 1. **Local Agent Harness** hoạt động trơn tru dưới Localhost, giúp AI Agent sinh đúng 100% cấu trúc block Skaaa và truy xuất schema database phẳng an toàn, không sinh lỗi shell hay lỗi Gutenberg Invalid Content.
 2. Bài viết/trang được thiết kế và chỉnh sửa ở Localhost, khi bấm **"🚀 Push to Live"** từ Gutenberg hoặc bảng danh sách bài viết sẽ xuất hiện trên Webhost trong 1-2 giây với 100% giao diện, CSS và hình ảnh tương đồng.

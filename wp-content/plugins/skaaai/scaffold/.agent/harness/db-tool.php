@@ -19,7 +19,7 @@
  *   --help, -h            Show usage help
  *
  * @package Skaaai
- * @version 1.2.3
+ * @version 1.2.4
  */
 
 // Define clean CLI die handler before WordPress loads
@@ -81,6 +81,8 @@ class Skaaa_DB_Tool {
                 self::handle_save_organism( (string) $options['save-organism'], $name, $category, $as_template, $template_name );
             } elseif ( isset( $options['list-organisms'] ) ) {
                 self::handle_list_organisms();
+            } elseif ( isset( $options['refresh-cache'] ) || isset( $options['export-cache'] ) ) {
+                self::handle_refresh_cache();
             } elseif ( isset( $options['list-templates'] ) ) {
                 self::handle_list_templates();
             } elseif ( isset( $options['query'] ) ) {
@@ -821,13 +823,17 @@ class Skaaa_DB_Tool {
             }
         }
 
+        // Auto-refresh physical cache for Gutenberg editor parity
+        $cached = self::export_organisms_cache();
+
         if ( self::$format === 'json' ) {
             $json_payload = [
-                'success'     => true,
-                'action'      => $action,
-                'organism_id' => $organism_id,
-                'name'        => $name,
-                'category'    => $category,
+                'success'        => true,
+                'action'         => $action,
+                'organism_id'    => $organism_id,
+                'name'           => $name,
+                'category'       => $category,
+                'cache_exported' => $cached,
             ];
             if ( $template_info ) {
                 $json_payload['theme_template'] = $template_info;
@@ -841,6 +847,9 @@ class Skaaa_DB_Tool {
         echo "Name:           \033[1m{$name}\033[0m\n";
         echo "Category:       \033[1m{$category}\033[0m\n";
         echo "Organism Table: {$table}\n";
+        if ( $cached ) {
+            echo "Cache Export:   \033[32m✔ organisms.json refreshed successfully\033[0m\n";
+        }
 
         if ( $template_info ) {
             echo "\n\033[1;36m=== THEME TEMPLATE {$template_info['action']} (Theme Builder) ===\033[0m\n";
@@ -851,6 +860,65 @@ class Skaaa_DB_Tool {
             echo "Theme Builder:  \033[35mwp-admin/admin.php?page=skaaa-theme-builder (Tab: " . ucfirst( $template_info['location'] ) . ")\033[0m\n\n";
         } else {
             echo "\n";
+        }
+    }
+
+    public static function export_organisms_cache(): bool {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'skaaa_data_sys_organisms';
+
+        $check = $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" );
+        if ( empty( $check ) ) {
+            return false;
+        }
+
+        $rows = $wpdb->get_results( "SELECT id, name, category, json_content, html_content FROM {$table_name} ORDER BY id ASC", ARRAY_A );
+
+        $cache_data = [];
+        if ( ! empty( $rows ) ) {
+            foreach ( $rows as $row ) {
+                $cache_data[ (string) $row['id'] ] = [
+                    'id'           => (string) $row['id'],
+                    'name'         => $row['name'],
+                    'category'     => $row['category'] ?? '',
+                    'json'         => ! empty( $row['json_content'] ) ? json_decode( $row['json_content'], true ) : null,
+                    'html_content' => $row['html_content'] ?? ''
+                ];
+            }
+        }
+
+        $upload_dir = wp_upload_dir();
+        $skaaa_dir  = trailingslashit( $upload_dir['basedir'] ) . 'skaaa-data';
+
+        if ( ! file_exists( $skaaa_dir ) ) {
+            wp_mkdir_p( $skaaa_dir );
+        }
+
+        $file_path = $skaaa_dir . '/organisms.json';
+        $written   = file_put_contents( $file_path, wp_json_encode( $cache_data ) );
+
+        if ( class_exists( '\Skaaa\Design\Api\Organisms_API' ) ) {
+            try {
+                \Skaaa\Design\Api\Organisms_API::get_instance()->export_physical_cache();
+            } catch ( \Throwable $e ) {
+                // Ignore
+            }
+        }
+
+        return false !== $written;
+    }
+
+    private static function handle_refresh_cache(): void {
+        $success = self::export_organisms_cache();
+        if ( $success ) {
+            if ( self::$format === 'json' ) {
+                echo json_encode( [ 'success' => true, 'message' => 'organisms.json physical cache refreshed successfully' ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
+                return;
+            }
+            echo "\n\033[1;32m✔ Organisms physical cache refreshed successfully (organisms.json).\033[0m\n\n";
+        } else {
+            self::output_error( "Failed to refresh organisms physical cache." );
+            exit( 1 );
         }
     }
 
@@ -932,7 +1000,8 @@ Commands:
 
 Design Tokens, Organisms & Theme Builder Commands:
   --set-tokens=JSON|FILE  Batch update Design Tokens in wp_skaaa_data_sys_presets and compile tokens.json
-  --save-organism=MARKUP  Save/Update reusable component in wp_skaaa_data_sys_organisms
+  --save-organism=MARKUP  Save/Update reusable component in wp_skaaa_data_sys_organisms (auto-refreshes cache)
+  --refresh-cache         Force export and refresh organisms.json physical cache
   --list-organisms        List all saved organisms in wp_skaaa_data_sys_organisms
   --list-templates        List all Theme Templates in wp_skaaa_data_sys_theme_templates
 

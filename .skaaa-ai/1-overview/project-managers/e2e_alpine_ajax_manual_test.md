@@ -44,27 +44,27 @@ Hệ thống đã tự động dựng sẵn một trang mẫu hoàn chỉnh kèm
 1. Cuộn xuống cụm phân trang ở cuối danh sách bài viết.
 2. Click chuột vào nút số **`2`** (hoặc nút `Next »`).
 3. **Quan sát hiện tượng:**
-   - [ ] Màn hình **KHÔNG HỀ bị nháy trắng** (Zero Flash / No Full Reload).
-   - [ ] Danh sách bài viết tráo đổi nội dung tức thì (bài viết trang 2 xuất hiện).
-   - [ ] Nút số `2` lập tức được tô màu nhận diện Active (`bg-primary text-black font-semibold`).
-   - [ ] Nút `« Previous` chuyển từ dạng disabled mờ sang link có thể click được.
-   - [ ] Trong tab Network: Chỉ có **1 request fetch nhẹ** lấy HTML trang 2 về tráo ruột.
+   - [x] Màn hình **KHÔNG HỀ bị nháy trắng** (Zero Flash / No Full Reload).
+   - [x] Danh sách bài viết tráo đổi nội dung tức thì (bài viết trang 2 xuất hiện).
+   - [x] Nút số `2` lập tức được tô màu nhận diện Active (`bg-primary text-black font-semibold`).
+   - [x] Nút `« Previous` chuyển từ dạng disabled mờ sang link có thể click được.
+   - [x] Trong tab Network: Chỉ có **1 request fetch nhẹ** lấy HTML trang 2 về tráo ruột.
 
 ---
 
 ### 🧪 Bước 3: Test đồng bộ URL trên thanh địa chỉ (.push)
 1. Nhìn lên thanh địa chỉ của trình duyệt (Address Bar).
 2. **Quan sát:**
-   - [ ] URL ban đầu: `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/`
-   - [ ] URL hiện tại: đã tự động đổi thành `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/page/2/` mà không cần reload trang!
+   - [x] URL ban đầu: `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/`
+   - [x] URL hiện tại: đã tự động đổi thành `http://skaaa-no-code-ecosystem.local/demo-alpine-ajax/page/2/` mà không cần reload trang!
 
 ---
 
 ### 🧪 Bước 4: Test nút Back / Forward của trình duyệt
 1. Nhấn nút **Back (←)** trên trình duyệt:
-   - [ ] Nội dung lập tức quay trở về danh sách bài viết Trang 1.
-   - [ ] URL trên thanh địa chỉ quay về `/demo-alpine-ajax/`.
-   - [ ] Nút số `1` được kích hoạt active trở lại.
+   - [x] Nội dung lập tức quay trở về danh sách bài viết Trang 1.
+   - [x] URL trên thanh địa chỉ quay về `/demo-alpine-ajax/`.
+   - [x] Nút số `1` được kích hoạt active trở lại.
 2. Nhấn nút **Forward (→)** trên trình duyệt:
    - [ ] Nội dung chuyển tiếp sang Trang 2 mượt mà.
 
@@ -76,8 +76,8 @@ Hệ thống đã tự động dựng sẵn một trang mẫu hoàn chỉnh kèm
 3. Bấm chuột phải -> **View Page Source (Xem mã nguồn trang)**.
 4. Tìm kiếm từ khóa tiêu đề bài viết của trang 2 trong mã HTML thô.
 5. **Quan sát:**
-   - [ ] Toàn bộ HTML của bài viết trang 2 nằm sẵn trong mã nguồn do WordPress render ra.
-   - [ ] Điều này chứng minh Googlebot và công cụ tìm kiếm cào được nội dung 100% mà không phụ thuộc vào việc trình duyệt có chạy JavaScript hay không.
+   - [x] Toàn bộ HTML của bài viết trang 2 nằm sẵn trong mã nguồn do WordPress render ra.
+   - [x] Điều này chứng minh Googlebot và công cụ tìm kiếm cào được nội dung 100% mà không phụ thuộc vào việc trình duyệt có chạy JavaScript hay không.
 
 ---
 

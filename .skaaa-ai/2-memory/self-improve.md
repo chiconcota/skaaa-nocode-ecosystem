@@ -40,6 +40,10 @@
 - **Lỗi:** Tự ý chèn các dòng comment HTML thông thường (`<!-- 1. HEADER... -->`, `<!-- Top Row... -->`, `<!-- ARTICLE CARD -->`) vào trong file template/organism để phân chia vùng code. Gutenberg Parser đọc các comment này thành Text/Comment Node lạ, gây lỗi `Block validation failed` và kích hoạt nút `Attempt recovery`.
 - **Sửa đổi:** 100% dùng comment token chuẩn Gutenberg (`<!-- wp:... -->` và `<!-- /wp:... -->`), TUYỆT ĐỐI KHÔNG chèn comment HTML tự do. BẮT BUỘC chạy `php .agent/harness/block-tool.php --validate` để kiểm định tự động trước khi nạp vào CSDL.
 
+### MISTAKE-025: Tự ý chèn code vào Plugin lõi và Hardcode CSS !important khi thử nghiệm
+- **Lỗi:** Tự ý chèn code thử nghiệm (`template_redirect`, thẻ `<style>`) vào file `blocks/init.php` khi chưa xin phép User (vi phạm nghiêm trọng Rule #1), đồng thời dùng CSS `!important` làm triệt tiêu khả năng tùy biến của Designer trong hệ sinh thái No-Code.
+- **Sửa đổi:** TUYỆT ĐỐI tuân thủ Rule #1: Bắt buộc hỏi ý kiến User trước khi đụng vào bất kỳ dòng code nào. Mọi cơ chế hiển thị (Loading states/transitions) phải được giải quyết bằng kiến trúc No-Code bản địa (hỗ trợ biến thể Tailwind JIT `aria-busy:*` hoặc UI options trên Inspector), cấm tiêm CSS tĩnh `!important` vào PHP.
+
 ---
 
 ## 🟢 LỊCH SỬ LỖI ĐÃ KHẮC PHỤC (RESOLVED)

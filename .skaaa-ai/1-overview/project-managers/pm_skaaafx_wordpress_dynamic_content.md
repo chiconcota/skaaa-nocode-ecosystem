@@ -71,4 +71,4 @@
   - `skaaai-v1.6.4.zip` (0.16 MB)
 - [x] Sao chép tệp đã cập nhật sang `/home/chiconcota/Local Sites/l-tt-thnh-siu-c-nhn/app/public/wp-content/plugins/`.
 - [x] Kiểm tra thực tế: Chạy test suite `test_skaaafx_wp.php` xác nhận 100% assertions PASSED thành công trên Local database.
-- [ ] Cập nhật hồ sơ tài liệu: `system_map.md`, `decision-log.md`, `checkpoint.md`.
+- [x] Cập nhật hồ sơ tài liệu: `system_map.md`, `decision-log.md`, `checkpoint.md`.

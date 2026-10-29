@@ -1,74 +1,74 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/video",
-  "version": "1.0.0",
-  "title": "Skaaa Video",
-  "category": "skaaa-atomic",
-  "description": "Atomic video block supporting YouTube, Vimeo, and Local files.",
-  "attributes": {
-    "url": {
-      "type": "string",
-      "default": ""
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/video",
+    "version": "1.0.0",
+    "title": "Skaaa Video",
+    "category": "skaaa-atomic",
+    "description": "Atomic video block supporting YouTube, Vimeo, and Local files.",
+    "attributes": {
+        "url": {
+            "type": "string",
+            "default": ""
+        },
+        "videoId": {
+            "type": "string",
+            "default": ""
+        },
+        "videoType": {
+            "type": "string",
+            "default": "youtube"
+        },
+        "autoplay": {
+            "type": "boolean",
+            "default": false
+        },
+        "loop": {
+            "type": "boolean",
+            "default": false
+        },
+        "muted": {
+            "type": "boolean",
+            "default": false
+        },
+        "controls": {
+            "type": "boolean",
+            "default": true
+        },
+        "aspectRatio": {
+            "type": "string",
+            "default": "aspect-video"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "dynamic": {
+            "type": "object",
+            "default": {
+                "url_source": "static",
+                "url_key": ""
+            }
+        },
+        "logic": {
+            "type": "object",
+            "default": {
+                "enabled": false,
+                "key": "",
+                "operator": "==",
+                "value": ""
+            }
+        }
     },
-    "videoId": {
-      "type": "string",
-      "default": ""
+    "supports": {
+        "html": false,
+        "customClassName": false
     },
-    "videoType": {
-      "type": "string",
-      "default": "youtube"
-    },
-    "autoplay": {
-      "type": "boolean",
-      "default": false
-    },
-    "loop": {
-      "type": "boolean",
-      "default": false
-    },
-    "muted": {
-      "type": "boolean",
-      "default": false
-    },
-    "controls": {
-      "type": "boolean",
-      "default": true
-    },
-    "aspectRatio": {
-      "type": "string",
-      "default": "aspect-video"
-    },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    },
-    "dynamic": {
-      "type": "object",
-      "default": {
-        "url_source": "static",
-        "url_key": ""
-      }
-    },
-    "logic": {
-      "type": "object",
-      "default": {
-        "enabled": false,
-        "key": "",
-        "operator": "==",
-        "value": ""
-      }
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": false
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

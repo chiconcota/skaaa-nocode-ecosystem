@@ -305,7 +305,9 @@ const withHTMLAttributesPanel = createHigherOrderComponent((BlockEdit) => {
                                         { label: __( '--- ⚡ INSTANT AJAX (ALPINE AJAX) ---', 'skaaa-no-code-design' ), value: 'opt-group-ajax', disabled: true },
                                         { label: __( '⚡ x-target.push (AJAX Swap + URL update)', 'skaaa-no-code-design' ), value: 'x-target.push' },
                                         { label: __( '⚡ x-target (AJAX Swap in-place)', 'skaaa-no-code-design' ), value: 'x-target' },
-                                        { label: __( '🔄 x-sync (Global Sync Container)', 'skaaa-no-code-design' ), value: 'x-sync' }
+                                        { label: __( '🔄 x-sync (Global Sync Container)', 'skaaa-no-code-design' ), value: 'x-sync' },
+                                        { label: __( '🔍 @input.debounce.300ms (Instant Search Form Submit)', 'skaaa-no-code-design' ), value: '@input.debounce.300ms' },
+                                        { label: __( '🎯 @change (Instant Filter Form Submit)', 'skaaa-no-code-design' ), value: '@change' }
                                     );
 
                                     // Form-specific properties
@@ -353,6 +355,10 @@ const withHTMLAttributesPanel = createHigherOrderComponent((BlockEdit) => {
                                                             if (val.includes('transition')) defaultValue = 'transition ease-in duration-300';
                                                             if (val.startsWith('x-target')) defaultValue = 'blog-grid';
                                                             if (val === 'x-sync') defaultValue = '';
+                                                            if (val === '@input.debounce.300ms') defaultValue = '$el.form.requestSubmit()';
+                                                            if (val === '@change') defaultValue = '$el.form.requestSubmit()';
+                                                            if (val === 'method') defaultValue = 'GET';
+                                                            if (val === 'action') defaultValue = '';
                                                         }
 
                                                         const newAttributes = [...htmlAttributes];

@@ -1,62 +1,62 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/text",
-  "version": "1.0.0",
-  "title": "Skaaa Text",
-  "category": "skaaa-atomic",
-  "icon": "text",
-  "description": "A dynamic text block with JIT Tailwind support.",
-  "attributes": {
-    "content": {
-      "type": "string",
-      "default": "[Skaaa Text]"
-    },
-    "tagName": {
-      "type": "string",
-      "default": "p"
-    },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    },
-    "dynamic": {
-      "type": "object",
-      "default": {
-        "source": "text",
-        "key": ""
-      }
-    },
-    "logic": {
-      "type": "object",
-      "default": {
-        "enabled": false,
-        "key": "",
-        "operator": "==",
-        "value": ""
-      }
-    },
-    "link": {
-      "type": "object",
-      "default": {
-        "url": "",
-        "target": "_self",
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/text",
+    "version": "1.0.0",
+    "title": "Skaaa Text",
+    "category": "skaaa-atomic",
+    "icon": "text",
+    "description": "A dynamic text block with JIT Tailwind support.",
+    "attributes": {
+        "content": {
+            "type": "string",
+            "default": "[Skaaa Text]"
+        },
+        "tagName": {
+            "type": "string",
+            "default": "p"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
         "dynamic": {
-          "source": "static",
-          "key": ""
+            "type": "object",
+            "default": {
+                "source": "text",
+                "key": ""
+            }
+        },
+        "logic": {
+            "type": "object",
+            "default": {
+                "enabled": false,
+                "key": "",
+                "operator": "==",
+                "value": ""
+            }
+        },
+        "link": {
+            "type": "object",
+            "default": {
+                "url": "",
+                "target": "_self",
+                "dynamic": {
+                    "source": "static",
+                    "key": ""
+                }
+            }
         }
-      }
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": false
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    },
+    "supports": {
+        "html": false,
+        "customClassName": false
+    },
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

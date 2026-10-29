@@ -1,35 +1,35 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "skaaaaa-builder/form-rich-text",
-  "version": "1.0.0",
-  "title": "Skaaa Rich Text",
-  "category": "skaaa-atomic",
-  "icon": "edit",
-  "description": "Rich text editor block using Shadow Scratchpad for Skaaa Forms.",
-  "attributes": {
-    "field": {
-      "type": "string",
-      "default": "noi_dung"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "skaaaaa-builder/form-rich-text",
+    "version": "1.0.0",
+    "title": "Skaaa Rich Text",
+    "category": "skaaa-atomic",
+    "icon": "edit",
+    "description": "Rich text editor block using Shadow Scratchpad for Skaaa Forms.",
+    "attributes": {
+        "field": {
+            "type": "string",
+            "default": "noi_dung"
+        },
+        "label": {
+            "type": "string",
+            "default": "Nội dung"
+        },
+        "tailwindClasses": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
     },
-    "label": {
-      "type": "string",
-      "default": "Nội dung"
+    "supports": {
+        "html": false,
+        "customClassName": true
     },
-    "tailwindClasses": {
-      "type": "string",
-      "default": ""
-    },
-    "className": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "supports": {
-    "html": false,
-    "customClassName": true
-  },
-  "textdomain": "skaaaaa-builder-core",
-  "editorScript": "file:./index.js",
-  "render": "file:./render.php"
+    "textdomain": "skaaaaa-builder-core",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
 }

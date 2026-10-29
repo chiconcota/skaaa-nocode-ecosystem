@@ -1,0 +1,20 @@
+/* Styles for Skaaa Bridge Import block */
+.skaaa-bridge-import-wrapper {
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.skaaa-bridge-import-wrapper .components-placeholder__label {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.skaaa-bridge-import-wrapper textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 8px;
+}

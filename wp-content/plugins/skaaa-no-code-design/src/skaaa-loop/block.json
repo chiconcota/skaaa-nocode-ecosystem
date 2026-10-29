@@ -36,6 +36,14 @@
 			"type": "string",
 			"default": ""
 		},
+		"paginationRange": {
+			"type": "number",
+			"default": 2
+		},
+		"includePrevNext": {
+			"type": "boolean",
+			"default": true
+		},
 		"inheritQuery": {
 			"type": "boolean",
 			"default": false
