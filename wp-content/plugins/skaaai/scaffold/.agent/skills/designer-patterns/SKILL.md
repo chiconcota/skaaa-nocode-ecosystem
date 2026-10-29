@@ -148,6 +148,23 @@ description: Hệ thống thiết kế & thư viện cấu kiện Atomic Design 
 <!-- /wp:skaaaaa-builder/container -->
 ```
 
+### 2.5. PostCard Molecule (Dành cho hiển thị Danh sách Bài viết qua Universal Loop)
+> Chuẩn Flat DOM, kết nối với Universal Loop (`sourceType="wp_posts"`), tự động nội suy qua SkaaaFX Dynamic Binding:
+```html
+<!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"group p-6 rounded-2xl bg-surface dark:bg-surface border border-border dark:border-border hover:border-primary/40 transition-all duration-300 flex flex-col justify-between"} -->
+  <!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"space-y-4"} -->
+    <!-- wp:skaaaaa-builder/image {"aspectRatio":"aspect-video","objectFit":"object-cover","tailwindClasses":"w-full rounded-xl overflow-hidden mb-4 border border-border dark:border-border","skaaaDynamicBinding":{"script":"data = [post.featured_image]"}} /-->
+    <!-- wp:skaaaaa-builder/text {"content":"[Ngày đăng]","tagName":"span","tailwindClasses":"text-xs font-mono text-secondary","skaaaDynamicBinding":{"script":"data = [post.date]"}} /-->
+    <!-- wp:skaaaaa-builder/text {"content":"[Tiêu đề bài viết]","tagName":"h3","tailwindClasses":"text-xl font-bold text-text dark:text-text group-hover:text-primary transition-colors","skaaaDynamicBinding":{"script":"data = [post.title]"}} /-->
+    <!-- wp:skaaaaa-builder/text {"content":"[Tóm tắt bài viết]","tagName":"p","tailwindClasses":"text-sm text-text/70 dark:text-text/70 line-clamp-3 leading-relaxed","skaaaDynamicBinding":{"script":"data = [post.excerpt]"}} /-->
+  <!-- /wp:skaaaaa-builder/container -->
+  <!-- wp:skaaaaa-builder/container {"tagName":"div","tailwindClasses":"pt-6 mt-6 border-t border-border dark:border-border flex items-center justify-between"} -->
+    <!-- wp:skaaaaa-builder/button {"text":"Đọc tiếp","tagName":"a","tailwindClasses":"text-xs font-mono font-medium text-primary hover:opacity-80 transition-opacity inline-flex items-center gap-1.5","skaaaDynamicBinding":{"script":"data.url = [post.permalink]"}} /-->
+    <!-- wp:skaaaaa-builder/text {"content":"[Tác giả]","tagName":"span","tailwindClasses":"text-xs font-mono text-text/50 dark:text-text/50","skaaaDynamicBinding":{"script":"data = [post.author]"}} /-->
+  <!-- /wp:skaaaaa-builder/container -->
+<!-- /wp:skaaaaa-builder/container -->
+```
+
 ---
 
 ## TẦNG 3: ORGANISMS (CẤU KIỆN ĐỘC LẬP TÁI SỬ DỤNG)

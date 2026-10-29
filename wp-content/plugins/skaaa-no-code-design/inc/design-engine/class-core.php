@@ -136,10 +136,26 @@ class Core
     }
 
     /**
-     * Enqueue Alpine Store (Alpine.js is enqueued globally on-demand in blocks/init.php)
+     * Enqueue Alpine Store & Runtime (Alpine.js and Alpine-AJAX are enqueued globally on-demand)
      */
     public function enqueue_tailwind_frontend()
     {
+        // Enqueue Alpine AJAX runtime & Alpine.js
+        if (wp_script_is('skaaa-alpine-ajax', 'registered')) {
+            wp_enqueue_script('skaaa-alpine-ajax');
+        } else {
+            $ajax_js  = SKAAA_DESIGN_PATH . 'assets/js/vendor/alpine-ajax.min.js';
+            $ajax_ver = file_exists($ajax_js) ? filemtime($ajax_js) : '0.12.7';
+            wp_register_script(
+                'skaaa-alpine-ajax',
+                SKAAA_DESIGN_URL . 'assets/js/vendor/alpine-ajax.min.js',
+                array('skaaa-frontend'),
+                $ajax_ver,
+                true
+            );
+            wp_enqueue_script('skaaa-alpine-ajax');
+        }
+
         // Enqueue local Alpine.js (so we can attach inline scripts)
         wp_enqueue_script('skaaa-alpine');
 

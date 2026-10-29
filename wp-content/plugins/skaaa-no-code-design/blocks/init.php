@@ -133,13 +133,23 @@ function skaaa_builder_core_enqueue_extensions() {
 add_action( 'enqueue_block_editor_assets', 'skaaa_builder_core_enqueue_extensions' );
 
 /**
- * Register Alpine.js script (Local file)
+ * Register Alpine.js and Alpine AJAX scripts (Local files)
  */
 function skaaa_builder_core_register_alpine() {
+    $ajax_js  = SKAAA_DESIGN_PATH . 'assets/js/vendor/alpine-ajax.min.js';
+    $ajax_ver = file_exists( $ajax_js ) ? filemtime( $ajax_js ) : '0.12.7';
+    wp_register_script(
+        'skaaa-alpine-ajax',
+        SKAAA_DESIGN_URL . 'assets/js/vendor/alpine-ajax.min.js',
+        array( 'skaaa-frontend' ),
+        $ajax_ver,
+        true
+    );
+
     wp_register_script(
         'skaaa-alpine',
         SKAAA_DESIGN_URL . 'assets/js/alpine.min.js',
-        array( 'skaaa-frontend' ),
+        array( 'skaaa-alpine-ajax' ),
         '3.13.3',
         true
     );
@@ -210,11 +220,12 @@ function skaaa_builder_render_html_attributes( $block_content, $block ) {
             wp_enqueue_script( 'skaaa-alpine' );
         }
 
-        // Inject into the very first HTML opening tag
+        // Inject into the very first HTML opening tag (preserving self-closing slash if present)
         if ( ! empty( $html_attrs ) ) {
-            $block_content = preg_replace( '/^<([a-zA-Z0-9\-]+)([^>]*?)>/', '<$1$2' . $html_attrs . '>', $block_content, 1 );
+            $block_content = preg_replace( '/^<([a-zA-Z0-9\-]+)(.*?)(\s*\/)?>/s', '<$1$2' . $html_attrs . '$3>', $block_content, 1 );
         }
     }
     return $block_content;
 }
 add_filter( 'render_block', 'skaaa_builder_render_html_attributes', 10, 2 );
+

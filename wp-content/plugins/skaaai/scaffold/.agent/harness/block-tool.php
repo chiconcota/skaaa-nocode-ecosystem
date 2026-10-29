@@ -18,7 +18,7 @@
  *   --help, -h            Show usage help
  *
  * @package Skaaai
- * @version 1.2.3
+ * @version 1.3.0
  */
 
 // Define clean CLI die handler before WordPress loads
@@ -78,40 +78,17 @@ class Skaaa_Block_Tool {
         if ( defined( 'ABSPATH' ) && file_exists( ABSPATH . $filename ) ) {
             return ABSPATH . $filename;
         }
-
-        $start_dirs = [
-            __DIR__,
-            getcwd() ?: '',
-        ];
-
-        foreach ( $start_dirs as $start ) {
-            if ( empty( $start ) ) {
-                continue;
-            }
+        foreach ( [ __DIR__, getcwd() ?: '' ] as $start ) {
+            if ( empty( $start ) ) continue;
             $current = $start;
             for ( $i = 0; $i < 10; $i++ ) {
-                $check = $current . '/' . $filename;
-                if ( file_exists( $check ) ) {
-                    return $check;
-                }
+                if ( file_exists( $current . '/' . $filename ) ) return $current . '/' . $filename;
                 $parent = dirname( $current );
-                if ( $parent === $current ) {
-                    break;
-                }
+                if ( $parent === $current ) break;
                 $current = $parent;
             }
         }
-
-        $fallbacks = [
-            '/var/www/html/' . $filename,
-        ];
-        foreach ( $fallbacks as $fb ) {
-            if ( file_exists( $fb ) ) {
-                return $fb;
-            }
-        }
-
-        return null;
+        return file_exists( '/var/www/html/' . $filename ) ? '/var/www/html/' . $filename : null;
     }
 
     /**
@@ -119,25 +96,12 @@ class Skaaa_Block_Tool {
      */
     private static function detect_local_mysql_socket(): ?string {
         $env_socket = getenv( 'DB_SOCKET' ) ?: getenv( 'MYSQL_UNIX_PORT' );
-        if ( $env_socket && file_exists( $env_socket ) ) {
-            return $env_socket;
-        }
+        if ( $env_socket && file_exists( $env_socket ) ) return $env_socket;
 
-        $home = getenv( 'HOME' ) ?: ( $_SERVER['HOME'] ?? '' );
-        if ( empty( $home ) && ! empty( $_SERVER['USERPROFILE'] ) ) {
-            $home = $_SERVER['USERPROFILE'];
-        }
+        $home = getenv( 'HOME' ) ?: ( $_SERVER['HOME'] ?? ( $_SERVER['USERPROFILE'] ?? '' ) );
+        if ( empty( $home ) ) return null;
 
-        if ( empty( $home ) ) {
-            return null;
-        }
-
-        $current_dirs = [
-            realpath( __DIR__ ) ?: __DIR__,
-            realpath( getcwd() ?: '' ) ?: ( getcwd() ?: '' ),
-        ];
-
-        // 1. Try matching Local sites.json to current path
+        $current_dirs = [ realpath( __DIR__ ) ?: __DIR__, realpath( getcwd() ?: '' ) ?: ( getcwd() ?: '' ) ];
         $sites_json_candidates = [
             $home . '/.config/Local/sites.json',
             $home . '/Library/Application Support/Local/sites.json',
@@ -145,53 +109,29 @@ class Skaaa_Block_Tool {
         ];
 
         foreach ( $sites_json_candidates as $sites_file ) {
-            if ( ! file_exists( $sites_file ) || ! is_readable( $sites_file ) ) {
-                continue;
-            }
+            if ( ! file_exists( $sites_file ) || ! is_readable( $sites_file ) ) continue;
             $sites_data = json_decode( (string) file_get_contents( $sites_file ), true );
-            if ( ! is_array( $sites_data ) ) {
-                continue;
-            }
+            if ( ! is_array( $sites_data ) ) continue;
 
             foreach ( $sites_data as $site_id => $site_info ) {
-                if ( empty( $site_info['path'] ) ) {
-                    continue;
-                }
-                $normalized_site_path = str_replace( '~', $home, $site_info['path'] );
-                $real_site_path       = realpath( $normalized_site_path ) ?: $normalized_site_path;
-
+                if ( empty( $site_info['path'] ) ) continue;
+                $real_site_path = realpath( str_replace( '~', $home, $site_info['path'] ) ) ?: str_replace( '~', $home, $site_info['path'] );
                 foreach ( $current_dirs as $c_dir ) {
                     if ( ! empty( $c_dir ) && str_starts_with( $c_dir, $real_site_path ) ) {
-                        $socket_path = $home . "/.config/Local/run/{$site_id}/mysql/mysqld.sock";
-                        if ( file_exists( $socket_path ) ) {
-                            return $socket_path;
-                        }
-                        $mac_socket = $home . "/Library/Application Support/Local/run/{$site_id}/mysql/mysqld.sock";
-                        if ( file_exists( $mac_socket ) ) {
-                            return $mac_socket;
+                        foreach ( [ "{$home}/.config/Local/run/{$site_id}/mysql/mysqld.sock", "{$home}/Library/Application Support/Local/run/{$site_id}/mysql/mysqld.sock" ] as $sp ) {
+                            if ( file_exists( $sp ) ) return $sp;
                         }
                     }
                 }
             }
         }
 
-        // 2. Fallback: Scan active Local run directories for existing mysqld.sock
-        $scan_patterns = [
-            $home . '/.config/Local/run/*/mysql/mysqld.sock',
-            $home . '/Library/Application Support/Local/run/*/mysql/mysqld.sock',
-        ];
-
-        foreach ( $scan_patterns as $pattern ) {
-            $matches = glob( $pattern );
-            if ( ! empty( $matches ) ) {
-                foreach ( $matches as $sock ) {
-                    if ( file_exists( $sock ) ) {
-                        return $sock;
-                    }
-                }
+        // Fallback: Scan active Local run directories for existing mysqld.sock
+        foreach ( [ $home . '/.config/Local/run/*/mysql/mysqld.sock', $home . '/Library/Application Support/Local/run/*/mysql/mysqld.sock' ] as $pattern ) {
+            foreach ( glob( $pattern ) ?: [] as $sock ) {
+                if ( file_exists( $sock ) ) return $sock;
             }
         }
-
         return null;
     }
 
@@ -282,9 +222,22 @@ class Skaaa_Block_Tool {
             }
         }
 
+        // 1.2 Kiểm tra Deprecated Core Query Blocks: Khai tử core/query, core/post-*
+        if ( preg_match_all( '/<!--\s*\/?wp:(core\/(query|post-template|query-pagination|query-pagination-numbers|query-pagination-next|query-pagination-previous|post-title|post-featured-image|post-content|post-excerpt|post-date|post-author|query-no-results|query-title))\b[^\/]*(\/)?-->/s', $content, $core_matches ) ) {
+            $unique_core_blocks = array_unique( $core_matches[1] );
+            foreach ( $unique_core_blocks as $core_block ) {
+                $issues[] = [
+                    'severity' => 'ERROR',
+                    'rule'     => 'Deprecated Core Query Block Detected',
+                    'message'  => "Deprecated WordPress block '{$core_block}' detected. Core query blocks violate Skaaa Flat DOM, pollute HTML with nested div wrappers, and break Tailwind JIT tokens.",
+                    'fix'      => "Replace with 'skaaaaa-builder/loop' (sourceType: 'wp_posts' or 'pagination') and native Skaaa atomic blocks with skaaaDynamicBinding.",
+                ];
+            }
+        }
+
         // 2. Kiểm tra cú pháp comment của các khối Skaaa Atomic Blocks
         $self_closing_types = [ 'text', 'button', 'image', 'icon', 'video', 'svg', 'code', 'input', 'select', 'form-rich-text', 'organism-ref', 'html2tailwind' ];
-        $open_close_types   = [ 'container', 'loop', 'list', 'list-item' ];
+        $open_close_types   = [ 'container', 'list', 'list-item' ]; // Loop is flexible: can be self-closing (organisms) or open-close (inner blocks)
 
         if ( preg_match_all( '/<!--\s*wp:(skaaaaa-builder\/([a-z0-9_-]+))\s*(\{.*?\})?\s*(\/)?-->/s', $content, $block_matches, PREG_SET_ORDER ) ) {
             $blocks_count = count( $block_matches );
@@ -354,12 +307,23 @@ class Skaaa_Block_Tool {
 
                         // 2.1.3 Thẩm định Form Container kích hoạt Skaaa Form Engine
                         if ( $block_type === 'container' && isset( $json_data['tagName'] ) && 'form' === $json_data['tagName'] ) {
-                            if ( empty( $json_data['isSkaaaForm'] ) ) {
+                            $is_ajax_filter = false;
+                            if ( ! empty( $json_data['htmlAttributes'] ) && is_array( $json_data['htmlAttributes'] ) ) {
+                                foreach ( $json_data['htmlAttributes'] as $attr ) {
+                                    $k = $attr['key'] ?? '';
+                                    $v = strtolower( (string) ( $attr['value'] ?? '' ) );
+                                    if ( ( 'method' === $k && 'get' === $v ) || str_starts_with( $k, 'x-target' ) ) {
+                                        $is_ajax_filter = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if ( ! $is_ajax_filter && empty( $json_data['isSkaaaForm'] ) ) {
                                 $issues[] = [
                                     'severity' => 'WARNING',
                                     'rule'     => 'Skaaa Form Engine Inactive',
                                     'message'  => "Form container ('tagName': 'form') lacks '\"isSkaaaForm\": true'. The Skaaa Form Engine (Alpine Controller, automatic validation & submission) will not activate.",
-                                    'fix'      => 'Add "isSkaaaForm": true and "formActionId": "insert_{table_slug}" to container attributes.',
+                                    'fix'      => 'Add "isSkaaaForm": true and "formActionId": "insert_{table_slug}" for CRUD forms, or "method": "get" with "x-target" for search/filter forms.',
                                 ];
                             }
                         }
@@ -389,6 +353,37 @@ class Skaaa_Block_Tool {
                                         'fix'      => 'Add "aspectRatio": "aspect-auto" or custom ratio like "aspect-[W/H]" if image is not 1:1 square.',
                                     ];
                                 }
+                            }
+                        }
+
+                        // 2.1.6 Thẩm định khối Loop Native
+                        if ( $block_type === 'loop' ) {
+                            $source_type = $json_data['sourceType'] ?? ( ! empty( $json_data['sourceTable'] ) ? 'flat_table' : '' );
+                            if ( 'wp_posts' === $source_type ) {
+                                if ( isset( $json_data['postsPerPage'] ) && (int) $json_data['postsPerPage'] <= 0 ) {
+                                    $issues[] = [
+                                        'severity' => 'WARNING',
+                                        'rule'     => 'Loop postsPerPage Invalid',
+                                        'message'  => "Block {$full_name} has invalid postsPerPage: '{$json_data['postsPerPage']}'. Must be a positive integer.",
+                                        'fix'      => "Set 'postsPerPage' to a positive integer (e.g. 6 or 12).",
+                                    ];
+                                }
+                            } elseif ( 'pagination' === $source_type ) {
+                                if ( empty( $json_data['paginationTargetId'] ) ) {
+                                    $issues[] = [
+                                        'severity' => 'ERROR',
+                                        'rule'     => 'Pagination Target Missing',
+                                        'message'  => "Block {$full_name} with sourceType 'pagination' lacks 'paginationTargetId'. Alpine-AJAX requires target container ID(s) to swap content.",
+                                        'fix'      => "Add 'paginationTargetId': 'blog-posts-grid' or target container ID.",
+                                    ];
+                                }
+                            } elseif ( empty( $source_type ) ) {
+                                $issues[] = [
+                                    'severity' => 'WARNING',
+                                    'rule'     => 'Loop Source Undefined',
+                                    'message'  => "Block {$full_name} does not specify 'sourceType' or 'sourceTable'.",
+                                    'fix'      => "Specify 'sourceType': 'wp_posts' | 'pagination' | 'flat_table' and corresponding configuration.",
+                                ];
                             }
                         }
                     }
@@ -453,6 +448,38 @@ class Skaaa_Block_Tool {
                 'message'  => "Multiple x-data declarations found ({$x_data_matches}). Inter-block communication must exclusively use Alpine.store.",
                 'fix'      => 'Use Alpine.store("storeName") for cross-block state rather than nested x-data scopes.',
             ];
+        }
+
+        // 3.1 Kiểm tra cú pháp thuộc tính Alpine-AJAX (x-target, x-target.push)
+        if ( preg_match_all( '/\bx-target(?:\.push|\.nofocus)*\s*=\s*["\']([^"\']+)["\']/i', $content, $target_matches ) ) {
+            foreach ( $target_matches[1] as $target_val ) {
+                $targets = preg_split( '/\s+/', trim( $target_val ) );
+                foreach ( $targets as $t ) {
+                    if ( str_starts_with( $t, '#' ) ) {
+                        $issues[] = [
+                            'severity' => 'ERROR',
+                            'rule'     => 'Alpine-AJAX Target Syntax Error',
+                            'message'  => "Target '{$t}' in x-target directive contains illegal leading '#' prefix. Alpine AJAX expects naked ID tokens (e.g. 'blog-grid', not '#blog-grid').",
+                            'fix'      => "Remove '#' prefix: change '{$t}' to '" . ltrim( $t, '#' ) . "'.",
+                        ];
+                    }
+                }
+            }
+        }
+        if ( preg_match_all( '/"key"\s*:\s*"x-target(?:\.push|\.nofocus)*"\s*,\s*"value"\s*:\s*"([^"]+)"/i', $content, $json_target_matches ) ) {
+            foreach ( $json_target_matches[1] as $target_val ) {
+                $targets = preg_split( '/\s+/', trim( $target_val ) );
+                foreach ( $targets as $t ) {
+                    if ( str_starts_with( $t, '#' ) ) {
+                        $issues[] = [
+                            'severity' => 'ERROR',
+                            'rule'     => 'Alpine-AJAX Target Syntax Error',
+                            'message'  => "Attribute value '{$t}' in htmlAttributes contains illegal leading '#' prefix. Alpine AJAX expects naked ID tokens.",
+                            'fix'      => "Remove '#' prefix: change '{$t}' to '" . ltrim( $t, '#' ) . "'.",
+                        ];
+                    }
+                }
+            }
         }
 
         // 4. Kiểm tra Zero Inline CSS & Zero !important
