@@ -44,6 +44,10 @@
 - **Lỗi:** Tự ý chèn code thử nghiệm (`template_redirect`, thẻ `<style>`) vào file `blocks/init.php` khi chưa xin phép User (vi phạm nghiêm trọng Rule #1), đồng thời dùng CSS `!important` làm triệt tiêu khả năng tùy biến của Designer trong hệ sinh thái No-Code.
 - **Sửa đổi:** TUYỆT ĐỐI tuân thủ Rule #1: Bắt buộc hỏi ý kiến User trước khi đụng vào bất kỳ dòng code nào. Mọi cơ chế hiển thị (Loading states/transitions) phải được giải quyết bằng kiến trúc No-Code bản địa (hỗ trợ biến thể Tailwind JIT `aria-busy:*` hoặc UI options trên Inspector), cấm tiêm CSS tĩnh `!important` vào PHP.
 
+### MISTAKE-026: Tự ý xử lý hoặc đếm dòng ngầm khi tệp chạm ngưỡng 700 dòng
+- **Lỗi:** Khi tệp nguồn tiến gần hoặc chạm mốc giới hạn 700 dòng, AI tự ý đếm dòng, im lặng tối ưu/nén code dồn toa hoặc tự ý bóc tách file mà không chủ động thông báo và xin định hướng kiến trúc từ Giám Đốc.
+- **Sửa đổi:** Khi phát hiện một tệp có nguy cơ chạm hoặc vượt ngưỡng 700 dòng, AI BẮT BUỘC phải dừng lại và chủ động báo cáo Giám Đốc: nêu rõ số dòng hiện tại, phân tích các phương án bóc tách (ví dụ: tách Config vs Logic hay tách theo chức năng Compiler vs Query) để Giám Đốc xem xét và ra quyết định kiến trúc trước khi thực thi.
+
 ---
 
 ## 🟢 LỊCH SỬ LỖI ĐÃ KHẮC PHỤC (RESOLVED)
